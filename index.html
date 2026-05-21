@@ -250,6 +250,23 @@
 </section>
 
 
+<!-- ======== TLDR ======== -->
+<section class="section" style="padding-top: 0; padding-bottom: 2rem;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <div style="background: linear-gradient(135deg, #fff5f5 0%, #fef3e8 100%); border: 2px solid #c0392b; border-radius: 12px; padding: 2rem 2.5rem; box-shadow: 0 2px 12px rgba(192,57,43,0.08);">
+          <div style="font-family: 'Google Sans', sans-serif; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #c0392b; margin-bottom: 0.8rem;">TL;DR</div>
+          <p style="font-size: 1.1rem; line-height: 1.8; color: #222; margin: 0;">
+            Realized representation capacity is not architecture-only; it emerges from the architecture&ndash;optimizer pair. Optimizer geometry changes how added FFN width becomes usable capacity, and in some regimes its effect exceeds controlled architectural interventions.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
 <!-- ======== ABSTRACT ======== -->
 <section class="section">
   <div class="container is-max-desktop">
@@ -259,14 +276,6 @@
         <div class="content has-text-justified">
           <p>
             Scaling laws have made language-model performance predictable from model size, data, and compute, but they typically treat the optimizer as a fixed training detail. We show that this assumption misses a fundamental axis of representation scaling: how effectively the optimizer converts added FFN width into utilized spectral capacity. Using eigenspectra of feed-forward network representations, measured through soft and hard spectral-ranks, we find that the same Transformer architecture realizes markedly different spectral scaling laws when trained with different optimizers. Holding architecture and width schedule fixed, AdamW exhibits weak hard-rank scaling (&beta;=0.44) on rare-token (TAIL) representations where learning is known to be hardest, whereas Muon achieves linear scaling (&beta;=1.02) in the same regimes, a 2.3&times; increase in the scaling exponent. This difference is not reducible to validation loss: AdamW configurations can match low-rank Dion variants in perplexity, under extended training, while exhibiting sharply different spectral geometry, demonstrating that matched loss does not imply matched representation structure. Hard&ndash;soft rank asymmetry further reveals that optimizers differ not only in how much capacity is realized, but also in how that capacity is structured across eigenmodes. To disentangle optimizer effects from architectural ones, we compare against architectural interventions (e.g., attention rank and positional encoding), and find that optimizer-induced spectral shifts often exceed the architectural effects. These results suggest optimization as a first-class axis of representation scaling, motivating optimizer&ndash;architecture co-design.
-          </p>
-        </div>
-
-        <!-- Key Insight Box -->
-        <div class="key-insight">
-          <div class="key-insight-label">Key Insight</div>
-          <p>
-            The <em>same</em> Transformer architecture realizes <em>markedly different</em> spectral scaling laws when trained with different optimizers. AdamW achieves weak hard-rank scaling (&beta;=0.44) on rare-token representations, while Muon achieves linear scaling (&beta;=1.02) &mdash; a <strong>2.3&times; increase</strong> in the scaling exponent. Matched validation loss does not imply matched representation structure.
           </p>
         </div>
 
