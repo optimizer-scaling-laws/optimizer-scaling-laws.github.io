@@ -435,7 +435,7 @@
 </section>
 
 
-<!-- ======== MATCHED LOSS ======== -->
+<!-- ======== MATCHED LOSS ≠ MATCHED GEOMETRY ======== -->
 <section class="section">
   <div class="container is-max-desktop">
     <div class="columns is-centered">
@@ -444,14 +444,129 @@
 
         <div class="content has-text-justified">
           <p>
-            Extended AdamW training matches Dion(1/16) in validation perplexity, but hard-rank scaling collapses &mdash; &beta;<sub>hard</sub> drops from 0.29 to 0.03. Soft-rank scaling remains relatively stable, but hard&ndash;soft asymmetry grows from +0.37 to +0.55. This shows that optimizer-induced spectral scaling is not a transient convergence artifact.
+            Extended AdamW training improves validation perplexity and matches the low-rank Dion control across the FFN-width sweep, but it does not recover representation scaling. Aggregate hard-rank scaling nearly vanishes, dropping from &beta;<sub>hard</sub> = 0.29 at 6K steps to &beta;<sub>hard</sub> = 0.03 at 12K steps, while hard&ndash;soft asymmetry grows from +0.37 to +0.55. Thus, loss can improve while the width-to-capacity scaling law breaks.
           </p>
         </div>
 
-        <div style="text-align: center;">
-          <img src="./static/figures/figure3.png" alt="Extended AdamW training weakens hard-rank scaling" style="width: 100%;">
+        <!-- Table 1: Compact spectral-scaling summary -->
+        <div style="overflow-x: auto; margin-top: 1.5rem;">
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th style="text-align: left;"></th>
+                <th colspan="3" style="border-bottom: 1px solid #999;">Aggregate</th>
+                <th colspan="2" style="border-bottom: 1px solid #999;">HEAD</th>
+                <th colspan="2" style="border-bottom: 1px solid #999;">MID</th>
+                <th colspan="2" style="border-bottom: 1px solid #999;">TAIL</th>
+              </tr>
+              <tr>
+                <th style="text-align: left;">Configuration</th>
+                <th>&beta;<sub>hard</sub></th>
+                <th>&beta;<sub>soft</sub></th>
+                <th>&Delta;<sub>1,2</sub></th>
+                <th>&beta;<sub>hard</sub></th>
+                <th>&Delta;<sub>1,2</sub></th>
+                <th>&beta;<sub>hard</sub></th>
+                <th>&Delta;<sub>1,2</sub></th>
+                <th>&beta;<sub>hard</sub></th>
+                <th>&Delta;<sub>1,2</sub></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>AdamW 6K</td>
+                <td>0.29</td><td>0.66</td><td>+0.37</td>
+                <td>0.26</td><td>+0.18</td>
+                <td>0.24</td><td>+0.21</td>
+                <td>0.44</td><td>+0.18</td>
+              </tr>
+              <tr style="font-weight: 700;">
+                <td>AdamW 12K</td>
+                <td class="highlight-val">0.03</td><td>0.58</td><td class="highlight-val">+0.55</td>
+                <td>0.13</td><td class="highlight-val">+0.28</td>
+                <td>0.17</td><td class="highlight-val">+0.30</td>
+                <td>0.18</td><td class="highlight-val">+0.35</td>
+              </tr>
+              <tr>
+                <td>Dion (1/16) 6K</td>
+                <td>0.50</td><td>0.74</td><td>+0.24</td>
+                <td>0.35</td><td>+0.35</td>
+                <td>0.46</td><td>+0.22</td>
+                <td>0.40</td><td>+0.31</td>
+              </tr>
+            </tbody>
+          </table>
           <p class="has-text-justified fig-caption">
-            <strong>Figure 3:</strong> Extended AdamW training weakens hard-rank scaling. Hard-rank scaling (&beta;<sub>hard</sub>) exhibits diminishing return for TAIL token scaling, while soft-rank scaling remains comparatively stable, leading to increasing hard&ndash;soft asymmetry.
+            <strong>Spectral geometry summary.</strong> AdamW 12K matches the low-rank Dion control in validation perplexity, but its hard-rank scaling nearly vanishes (&beta;<sub>hard</sub>=0.03, R<sup>2</sup>=0.01), whereas Dion maintains reliable power-law scaling. This separates loss improvement from realized-capacity scaling.
+          </p>
+        </div>
+
+        <!-- Table 2: Full perplexity control -->
+        <div style="overflow-x: auto; margin-top: 2rem;">
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th style="text-align: left;">Optimizer</th>
+                <th>d</th><th>2d</th><th>3d</th><th>4d</th><th>5d</th><th>6d</th><th>7d</th><th>8d</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>AdamW 6K</td>
+                <td>38.15</td><td>36.79</td><td>34.12</td><td>34.34</td><td>33.85</td><td>31.68</td><td>32.17</td><td>32.43</td>
+              </tr>
+              <tr style="font-weight: 700;">
+                <td>AdamW 12K</td>
+                <td>34.25</td><td>32.15</td><td>30.40</td><td>30.47</td><td>29.43</td><td>29.04</td><td>28.45</td><td>28.29</td>
+              </tr>
+              <tr>
+                <td>Muon</td>
+                <td>31.79</td><td>29.83</td><td>28.65</td><td>27.90</td><td>27.27</td><td>26.85</td><td>26.43</td><td>26.15</td>
+              </tr>
+              <tr>
+                <td>NorMuon</td>
+                <td>31.77</td><td>29.82</td><td>28.63</td><td>27.82</td><td>27.23</td><td>26.74</td><td>26.29</td><td>25.94</td>
+              </tr>
+              <tr>
+                <td>Dion (1/2)</td>
+                <td>32.06</td><td>30.19</td><td>28.96</td><td>28.28</td><td>27.67</td><td>27.16</td><td>26.83</td><td>26.51</td>
+              </tr>
+              <tr>
+                <td>Dion (1/4)</td>
+                <td>32.61</td><td>30.69</td><td>29.58</td><td>28.79</td><td>28.23</td><td>27.68</td><td>27.41</td><td>27.13</td>
+              </tr>
+              <tr>
+                <td>Dion (1/8)</td>
+                <td>33.21</td><td>31.34</td><td>30.19</td><td>29.51</td><td>28.94</td><td>28.53</td><td>28.22</td><td>27.89</td>
+              </tr>
+              <tr style="font-weight: 700;">
+                <td>Dion (1/16)</td>
+                <td>34.18</td><td>32.41</td><td>31.33</td><td>30.66</td><td>30.08</td><td>29.71</td><td>29.40</td><td>29.23</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="has-text-justified fig-caption">
+            <strong>Perplexity control.</strong> AdamW 12K matches or improves over Dion r=1/16 across the FFN-width sweep, yet their spectral scaling laws differ sharply. Matched loss does not imply matched representation geometry.
+          </p>
+        </div>
+
+        <!-- Figure 3: Beta dynamics -->
+        <div style="text-align: center; margin-top: 2rem;">
+          <img src="./static/figures/figure3.png" alt="Extended AdamW training weakens hard-rank scaling" style="width: 100%;">
+        </div>
+
+        <!-- Figure 10: Hard-rank trajectories -->
+        <div style="text-align: center; margin-top: 1.5rem;">
+          <img src="./static/figures/figure10.png" alt="Hard-rank dynamics under extended AdamW training" style="width: 100%;">
+          <p class="has-text-justified fig-caption">
+            <strong>Extended AdamW training improves loss but breaks hard-capacity scaling.</strong> Top: &beta;<sub>hard</sub> weakens over training while &beta;<sub>soft</sub> remains comparatively stable, increasing hard&ndash;soft asymmetry. Bottom: wider AdamW models peak early and then lose hard-rank capacity faster than narrower models, breaking the monotonic width&ndash;capacity ordering needed for a power-law fit.
+          </p>
+        </div>
+
+        <!-- Final punchline -->
+        <div style="background: #f8f8f8; border-left: 3px solid #333; padding: 1rem 1.5rem; margin-top: 1.5rem; border-radius: 0 6px 6px 0;">
+          <p style="font-size: 1rem; line-height: 1.7; color: #333; margin: 0; font-style: italic;">
+            Standard training logs would report healthy progress: perplexity keeps improving. Spectral telemetry reveals the hidden failure mode: realized hard capacity stops scaling with width.
           </p>
         </div>
 
@@ -564,31 +679,6 @@
   </div>
 </section>
 
-
-<!-- ======== HARD-RANK DYNAMICS (APPENDIX E) ======== -->
-<section class="section">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3 has-text-centered">Hard-Rank Dynamics Under Extended Training</h2>
-
-        <div class="content has-text-justified">
-          <p>
-            Extended AdamW training disrupts the width&ndash;capacity ordering itself. The 8d model peaks early, then drops below narrower models &mdash; breaking the monotonic relationship needed for a power-law fit, <em>despite continuously improving validation perplexity</em>.
-          </p>
-        </div>
-
-        <div style="text-align: center;">
-          <img src="./static/figures/figure10.png" alt="Hard-rank dynamics under extended AdamW training" style="width: 100%;">
-          <p class="has-text-justified fig-caption">
-            <strong>Figure:</strong> Hard-rank dynamics for AdamW extended training. In TAIL, the 8&times; trajectory peaks early, drops sharply after ~7K steps, and falls below the 2&times; trajectory around 8K &mdash; breaking the width&ndash;capacity relationship.
-          </p>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</section>
 
 
 <!-- ======== POSTLN TRAINABILITY (APPENDIX I) ======== -->
