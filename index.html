@@ -237,6 +237,23 @@
 </section>
 
 
+<!-- ======== TLDR ======== -->
+<section class="section" style="padding-top: 0; padding-bottom: 0;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-full has-text-centered">
+        <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); border-radius: 12px; padding: 1.5rem 2rem; box-shadow: 0 8px 30px rgba(0,0,0,0.2);">
+          <div style="font-family: 'Google Sans', sans-serif; font-size: 2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.18em; color: #e74c3c; margin-bottom: 0.6rem;">TL;DR</div>
+          <p style="font-size: 1.65rem; line-height: 1.6; color: #e8e8e8; margin: 0; font-family: 'Google Sans', sans-serif;">
+            Realized representation capacity is not architecture-only; it emerges from the architecture&ndash;optimizer pair. Optimizer geometry changes how added FFN width becomes usable capacity, and in most regimes its effect exceeds controlled architectural interventions.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
 <!-- ======== TEASER FIGURE ======== -->
 <section class="hero teaser">
   <div class="container is-max-desktop">
@@ -245,23 +262,6 @@
       <p class="has-text-justified fig-caption">
         <strong>Figure 1:</strong> Spectral scaling exponents depend on optimizer choice: Soft (left) and hard spectral rank (right) as a function of FFN width in GPT-2 160M. AdamW exhibits the largest hard&ndash;soft asymmetry (&Delta;<sub>1,2</sub> = 0.37), indicating concentrated eigenspectra. Muon and Dion (1/2) reduce this asymmetry to &Delta;<sub>1,2</sub> &asymp; 0.14. Hard-rank scaling exhibits stronger dependence on optimizer choices.
       </p>
-    </div>
-  </div>
-</section>
-
-
-<!-- ======== TLDR ======== -->
-<section class="section" style="padding-top: 0; padding-bottom: 2rem;">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered">
-      <div class="column is-full has-text-centered">
-        <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); border-radius: 12px; padding: 1.5rem 2rem; box-shadow: 0 8px 30px rgba(0,0,0,0.2);">
-          <div style="font-family: 'Google Sans', sans-serif; font-size: 2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.18em; color: #e74c3c; margin-bottom: 0.6rem;">TL;DR</div>
-          <p style="font-size: 1.65rem; line-height: 1.6; color: #e8e8e8; margin: 0; font-family: 'Google Sans', sans-serif;">
-            Realized representation capacity is not architecture-only; it emerges from the architecture&ndash;optimizer pair. Optimizer geometry changes how added FFN width becomes usable capacity, and in some regimes its effect exceeds controlled architectural interventions.
-          </p>
-        </div>
-      </div>
     </div>
   </div>
 </section>
