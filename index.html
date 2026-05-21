@@ -246,7 +246,7 @@
           <div style="font-family: 'Google Sans', sans-serif; font-size: 1.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.18em; color: #e74c3c; margin-bottom: 0.3rem;">TL;DR</div>
           <div style="font-family: 'Google Sans', sans-serif; font-size: 1.8rem; font-weight: 700; color: #ffffff; margin-bottom: 0.8rem; letter-spacing: 0.02em;">Same Architecture, Different Optimizer, Different Capacity</div>
           <p style="font-size: 1.35rem; line-height: 1.6; color: #c8c8c8; margin: 0; font-family: 'Google Sans', sans-serif;">
-            Realized representation capacity is not architecture-only; it emerges from the architecture&ndash;optimizer interaction. Optimizer geometry changes the scaling exponents that govern how FFN width becomes usable capacity, and in controlled comparisons, these optimizer-induced shifts exceed architectural interventions.
+            Realized representation capacity is not architecture-only; it emerges from the architecture&ndash;optimizer interaction. Optimizer geometry changes the scaling exponents that govern how FFN width becomes usable capacity. In controlled comparisons, optimizer-induced shifts in spectral scaling exceed architectural interventions.
           </p>
         </div>
       </div>
@@ -261,8 +261,69 @@
     <div class="hero-body">
       <img src="./static/figures/figure1.png" alt="Spectral scaling exponents depend on optimizer choice" style="width: 100%;">
       <p class="has-text-justified fig-caption">
-        <strong>Figure 1:</strong> Spectral scaling exponents depend on optimizer choice: Soft (left) and hard spectral rank (right) as a function of FFN width in GPT-2 160M. AdamW exhibits the largest hard&ndash;soft asymmetry (&Delta;<sub>1,2</sub> = 0.37), indicating concentrated eigenspectra. Muon and Dion (1/2) reduce this asymmetry to &Delta;<sub>1,2</sub> &asymp; 0.14. Hard-rank scaling exhibits stronger dependence on optimizer choices.
+        <strong>Hard-rank scaling separates optimizers much more sharply than soft-rank scaling.</strong> <strong>Figure 1:</strong> Spectral scaling exponents depend on optimizer choice: Soft (left) and hard spectral rank (right) as a function of FFN width in GPT-2 160M. AdamW exhibits the largest hard&ndash;soft asymmetry (&Delta;<sub>1,2</sub> = 0.37), indicating concentrated eigenspectra. Muon and Dion (1/2) reduce this asymmetry to &Delta;<sub>1,2</sub> &asymp; 0.14. Hard-rank scaling exhibits stronger dependence on optimizer choices.
       </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======== KEY INSIGHTS ======== -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-full">
+        <h2 class="title is-3 has-text-centered">Key Insights</h2>
+        <p class="has-text-centered" style="color: #666; font-size: 0.95rem; margin-top: -1rem; margin-bottom: 2rem;">Five takeaways for representation learning, optimization dynamics, and scaling laws.</p>
+
+        <!-- Row 1: Cards 1 and 2 -->
+        <div class="columns">
+          <div class="column is-half">
+            <div style="background: #fafafa; border: 1px solid #e8e8e8; border-left: 4px solid #c0392b; border-radius: 0 8px 8px 0; padding: 1.4rem 1.6rem; height: 100%;">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #c0392b; font-weight: 600; margin-bottom: 0.4rem;">01</div>
+              <div style="font-family: 'Google Sans', sans-serif; font-weight: 700; font-size: 1rem; color: #1a1a1a; margin-bottom: 0.5rem;">Optimizer geometry changes representation scaling</div>
+              <p style="font-size: 0.92rem; line-height: 1.6; color: #555; margin: 0;">The same Transformer architecture realizes different spectral-capacity scaling laws under different optimizers.</p>
+            </div>
+          </div>
+          <div class="column is-half">
+            <div style="background: #fafafa; border: 1px solid #e8e8e8; border-left: 4px solid #c0392b; border-radius: 0 8px 8px 0; padding: 1.4rem 1.6rem; height: 100%;">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #c0392b; font-weight: 600; margin-bottom: 0.4rem;">02</div>
+              <div style="font-family: 'Google Sans', sans-serif; font-weight: 700; font-size: 1rem; color: #1a1a1a; margin-bottom: 0.5rem;">Added width is not automatically usable capacity</div>
+              <p style="font-size: 0.92rem; line-height: 1.6; color: #555; margin: 0;">Soft rank grows across optimizers, but hard-rank scaling reveals whether added FFN width becomes dominant usable capacity or diffuse spectral mass.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Cards 3 and 4 -->
+        <div class="columns">
+          <div class="column is-half">
+            <div style="background: #fafafa; border: 1px solid #e8e8e8; border-left: 4px solid #c0392b; border-radius: 0 8px 8px 0; padding: 1.4rem 1.6rem; height: 100%;">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #c0392b; font-weight: 600; margin-bottom: 0.4rem;">03</div>
+              <div style="font-family: 'Google Sans', sans-serif; font-weight: 700; font-size: 1rem; color: #1a1a1a; margin-bottom: 0.5rem;">Matched loss does not imply matched geometry</div>
+              <p style="font-size: 0.92rem; line-height: 1.6; color: #555; margin: 0;">Runs with similar validation loss can exhibit sharply different hard-rank scaling and representation structure.</p>
+            </div>
+          </div>
+          <div class="column is-half">
+            <div style="background: #fafafa; border: 1px solid #e8e8e8; border-left: 4px solid #c0392b; border-radius: 0 8px 8px 0; padding: 1.4rem 1.6rem; height: 100%;">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #c0392b; font-weight: 600; margin-bottom: 0.4rem;">04</div>
+              <div style="font-family: 'Google Sans', sans-serif; font-weight: 700; font-size: 1rem; color: #1a1a1a; margin-bottom: 0.5rem;">Capacity allocation is token-frequency dependent</div>
+              <p style="font-size: 0.92rem; line-height: 1.6; color: #555; margin: 0;">MID and TAIL tokens expose the strongest optimizer-induced capacity shifts, showing that optimizer geometry changes how capacity is allocated across the token distribution.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3: Card 5 full-width -->
+        <div class="columns is-centered">
+          <div class="column is-full">
+            <div style="background: #fafafa; border: 1px solid #e8e8e8; border-left: 4px solid #c0392b; border-radius: 0 8px 8px 0; padding: 1.4rem 1.6rem;">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #c0392b; font-weight: 600; margin-bottom: 0.4rem;">05</div>
+              <div style="font-family: 'Google Sans', sans-serif; font-weight: 700; font-size: 1rem; color: #1a1a1a; margin-bottom: 0.5rem;">Optimizer effects can exceed architectural interventions</div>
+              <p style="font-size: 0.92rem; line-height: 1.6; color: #555; margin: 0;">In controlled comparisons, switching optimizers shifts spectral-scaling exponents more than attention-rank or positional-encoding interventions.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 </section>
@@ -278,49 +339,6 @@
           <p>
             Scaling laws have made language-model performance predictable from model size, data, and compute, but they typically treat the optimizer as a fixed training detail. We show that this assumption misses a fundamental axis of representation scaling: how effectively the optimizer converts added FFN width into utilized spectral capacity. Using eigenspectra of feed-forward network representations, measured through soft and hard spectral-ranks, we find that the same Transformer architecture realizes markedly different spectral scaling laws when trained with different optimizers. Holding architecture and width schedule fixed, AdamW exhibits weak hard-rank scaling (&beta;=0.44) on rare-token (TAIL) representations where learning is known to be hardest, whereas Muon achieves linear scaling (&beta;=1.02) in the same regimes, a 2.3&times; increase in the scaling exponent. This difference is not reducible to validation loss: AdamW configurations can match low-rank Dion variants in perplexity, under extended training, while exhibiting sharply different spectral geometry, demonstrating that matched loss does not imply matched representation structure. Hard&ndash;soft rank asymmetry further reveals that optimizers differ not only in how much capacity is realized, but also in how that capacity is structured across eigenmodes. To disentangle optimizer effects from architectural ones, we compare against architectural interventions (e.g., attention rank and positional encoding), and find that optimizer-induced spectral shifts often exceed the architectural effects. These results suggest optimization as a first-class axis of representation scaling, motivating optimizer&ndash;architecture co-design.
           </p>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- ======== KEY FINDINGS ======== -->
-<section class="section">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3 has-text-centered">Key Findings</h2>
-
-        <div class="finding-card">
-          <h3><span class="finding-number">1</span>Optimizer-Induced Spectral Scaling Laws</h3>
-          <p>The same Transformer architecture realizes substantially different FFN spectral-capacity scaling laws depending on the optimizer. Hard-rank scaling spans &beta; &isin; [0.29, 0.82] across optimizers, while soft-rank scaling is clustered in &beta; &isin; [0.66, 1.01]. The hard&ndash;soft asymmetry is itself optimizer-dependent &mdash; a property of the architecture&ndash;optimizer pair, not architecture alone.</p>
-        </div>
-
-        <div class="finding-card">
-          <h3><span class="finding-number">2</span>Matched Loss &ne; Matched Geometry</h3>
-          <p>AdamW trained for 12K steps matches Dion(1/16) in perplexity, but its aggregate hard-rank scaling collapses to &beta;=0.03. Neither learning-rate tuning nor extended training closes the spectral gap. Configurations with matched loss can exhibit distinct spectral geometries.</p>
-        </div>
-
-        <div class="finding-card">
-          <h3><span class="finding-number">3</span>Frequency-Dependent Capacity Allocation</h3>
-          <p>Optimizer-induced scaling varies across token-frequency regimes. The largest AdamW-to-Muon gain appears in mid-frequency tokens (&Delta;&beta; = +0.69), not tail tokens. The optimizer changes not only total capacity but how it is allocated across the token distribution.</p>
-        </div>
-
-        <div class="finding-card">
-          <h3><span class="finding-number">4</span>Update Rank as a Capacity Control Knob</h3>
-          <p>Dion rank sweeps show that reducing update rank from r=1/2 to r=1/16 drops TAIL hard-rank scaling from &beta;=0.88 to &beta;=0.40. Orthonormalization alone is insufficient &mdash; the rank of the optimizer update constrains dominant-mode hard capacity.</p>
-        </div>
-
-        <div class="finding-card">
-          <h3><span class="finding-number">5</span>Optimizer Effects Exceed Architectural Interventions</h3>
-          <p>Optimizer-induced spectral shifts exceed attention-rank architectural shifts in 28 of 30 comparisons. Removing RoPE produces optimizer-dependent redistribution &mdash; the same architectural change has opposite effects under different optimizers.</p>
-        </div>
-
-        <div class="finding-card">
-          <h3><span class="finding-number">6</span>Optimizer&ndash;Architecture Co-Design</h3>
-          <p>Architectural interventions do not induce fixed, optimizer-independent spectral shifts. Increasing per-head attention rank changes which optimizer achieves the best scaling exponent. Optimizer geometry also expands the trainable architecture space &mdash; Muon-family trains PostLN-75 (PPL=32.8) where AdamW diverges.</p>
         </div>
 
       </div>
