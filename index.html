@@ -448,9 +448,12 @@
           </p>
         </div>
 
+        <!-- Subheading: Spectral scaling summary -->
+        <div style="font-family: 'Google Sans', sans-serif; font-size: 1.05rem; font-weight: 600; color: #1a1a1a; margin-top: 1.5rem; margin-bottom: 0.8rem;">Spectral scaling summary</div>
+
         <!-- Table 1: Compact spectral-scaling summary -->
-        <div style="overflow-x: auto; margin-top: 1.5rem;">
-          <table class="results-table">
+        <div style="overflow-x: auto;">
+          <table class="results-table" style="font-size: 0.9rem;">
             <thead>
               <tr>
                 <th style="text-align: left;"></th>
@@ -480,14 +483,14 @@
                 <td>0.24</td><td>+0.21</td>
                 <td>0.44</td><td>+0.18</td>
               </tr>
-              <tr style="font-weight: 700;">
+              <tr style="background: #fff5f2; font-weight: 600;">
                 <td>AdamW 12K</td>
                 <td class="highlight-val">0.03</td><td>0.58</td><td class="highlight-val">+0.55</td>
                 <td>0.13</td><td class="highlight-val">+0.28</td>
                 <td>0.17</td><td class="highlight-val">+0.30</td>
                 <td>0.18</td><td class="highlight-val">+0.35</td>
               </tr>
-              <tr>
+              <tr style="background: #f7f7fb; font-weight: 600;">
                 <td>Dion (1/16) 6K</td>
                 <td>0.50</td><td>0.74</td><td>+0.24</td>
                 <td>0.35</td><td>+0.35</td>
@@ -497,51 +500,61 @@
             </tbody>
           </table>
           <p class="has-text-justified fig-caption">
-            <strong>Spectral geometry summary.</strong> AdamW 12K matches the low-rank Dion control in validation perplexity, but its hard-rank scaling nearly vanishes (&beta;<sub>hard</sub>=0.03, R<sup>2</sup>=0.01), whereas Dion maintains reliable power-law scaling. This separates loss improvement from realized-capacity scaling.
+            <strong>Spectral geometry summary.</strong> AdamW 12K matches the low-rank Dion control in validation perplexity, but its hard-rank scaling nearly vanishes (&beta;<sub>hard</sub>=0.03, R<sup>2</sup>=0.01), whereas Dion maintains reliable power-law scaling.
           </p>
         </div>
 
-        <!-- Table 2: Full perplexity control -->
-        <div style="overflow-x: auto; margin-top: 2rem;">
-          <table class="results-table">
+        <!-- Subheading: Perplexity control -->
+        <div style="font-family: 'Google Sans', sans-serif; font-size: 1.05rem; font-weight: 600; color: #1a1a1a; margin-top: 2rem; margin-bottom: 0.8rem;">Perplexity control across FFN width</div>
+
+        <!-- Table 2: Full perplexity control (compact) -->
+        <div style="overflow-x: auto;">
+          <table class="results-table" style="font-size: 0.86rem;">
             <thead>
               <tr>
-                <th style="text-align: left;">Optimizer</th>
-                <th>d</th><th>2d</th><th>3d</th><th>4d</th><th>5d</th><th>6d</th><th>7d</th><th>8d</th>
+                <th style="text-align: left; padding: 0.42rem 0.5rem;">Optimizer</th>
+                <th style="padding: 0.42rem 0.5rem;">d</th>
+                <th style="padding: 0.42rem 0.5rem;">2d</th>
+                <th style="padding: 0.42rem 0.5rem;">3d</th>
+                <th style="padding: 0.42rem 0.5rem;">4d</th>
+                <th style="padding: 0.42rem 0.5rem;">5d</th>
+                <th style="padding: 0.42rem 0.5rem;">6d</th>
+                <th style="padding: 0.42rem 0.5rem;">7d</th>
+                <th style="padding: 0.42rem 0.5rem;">8d</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>AdamW 6K</td>
-                <td>38.15</td><td>36.79</td><td>34.12</td><td>34.34</td><td>33.85</td><td>31.68</td><td>32.17</td><td>32.43</td>
+                <td style="padding: 0.42rem 0.5rem;">AdamW 6K</td>
+                <td style="padding: 0.42rem 0.5rem;">38.15</td><td style="padding: 0.42rem 0.5rem;">36.79</td><td style="padding: 0.42rem 0.5rem;">34.12</td><td style="padding: 0.42rem 0.5rem;">34.34</td><td style="padding: 0.42rem 0.5rem;">33.85</td><td style="padding: 0.42rem 0.5rem;">31.68</td><td style="padding: 0.42rem 0.5rem;">32.17</td><td style="padding: 0.42rem 0.5rem;">32.43</td>
               </tr>
-              <tr style="font-weight: 700;">
-                <td>AdamW 12K</td>
-                <td>34.25</td><td>32.15</td><td>30.40</td><td>30.47</td><td>29.43</td><td>29.04</td><td>28.45</td><td>28.29</td>
-              </tr>
-              <tr>
-                <td>Muon</td>
-                <td>31.79</td><td>29.83</td><td>28.65</td><td>27.90</td><td>27.27</td><td>26.85</td><td>26.43</td><td>26.15</td>
+              <tr style="background: #fff5f2; font-weight: 600;">
+                <td style="padding: 0.42rem 0.5rem;">AdamW 12K</td>
+                <td style="padding: 0.42rem 0.5rem;">34.25</td><td style="padding: 0.42rem 0.5rem;">32.15</td><td style="padding: 0.42rem 0.5rem;">30.40</td><td style="padding: 0.42rem 0.5rem;">30.47</td><td style="padding: 0.42rem 0.5rem;">29.43</td><td style="padding: 0.42rem 0.5rem;">29.04</td><td style="padding: 0.42rem 0.5rem;">28.45</td><td style="padding: 0.42rem 0.5rem;">28.29</td>
               </tr>
               <tr>
-                <td>NorMuon</td>
-                <td>31.77</td><td>29.82</td><td>28.63</td><td>27.82</td><td>27.23</td><td>26.74</td><td>26.29</td><td>25.94</td>
+                <td style="padding: 0.42rem 0.5rem;">Muon</td>
+                <td style="padding: 0.42rem 0.5rem;">31.79</td><td style="padding: 0.42rem 0.5rem;">29.83</td><td style="padding: 0.42rem 0.5rem;">28.65</td><td style="padding: 0.42rem 0.5rem;">27.90</td><td style="padding: 0.42rem 0.5rem;">27.27</td><td style="padding: 0.42rem 0.5rem;">26.85</td><td style="padding: 0.42rem 0.5rem;">26.43</td><td style="padding: 0.42rem 0.5rem;">26.15</td>
               </tr>
               <tr>
-                <td>Dion (1/2)</td>
-                <td>32.06</td><td>30.19</td><td>28.96</td><td>28.28</td><td>27.67</td><td>27.16</td><td>26.83</td><td>26.51</td>
+                <td style="padding: 0.42rem 0.5rem;">NorMuon</td>
+                <td style="padding: 0.42rem 0.5rem;">31.77</td><td style="padding: 0.42rem 0.5rem;">29.82</td><td style="padding: 0.42rem 0.5rem;">28.63</td><td style="padding: 0.42rem 0.5rem;">27.82</td><td style="padding: 0.42rem 0.5rem;">27.23</td><td style="padding: 0.42rem 0.5rem;">26.74</td><td style="padding: 0.42rem 0.5rem;">26.29</td><td style="padding: 0.42rem 0.5rem;">25.94</td>
               </tr>
               <tr>
-                <td>Dion (1/4)</td>
-                <td>32.61</td><td>30.69</td><td>29.58</td><td>28.79</td><td>28.23</td><td>27.68</td><td>27.41</td><td>27.13</td>
+                <td style="padding: 0.42rem 0.5rem;">Dion (1/2)</td>
+                <td style="padding: 0.42rem 0.5rem;">32.06</td><td style="padding: 0.42rem 0.5rem;">30.19</td><td style="padding: 0.42rem 0.5rem;">28.96</td><td style="padding: 0.42rem 0.5rem;">28.28</td><td style="padding: 0.42rem 0.5rem;">27.67</td><td style="padding: 0.42rem 0.5rem;">27.16</td><td style="padding: 0.42rem 0.5rem;">26.83</td><td style="padding: 0.42rem 0.5rem;">26.51</td>
               </tr>
               <tr>
-                <td>Dion (1/8)</td>
-                <td>33.21</td><td>31.34</td><td>30.19</td><td>29.51</td><td>28.94</td><td>28.53</td><td>28.22</td><td>27.89</td>
+                <td style="padding: 0.42rem 0.5rem;">Dion (1/4)</td>
+                <td style="padding: 0.42rem 0.5rem;">32.61</td><td style="padding: 0.42rem 0.5rem;">30.69</td><td style="padding: 0.42rem 0.5rem;">29.58</td><td style="padding: 0.42rem 0.5rem;">28.79</td><td style="padding: 0.42rem 0.5rem;">28.23</td><td style="padding: 0.42rem 0.5rem;">27.68</td><td style="padding: 0.42rem 0.5rem;">27.41</td><td style="padding: 0.42rem 0.5rem;">27.13</td>
               </tr>
-              <tr style="font-weight: 700;">
-                <td>Dion (1/16)</td>
-                <td>34.18</td><td>32.41</td><td>31.33</td><td>30.66</td><td>30.08</td><td>29.71</td><td>29.40</td><td>29.23</td>
+              <tr>
+                <td style="padding: 0.42rem 0.5rem;">Dion (1/8)</td>
+                <td style="padding: 0.42rem 0.5rem;">33.21</td><td style="padding: 0.42rem 0.5rem;">31.34</td><td style="padding: 0.42rem 0.5rem;">30.19</td><td style="padding: 0.42rem 0.5rem;">29.51</td><td style="padding: 0.42rem 0.5rem;">28.94</td><td style="padding: 0.42rem 0.5rem;">28.53</td><td style="padding: 0.42rem 0.5rem;">28.22</td><td style="padding: 0.42rem 0.5rem;">27.89</td>
+              </tr>
+              <tr style="background: #f7f7fb; font-weight: 600;">
+                <td style="padding: 0.42rem 0.5rem;">Dion (1/16)</td>
+                <td style="padding: 0.42rem 0.5rem;">34.18</td><td style="padding: 0.42rem 0.5rem;">32.41</td><td style="padding: 0.42rem 0.5rem;">31.33</td><td style="padding: 0.42rem 0.5rem;">30.66</td><td style="padding: 0.42rem 0.5rem;">30.08</td><td style="padding: 0.42rem 0.5rem;">29.71</td><td style="padding: 0.42rem 0.5rem;">29.40</td><td style="padding: 0.42rem 0.5rem;">29.23</td>
               </tr>
             </tbody>
           </table>
@@ -550,21 +563,31 @@
           </p>
         </div>
 
+        <!-- Subheading: Why the scaling law breaks -->
+        <div style="font-family: 'Google Sans', sans-serif; font-size: 1.05rem; font-weight: 600; color: #1a1a1a; margin-top: 2rem; margin-bottom: 0.8rem;">Why the scaling law breaks</div>
+
+        <!-- Figure label A -->
+        <div style="font-family: 'Google Sans', sans-serif; font-size: 0.92rem; font-weight: 600; color: #555; margin-bottom: 0.4rem;">A. Scaling exponents over training</div>
+
         <!-- Figure 3: Beta dynamics -->
-        <div style="text-align: center; margin-top: 2rem;">
+        <div style="text-align: center;">
           <img src="./static/figures/figure3.png" alt="Extended AdamW training weakens hard-rank scaling" style="width: 100%;">
         </div>
 
+        <!-- Figure label B -->
+        <div style="font-family: 'Google Sans', sans-serif; font-size: 0.92rem; font-weight: 600; color: #555; margin-top: 1.5rem; margin-bottom: 0.4rem;">B. Width&ndash;capacity ordering breaks</div>
+
         <!-- Figure 10: Hard-rank trajectories -->
-        <div style="text-align: center; margin-top: 1.5rem;">
+        <div style="text-align: center;">
           <img src="./static/figures/figure10.png" alt="Hard-rank dynamics under extended AdamW training" style="width: 100%;">
           <p class="has-text-justified fig-caption">
-            <strong>Extended AdamW training improves loss but breaks hard-capacity scaling.</strong> Top: &beta;<sub>hard</sub> weakens over training while &beta;<sub>soft</sub> remains comparatively stable, increasing hard&ndash;soft asymmetry. Bottom: wider AdamW models peak early and then lose hard-rank capacity faster than narrower models, breaking the monotonic width&ndash;capacity ordering needed for a power-law fit.
+            <strong>Extended AdamW training improves loss but breaks hard-capacity scaling.</strong> (A) &beta;<sub>hard</sub> weakens over training while &beta;<sub>soft</sub> remains comparatively stable, increasing hard&ndash;soft asymmetry. (B) Wider AdamW models peak early and then lose hard-rank capacity faster than narrower models, breaking the monotonic width&ndash;capacity ordering needed for a power-law fit.
           </p>
         </div>
 
-        <!-- Final punchline -->
+        <!-- Final punchline with Takeaway label -->
         <div style="background: #f8f8f8; border-left: 3px solid #333; padding: 1rem 1.5rem; margin-top: 1.5rem; border-radius: 0 6px 6px 0;">
+          <div style="font-family: 'Google Sans', sans-serif; font-size: 0.85rem; font-weight: 700; color: #333; margin-bottom: 0.3rem;">Takeaway</div>
           <p style="font-size: 1rem; line-height: 1.7; color: #333; margin: 0; font-style: italic;">
             Standard training logs would report healthy progress: perplexity keeps improving. Spectral telemetry reveals the hidden failure mode: realized hard capacity stops scaling with width.
           </p>
