@@ -1,1 +1,0 @@
-# optimizer-scaling-laws.github.io

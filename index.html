@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Same Architecture, Different Capacity: We show that optimizer choice changes spectral scaling laws for FFN representation capacity, with AdamW and Muon exhibiting markedly different scaling exponents under identical architecture.">
+  <meta name="keywords" content="scaling laws, optimizer, spectral capacity, feed-forward networks, Muon, AdamW, Dion, representation geometry, LLM, NeurIPS 2026">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Same Architecture, Different Capacity: Optimizer-Induced Spectral Scaling Laws</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <style>
+    .venue-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #e44d26 0%, #c0392b 50%, #8e44ad 100%);
+      color: white;
+      padding: 0.8rem 2.4rem;
+      border-radius: 50px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 15px rgba(228, 77, 38, 0.4);
+      animation: badgeGlow 2s ease-in-out infinite alternate;
+    }
+    @keyframes badgeGlow {
+      from { box-shadow: 0 4px 15px rgba(228, 77, 38, 0.4); }
+      to   { box-shadow: 0 4px 25px rgba(142, 68, 173, 0.6); }
+    }
+    .title.is-3 {
+      margin-bottom: 2rem !important;
+    }
+
+    /* Key insight box */
+    .key-insight {
+      background: #fdf2f2;
+      border-left: 4px solid #c0392b;
+      padding: 1.5rem 2rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1.5rem 0 2.5rem 0;
+    }
+    .key-insight-label {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #c0392b;
+      margin-bottom: 0.5rem;
+    }
+    .key-insight p {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: #333;
+    }
+
+    /* Finding cards */
+    .finding-card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 1.5rem 1.8rem;
+      margin-bottom: 1.2rem;
+    }
+    .finding-card h3 {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 0.6rem;
+    }
+    .finding-card p {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: #444;
+      margin-bottom: 0;
+    }
+    .finding-number {
+      display: inline-block;
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: #c0392b;
+      background: #fdf2f2;
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+      text-align: center;
+      border-radius: 4px;
+      margin-right: 8px;
+    }
+
+    /* Table styling to match NerVE */
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      margin: 1.2rem 0;
+    }
+    .results-table th {
+      text-align: center;
+      padding: 0.5rem 0.6rem;
+      border-bottom: 2px solid #333;
+      font-weight: 600;
+    }
+    .results-table th:first-child {
+      text-align: left;
+    }
+    .results-table td {
+      padding: 0.5rem 0.6rem;
+      text-align: center;
+    }
+    .results-table td:first-child {
+      text-align: left;
+    }
+    .results-table tbody tr {
+      border-bottom: 1px solid #eee;
+    }
+    .results-table tbody tr:last-child {
+      border-bottom: 2px solid #333;
+    }
+    .highlight-val {
+      color: #c0392b;
+      font-weight: 700;
+    }
+
+    /* Figure caption style matching NerVE */
+    .fig-caption {
+      color: #888;
+      font-size: 0.95rem;
+      margin-top: 0.75rem;
+      line-height: 1.6;
+    }
+    .fig-caption strong {
+      color: #666;
+    }
+
+    /* Related work cards */
+    .related-card {
+      background: #f9f9f9;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .related-card h4 {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+    .related-card p {
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: #555;
+      margin-bottom: 0;
+    }
+    .related-card a {
+      color: hsl(204, 86%, 53%);
+    }
+  </style>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+
+<!-- ======== HERO ======== -->
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <!-- Venue Badge -->
+          <div style="margin-bottom: 1.5rem;">
+            <span class="venue-badge">Submitted to NeurIPS 2026</span>
+          </div>
+
+          <h1 class="title is-1 publication-title">Same Architecture, Different Capacity:<br>Optimizer-Induced Spectral Scaling Laws</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://www.nankj.com">Nandan Kumar Jha</a>,</span>
+            <span class="author-block">
+              <a href="https://engineering.nyu.edu/faculty/brandon-reagen">Brandon Reagen</a>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">New York University</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- arXiv Link -->
+              <span class="link-block">
+                <a href="#"
+                   class="external-link button is-normal is-rounded is-dark"
+                   target="_blank">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Code Link -->
+              <span class="link-block">
+                <a href="#"
+                   class="external-link button is-normal is-rounded is-dark"
+                   target="_blank">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code (coming soon)</span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======== TEASER FIGURE ======== -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="./static/figures/figure1.png" alt="Spectral scaling exponents depend on optimizer choice" style="width: 100%;">
+      <p class="has-text-justified fig-caption">
+        <strong>Figure 1:</strong> Spectral scaling exponents depend on optimizer choice: Soft (left) and hard spectral rank (right) as a function of FFN width in GPT-2 160M. AdamW exhibits the largest hard&ndash;soft asymmetry (&Delta;<sub>1,2</sub> = 0.37), indicating concentrated eigenspectra. Muon and Dion (1/2) reduce this asymmetry to &Delta;<sub>1,2</sub> &asymp; 0.14. Hard-rank scaling exhibits stronger dependence on optimizer choices.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======== ABSTRACT ======== -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Scaling laws have made language-model performance predictable from model size, data, and compute, but they typically treat the optimizer as a fixed training detail. We show that this assumption misses a fundamental axis of representation scaling: how effectively the optimizer converts added FFN width into utilized spectral capacity. Using eigenspectra of feed-forward network representations, measured through soft and hard spectral-ranks, we find that the same Transformer architecture realizes markedly different spectral scaling laws when trained with different optimizers. Holding architecture and width schedule fixed, AdamW exhibits weak hard-rank scaling (&beta;=0.44) on rare-token (TAIL) representations where learning is known to be hardest, whereas Muon achieves linear scaling (&beta;=1.02) in the same regimes, a 2.3&times; increase in the scaling exponent. This difference is not reducible to validation loss: AdamW configurations can match low-rank Dion variants in perplexity, under extended training, while exhibiting sharply different spectral geometry, demonstrating that matched loss does not imply matched representation structure. Hard&ndash;soft rank asymmetry further reveals that optimizers differ not only in how much capacity is realized, but also in how that capacity is structured across eigenmodes. To disentangle optimizer effects from architectural ones, we compare against architectural interventions (e.g., attention rank and positional encoding), and find that optimizer-induced spectral shifts often exceed the architectural effects. These results suggest optimization as a first-class axis of representation scaling, motivating optimizer&ndash;architecture co-design.
+          </p>
+        </div>
+
+        <!-- Key Insight Box -->
+        <div class="key-insight">
+          <div class="key-insight-label">Key Insight</div>
+          <p>
+            The <em>same</em> Transformer architecture realizes <em>markedly different</em> spectral scaling laws when trained with different optimizers. AdamW achieves weak hard-rank scaling (&beta;=0.44) on rare-token representations, while Muon achieves linear scaling (&beta;=1.02) &mdash; a <strong>2.3&times; increase</strong> in the scaling exponent. Matched validation loss does not imply matched representation structure.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======== KEY FINDINGS ======== -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3 has-text-centered">Key Findings</h2>
+
+        <div class="finding-card">
+          <h3><span class="finding-number">1</span>Optimizer-Induced Spectral Scaling Laws</h3>
+          <p>The same Transformer architecture realizes substantially different FFN spectral-capacity scaling laws depending on the optimizer. Hard-rank scaling spans &beta; &isin; [0.29, 0.82] across optimizers, while soft-rank scaling is clustered in &beta; &isin; [0.66, 1.01]. The hard&ndash;soft asymmetry is itself optimizer-dependent &mdash; a property of the architecture&ndash;optimizer pair, not architecture alone.</p>
+        </div>
+
+        <div class="finding-card">
+          <h3><span class="finding-number">2</span>Matched Loss &ne; Matched Geometry</h3>
+          <p>AdamW trained for 12K steps matches Dion(1/16) in perplexity, but its aggregate hard-rank scaling collapses to &beta;=0.03. Neither learning-rate tuning nor extended training closes the spectral gap. Configurations with matched loss can exhibit distinct spectral geometries.</p>
+        </div>
+
+        <div class="finding-card">
+          <h3><span class="finding-number">3</span>Frequency-Dependent Capacity Allocation</h3>
+          <p>Optimizer-induced scaling varies across token-frequency regimes. The largest AdamW-to-Muon gain appears in mid-frequency tokens (&Delta;&beta; = +0.69), not tail tokens. The optimizer changes not only total capacity but how it is allocated across the token distribution.</p>
+        </div>
+
+        <div class="finding-card">
+          <h3><span class="finding-number">4</span>Update Rank as a Capacity Control Knob</h3>
+          <p>Dion rank sweeps show that reducing update rank from r=1/2 to r=1/16 drops TAIL hard-rank scaling from &beta;=0.88 to &beta;=0.40. Orthonormalization alone is insufficient &mdash; the rank of the optimizer update constrains dominant-mode hard capacity.</p>
+        </div>
+
+        <div class="finding-card">
+          <h3><span class="finding-number">5</span>Optimizer Effects Exceed Architectural Interventions</h3>
+          <p>Optimizer-induced spectral shifts exceed attention-rank architectural shifts in 28 of 30 comparisons. Removing RoPE produces optimizer-dependent redistribution &mdash; the same architectural change has opposite effects under different optimizers.</p>
+        </div>
+
+        <div class="finding-card">
+          <h3><span class="finding-number">6</span>Optimizer&ndash;Architecture Co-Design</h3>
+          <p>Architectural interventions do not induce fixed, optimizer-independent spectral shifts. Increasing per-head attention rank changes which optimizer achieves the best scaling exponent. Optimizer geometry also expands the trainable architecture space &mdash; Muon-family trains PostLN-75 (PPL=32.8) where AdamW diverges.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======== SPECTRAL SCALING ACROSS FREQUENCY ======== -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3 has-text-centered">Spectral Scaling Across Token-Frequency Regimes</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            We perform spectral scaling analysis separately across token-frequency regimes to see how capacity is allocated for frequent vs. rare tokens. Hard-rank scaling is strongly optimizer-dependent, with the MID and TAIL tokens being the most diagnostic regimes for optimizer-induced scaling effects.
+          </p>
+        </div>
+
+        <div style="text-align: center;">
+          <img src="./static/figures/figure2.png" alt="Optimizer-dependent spectral scaling across token-frequency regimes" style="width: 100%;">
+          <p class="has-text-justified fig-caption">
+            <strong>Figure 2:</strong> Soft spectral rank (top) and hard spectral rank (bottom) as functions of FFN width for HEAD, MID, and TAIL tokens in GPT-2 160M. AdamW exhibits persistent positive hard&ndash;soft asymmetry, indicating that added width contributes mostly to diffuse spectral capacity. Muon and NorMuon reduce this asymmetry to near zero for MID and TAIL tokens.
+          </p>
+        </div>
+
+        <!-- Table 2 -->
+        <div style="margin-top: 2rem; overflow-x: auto;">
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th style="text-align: left;"></th>
+                <th colspan="3" style="border-bottom: 1px solid #999;">HEAD</th>
+                <th colspan="3" style="border-bottom: 1px solid #999;">MID</th>
+                <th colspan="3" style="border-bottom: 1px solid #999;">TAIL</th>
+              </tr>
+              <tr>
+                <th style="text-align: left;">Optimizer</th>
+                <th>&beta;<sub>hard</sub></th>
+                <th>&beta;<sub>soft</sub></th>
+                <th>&Delta;<sub>1,2</sub></th>
+                <th>&beta;<sub>hard</sub></th>
+                <th>&beta;<sub>soft</sub></th>
+                <th>&Delta;<sub>1,2</sub></th>
+                <th>&beta;<sub>hard</sub></th>
+                <th>&beta;<sub>soft</sub></th>
+                <th>&Delta;<sub>1,2</sub></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>AdamW</td>
+                <td>0.26</td><td>0.44</td><td>+0.18</td>
+                <td>0.24</td><td>0.45</td><td>+0.21</td>
+                <td>0.44</td><td>0.62</td><td>+0.18</td>
+              </tr>
+              <tr>
+                <td>Muon</td>
+                <td>0.59</td><td>0.88</td><td>+0.29</td>
+                <td class="highlight-val">0.93</td><td>0.88</td><td>&minus;0.04</td>
+                <td class="highlight-val">1.02</td><td>1.03</td><td>+0.01</td>
+              </tr>
+              <tr>
+                <td>NorMuon</td>
+                <td>0.43</td><td>0.90</td><td>+0.47</td>
+                <td class="highlight-val">0.95</td><td>0.93</td><td>&minus;0.02</td>
+                <td class="highlight-val">1.04</td><td>1.04</td><td>+0.00</td>
+              </tr>
+              <tr>
+                <td>Dion (1/2)</td>
+                <td>0.52</td><td>0.89</td><td>+0.37</td>
+                <td>0.67</td><td>0.82</td><td>+0.15</td>
+                <td>0.88</td><td>0.95</td><td>+0.07</td>
+              </tr>
+              <tr>
+                <td>Dion (1/16)</td>
+                <td>0.35</td><td>0.70</td><td>+0.35</td>
+                <td>0.46</td><td>0.68</td><td>+0.22</td>
+                <td>0.40</td><td>0.72</td><td>+0.31</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="has-text-justified fig-caption">
+            <strong>Table 2:</strong> &beta; values for soft and hard ranks for GPT-2 160M. Positive &Delta;<sub>1,2</sub> indicates concentrated eigenspectra; lower values indicate better utilization of FFN width. Muon and NorMuon achieve near-zero &Delta;<sub>1,2</sub> for MID/TAIL tokens, while AdamW maintains &Delta;<sub>1,2</sub> &asymp; +0.2 across all token-frequency regimes.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======== MATCHED LOSS ≠ MATCHED GEOMETRY ======== -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3 has-text-centered">Matched Loss Does Not Imply Matched Geometry</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            Extended AdamW training matches Dion(1/16) in validation perplexity, but hard-rank scaling collapses &mdash; &beta;<sub>hard</sub> drops from 0.29 to 0.03. Soft-rank scaling remains relatively stable, but hard&ndash;soft asymmetry grows from +0.37 to +0.55. This shows that optimizer-induced spectral scaling is not a transient convergence artifact.
+          </p>
+        </div>
+
+        <div style="text-align: center;">
+          <img src="./static/figures/figure3.png" alt="Extended AdamW training weakens hard-rank scaling" style="width: 100%;">
+          <p class="has-text-justified fig-caption">
+            <strong>Figure 3:</strong> Extended AdamW training weakens hard-rank scaling. Hard-rank scaling (&beta;<sub>hard</sub>) exhibits diminishing return for TAIL token scaling, while soft-rank scaling remains comparatively stable, leading to increasing hard&ndash;soft asymmetry.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======== UPDATE RANK ======== -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3 has-text-centered">Update Rank Constrains Hard-Capacity Scaling</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            Dion provides a controlled intervention: varying the rank fraction r changes the rank of the projected update while preserving orthonormalized-update structure. As rank decreases, TAIL hard-rank scaling drops sharply while soft-rank degrades more gradually.
+          </p>
+        </div>
+
+        <div style="text-align: center;">
+          <img src="./static/figures/figure4.png" alt="Dion rank sweep" style="width: 100%;">
+          <p class="has-text-justified fig-caption">
+            <strong>Figure 4:</strong> TAIL-token spectral scaling for Dion rank sweep. Hard-rank scaling drops from &beta;=0.88 at r=1/2 to &beta;=0.40 at r=1/16, falling into the AdamW regime. Soft-rank scaling degrades more gradually (0.95 &rarr; 0.72) and remains above AdamW.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======== SCALE PERSISTENCE ======== -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3 has-text-centered">Scale Persistence at 350M</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            The optimizer-dependent structure persists at 350M scale. Muon achieves near-linear hard-rank scaling (&beta;<sub>hard</sub> = 1.13, R<sup>2</sup> = 0.94), while AdamW remains clearly sublinear (&beta;<sub>hard</sub> = 0.39, R<sup>2</sup> = 0.82).
+          </p>
+        </div>
+
+        <div style="text-align: center;">
+          <img src="./static/figures/figure5.png" alt="350M scale persistence" style="width: 100%;">
+          <p class="has-text-justified fig-caption">
+            <strong>Figure 5:</strong> Optimizer-dependent TAIL spectral scaling persists at 350M scale. Muon and NorMuon maintain stronger hard-rank scaling than AdamW, while low-rank Dion(1/16) remains in a lower hard-capacity regime.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======== OPTIMIZER VS ARCHITECTURE ======== -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3 has-text-centered">Optimizer Effects Dominate Architectural Interventions</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            We compare optimizer-induced spectral scaling shifts against the effect of increasing per-head attention rank at fixed parameter count. Optimizer-induced gains exceed attention-rank shifts in 28 of 30 comparisons.
+          </p>
+        </div>
+
+        <div style="text-align: center;">
+          <img src="./static/figures/figure6.png" alt="Optimizer effects exceed architectural effects" style="width: 100%;">
+          <p class="has-text-justified fig-caption">
+            <strong>Figure 6:</strong> Optimizer-induced shifts in spectral-scaling exceed attention-rank shifts in GPT-2 160M. Optimizer-induced gains (&Delta;&beta;<sup>&#9733;</sup><sub>opt</sub>, red dashed lines) exceed attention-rank shifts (bars) in 28 of 30 comparisons (marked with &#9733;). The only exceptions occur in HEAD hard-rank scaling.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======== RENYI (APPENDIX C) ======== -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3 has-text-centered">R&eacute;nyi-Family Analysis: Where Optimizer-Induced Capacity Forms</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            The R&eacute;nyi effective-rank family reveals that AdamW&rsquo;s FFN nonlinearity must perform 10&ndash;12&times; larger compensatory reinjection than Muon&rsquo;s, yet still achieves the lowest post-activation rank. Large reinjection is compensatory, not beneficial &mdash; it indicates the optimizer has created a more collapsed pre-activation geometry.
+          </p>
+        </div>
+
+        <div style="text-align: center;">
+          <img src="./static/figures/figure7.png" alt="Renyi family analysis" style="width: 100%;">
+          <p class="has-text-justified fig-caption">
+            <strong>Figure 7:</strong> R&eacute;nyi-family view of optimizer-shaped spectral capacity in GPT-2 350M. Pre-activation rank (left), post-activation rank (middle), and nonlinear reinjection ratio (right). The strongest optimizer separation appears <em>before</em> the FFN nonlinearity.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======== HARD-RANK DYNAMICS (APPENDIX E) ======== -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3 has-text-centered">Hard-Rank Dynamics Under Extended Training</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            Extended AdamW training disrupts the width&ndash;capacity ordering itself. The 8d model peaks early, then drops below narrower models &mdash; breaking the monotonic relationship needed for a power-law fit, <em>despite continuously improving validation perplexity</em>.
+          </p>
+        </div>
+
+        <div style="text-align: center;">
+          <img src="./static/figures/figure10.png" alt="Hard-rank dynamics under extended AdamW training" style="width: 100%;">
+          <p class="has-text-justified fig-caption">
+            <strong>Figure:</strong> Hard-rank dynamics for AdamW extended training. In TAIL, the 8&times; trajectory peaks early, drops sharply after ~7K steps, and falls below the 2&times; trajectory around 8K &mdash; breaking the width&ndash;capacity relationship.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======== POSTLN TRAINABILITY (APPENDIX I) ======== -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3 has-text-centered">Optimizer Geometry Expands the Trainable Architecture Space</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            Beyond capacity scaling, optimizer choice determines which architectures are trainable in the first place. Muon-family optimizers train partial PostLN configurations at useful perplexity where AdamW diverges or collapses.
+          </p>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th style="text-align: left;">Optimizer</th>
+                <th>PostLN-25</th>
+                <th>PostLN-50</th>
+                <th>PostLN-75</th>
+                <th>Full PostLN</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>AdamW (lr=10<sup>&minus;4</sup>)</td>
+                <td>64.6</td>
+                <td>65.6</td>
+                <td>106.7</td>
+                <td>&times;</td>
+              </tr>
+              <tr>
+                <td>AdamW (lr=3&times;10<sup>&minus;4</sup>)</td>
+                <td>41.9</td>
+                <td>&times;</td>
+                <td>&times;</td>
+                <td>&times;</td>
+              </tr>
+              <tr>
+                <td>Muon</td>
+                <td>28.7</td>
+                <td>30.1</td>
+                <td>40.9</td>
+                <td>&times;</td>
+              </tr>
+              <tr>
+                <td>NorMuon</td>
+                <td>28.7</td>
+                <td>29.9</td>
+                <td class="highlight-val">32.8</td>
+                <td>&times;</td>
+              </tr>
+              <tr>
+                <td>Dion (r=1/2)</td>
+                <td>29.1</td>
+                <td>31.7</td>
+                <td>&times;</td>
+                <td>&times;</td>
+              </tr>
+              <tr>
+                <td>Dion (r=1/16)</td>
+                <td>30.7</td>
+                <td>34.7</td>
+                <td>&times;</td>
+                <td>&times;</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="has-text-justified fig-caption">
+            <strong>Table:</strong> Validation perplexity for partial PostLN configurations in GPT-2 160M. &times; denotes diverged runs (PPL &gt; 1000). NorMuon reaches PPL=32.8 at PostLN-75 where AdamW collapses to PPL=106.7.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======== RELATED WORK ======== -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3 has-text-centered">Related Work</h2>
+
+        <div class="content has-text-justified">
+          <p>This paper builds on our prior work on spectral analysis of LLM representations:</p>
+        </div>
+
+        <div class="related-card">
+          <h4>NerVE: Nonlinear Eigenspectrum Dynamics in LLM Feed-Forward Networks</h4>
+          <p>Published at <strong>ICLR 2026</strong>. NerVE showed that FFN nonlinearities reinject variance across eigenmodes, and that optimizer geometry modulates the extent of this reinjection. The present work extends this analysis to the scaling regime.
+          <br><a href="https://nerve-eigenspectrum.github.io/">Project Page</a> &middot; <a href="https://github.com/nerve-eigenspectrum/NerVE">Code</a> &middot; <a href="https://arxiv.org/abs/2603.06922">arXiv</a></p>
+        </div>
+
+        <div class="related-card">
+          <h4>Spectral Scaling Laws in Language Models: How Effectively Do Feed-Forward Networks Use Their Latent Space?</h4>
+          <p>Published at <strong>EMNLP 2025</strong>. Established spectral scaling laws for FFN latent-space utilization under a fixed optimizer. The present work shows that these scaling laws are not invariant to optimizer choice.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======== BIBTEX ======== -->
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{jha2026optimizer,
+  title={Same Architecture, Different Capacity: Optimizer-Induced Spectral Scaling Laws},
+  author={Jha, Nandan Kumar and Reagen, Brandon},
+  year={2026},
+  url={https://optimizer-scaling-laws.github.io}
+}</code></pre>
+  </div>
+</section>
+
+
+<!-- ======== FOOTER ======== -->
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website template is borrowed from the <a
+              href="https://github.com/nerfies/nerfies.github.io">Nerfies</a> project page.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
