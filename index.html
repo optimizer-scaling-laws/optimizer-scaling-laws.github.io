@@ -360,7 +360,7 @@
         <!-- Motivation block -->
         <div class="content has-text-justified">
           <p>
-            <strong>Why stratify by token frequency?</strong> Aggregate spectra can be dominated by frequent tokens, hiding how capacity scales for less frequent regimes. Since language is long-tailed, we split token representations into HEAD, MID, and TAIL regimes and ask whether optimizer geometry changes how capacity is allocated across the token distribution.
+            <strong>Why stratify by token frequency?</strong> Aggregate spectra can be dominated by frequent token occurrences, potentially obscuring how lower-frequency regimes use capacity. We therefore split representations into HEAD, MID, and TAIL regimes, motivated by the long-tailed structure of language and prior work showing that LLMs struggle with long-tail knowledge (<a href="https://proceedings.mlr.press/v202/kandpal23a.html">Kandpal et al., 2023</a>), as well as token-frequency/Zipfian scaling analyses (<a href="https://openreview.net/forum?id=VUbwLjLkws">Kunstner &amp; Bach, 2025</a>).
           </p>
         </div>
 
@@ -454,11 +454,6 @@
             Muon/NorMuon reduce MID/TAIL hard&ndash;soft asymmetry to approximately zero.
           </p>
         </div>
-
-        <!-- Citation footnote -->
-        <p style="font-size: 0.82rem; color: #999; margin-top: 1rem; line-height: 1.5;">
-          This stratification follows the long-tailed/token-frequency motivation used in the paper: aggregate spectra can hide capacity behavior in lower-frequency regimes (<a href="https://proceedings.mlr.press/v202/kandpal23a.html" style="color: #999; text-decoration: underline;">Kandpal et al., ICML 2023</a>), and token-frequency scaling connects naturally to Zipfian language statistics (<a href="https://openreview.net/forum?id=VUbwLjLkws" style="color: #999; text-decoration: underline;">Kunstner &amp; Bach, NeurIPS 2025</a>).
-        </p>
 
       </div>
     </div>
