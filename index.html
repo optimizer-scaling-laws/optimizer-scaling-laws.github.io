@@ -259,10 +259,12 @@
 <section class="hero teaser">
   <div class="container is-max-desktop">
     <div class="hero-body">
+      <p style="font-size: 1.05rem; line-height: 1.6; margin-bottom: 1rem;">
+        <strong>Main result:</strong> Holding architecture and FFN-width schedule fixed, changing only the optimizer produces different spectral scaling laws.
+      </p>
       <img src="./static/figures/figure1.png" alt="Spectral scaling exponents depend on optimizer choice" style="width: 100%;">
       <p class="has-text-justified fig-caption">
-        <strong>Takeaway:</strong> Hard-rank scaling separates optimizers much more sharply than soft-rank scaling.
-        <strong>Figure 1:</strong> Spectral scaling exponents depend on optimizer choice. Soft rank grows with FFN width across optimizers, but hard-rank scaling shows stronger optimizer dependence. AdamW exhibits the largest hard&ndash;soft asymmetry (&Delta;<sub>1,2</sub> = 0.37), while Muon and Dion 1/2 reduce this asymmetry to 0.14.
+        <strong>Takeaway:</strong> Hard-rank scaling separates optimizers much more sharply than soft-rank scaling. Soft rank grows with FFN width across optimizers, but hard-rank scaling is strongly optimizer-dependent: AdamW exhibits weak hard-rank scaling, while Muon achieves much stronger scaling under identical architecture and training data.
       </p>
     </div>
   </div>
@@ -353,18 +355,32 @@
   <div class="container is-max-desktop">
     <div class="columns is-centered">
       <div class="column is-full-width">
-        <h2 class="title is-3 has-text-centered">Spectral Scaling Across Token Regimes</h2>
+        <h2 class="title is-3 has-text-centered">Optimizer Geometry Reallocates Capacity Across Token Regimes</h2>
 
+        <!-- Motivation block -->
         <div class="content has-text-justified">
           <p>
-            We perform spectral scaling analysis separately across token-frequency regimes to see how capacity is allocated for frequent vs. rare tokens. Hard-rank scaling is strongly optimizer-dependent, with the MID and TAIL tokens being the most diagnostic regimes for optimizer-induced scaling effects.
+            <strong>Why stratify by token frequency?</strong> Aggregate spectra can be dominated by frequent tokens, hiding how capacity scales for less frequent regimes. Since language is long-tailed, we split token representations into HEAD, MID, and TAIL regimes and ask whether optimizer geometry changes how capacity is allocated across the token distribution.
           </p>
         </div>
 
+        <!-- Token regime chips -->
+        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+          <span style="background: #f0f0f0; border: 1px solid #ddd; border-radius: 6px; padding: 0.4rem 1rem; font-size: 0.88rem;"><strong>HEAD</strong> frequent tokens</span>
+          <span style="background: #f0f0f0; border: 1px solid #ddd; border-radius: 6px; padding: 0.4rem 1rem; font-size: 0.88rem;"><strong>MID</strong> middle-frequency tokens</span>
+          <span style="background: #f0f0f0; border: 1px solid #ddd; border-radius: 6px; padding: 0.4rem 1rem; font-size: 0.88rem;"><strong>TAIL</strong> lower-frequency tokens</span>
+        </div>
+
+        <!-- Main result -->
+        <p style="font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.2rem;">
+          <strong>Main result:</strong> MID and TAIL tokens expose the clearest optimizer-dependent scaling differences. Muon/NorMuon nearly eliminate hard&ndash;soft asymmetry in these regimes, while AdamW maintains positive asymmetry across all token-frequency regimes.
+        </p>
+
+        <!-- Figure 2 -->
         <div style="text-align: center;">
           <img src="./static/figures/figure2.png" alt="Optimizer-dependent spectral scaling across token-frequency regimes" style="width: 100%;">
           <p class="has-text-justified fig-caption">
-            <strong>Figure 2:</strong> Soft spectral rank (top) and hard spectral rank (bottom) as functions of FFN width for HEAD, MID, and TAIL tokens in GPT-2 160M. AdamW exhibits persistent positive hard&ndash;soft asymmetry, indicating that added width contributes mostly to diffuse spectral capacity. Muon and NorMuon reduce this asymmetry to near zero for MID and TAIL tokens.
+            <strong>Takeaway:</strong> MID and TAIL regimes show the clearest optimizer separation. AdamW maintains positive hard&ndash;soft asymmetry, while Muon/NorMuon drive this asymmetry near zero for MID and TAIL tokens. <strong>Figure 2:</strong> Soft and hard spectral ranks as functions of FFN width for HEAD, MID, and TAIL tokens in GPT-2 160M.
           </p>
         </div>
 
@@ -401,14 +417,14 @@
               <tr>
                 <td>Muon</td>
                 <td>0.59</td><td>0.88</td><td>+0.29</td>
-                <td class="highlight-val">0.93</td><td>0.88</td><td>&minus;0.04</td>
-                <td class="highlight-val">1.02</td><td>1.03</td><td>+0.01</td>
+                <td class="highlight-val">0.93</td><td>0.88</td><td class="highlight-val">&minus;0.04</td>
+                <td class="highlight-val">1.02</td><td>1.03</td><td class="highlight-val">+0.01</td>
               </tr>
               <tr>
                 <td>NorMuon</td>
                 <td>0.43</td><td>0.90</td><td>+0.47</td>
-                <td class="highlight-val">0.95</td><td>0.93</td><td>&minus;0.02</td>
-                <td class="highlight-val">1.04</td><td>1.04</td><td>+0.00</td>
+                <td class="highlight-val">0.95</td><td>0.93</td><td class="highlight-val">&minus;0.02</td>
+                <td class="highlight-val">1.04</td><td>1.04</td><td class="highlight-val">+0.00</td>
               </tr>
               <tr>
                 <td>Dion (1/2)</td>
@@ -425,9 +441,24 @@
             </tbody>
           </table>
           <p class="has-text-justified fig-caption">
-            <strong>Table 2:</strong> &beta; values for soft and hard ranks for GPT-2 160M. Positive &Delta;<sub>1,2</sub> indicates concentrated eigenspectra; lower values indicate better utilization of FFN width. Muon and NorMuon achieve near-zero &Delta;<sub>1,2</sub> for MID/TAIL tokens, while AdamW maintains &Delta;<sub>1,2</sub> &asymp; +0.2 across all token-frequency regimes.
+            <strong>Table 2:</strong> &beta; values for soft and hard ranks for GPT-2 160M. Positive &Delta;<sub>1,2</sub> indicates concentrated eigenspectra; lower values indicate better utilization of FFN width.
           </p>
         </div>
+
+        <!-- Numbers to notice callout -->
+        <div style="background: #f8f8f8; border-left: 3px solid #333; padding: 1rem 1.5rem; margin-top: 1.2rem; border-radius: 0 6px 6px 0;">
+          <div style="font-family: 'Google Sans', sans-serif; font-size: 0.85rem; font-weight: 700; color: #333; margin-bottom: 0.4rem;">Numbers to notice</div>
+          <p style="font-size: 0.95rem; line-height: 1.7; color: #444; margin: 0;">
+            TAIL hard-rank scaling: AdamW 0.44 &rarr; Muon 1.02, a <strong>2.3&times;</strong> larger exponent.<br>
+            MID hard-rank scaling: AdamW 0.24 &rarr; Muon 0.93, the largest absolute gain (+0.69).<br>
+            Muon/NorMuon reduce MID/TAIL hard&ndash;soft asymmetry to approximately zero.
+          </p>
+        </div>
+
+        <!-- Citation footnote -->
+        <p style="font-size: 0.82rem; color: #999; margin-top: 1rem; line-height: 1.5;">
+          This stratification follows the long-tailed/token-frequency motivation used in the paper: aggregate spectra can hide capacity behavior in lower-frequency regimes (<a href="https://proceedings.mlr.press/v202/kandpal23a.html" style="color: #999; text-decoration: underline;">Kandpal et al., ICML 2023</a>), and token-frequency scaling connects naturally to Zipfian language statistics (<a href="https://openreview.net/forum?id=VUbwLjLkws" style="color: #999; text-decoration: underline;">Kunstner &amp; Bach, NeurIPS 2025</a>).
+        </p>
 
       </div>
     </div>
