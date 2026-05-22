@@ -102,12 +102,12 @@
     .results-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.92rem;
+      font-size: 0.95rem;
       margin: 1.2rem 0;
     }
     .results-table th {
       text-align: center;
-      padding: 0.5rem 0.6rem;
+      padding: 0.5rem 0.8rem;
       border-bottom: 2px solid #333;
       font-weight: 600;
     }
@@ -115,7 +115,7 @@
       text-align: left;
     }
     .results-table td {
-      padding: 0.5rem 0.6rem;
+      padding: 0.5rem 0.8rem;
       text-align: center;
     }
     .results-table td:first-child {
@@ -262,7 +262,7 @@
       <img src="./static/figures/figure1.png" alt="Spectral scaling exponents depend on optimizer choice" style="width: 100%;">
       <p class="has-text-justified fig-caption">
         <strong>Takeaway:</strong> Hard-rank scaling separates optimizers much more sharply than soft-rank scaling.
-        <strong>Figure 1:</strong> Spectral scaling exponents depend on optimizer choice. Soft rank grows with FFN width across optimizers, but hard-rank scaling shows stronger optimizer dependence. AdamW exhibits the largest hard&ndash;soft asymmetry (&Delta;<sub>1,2</sub> = 0.37), while Muon and Dion 1/2 reduce this asymmetry to &Delta;<sub>1,2</sub> &asymp; 0.14.
+        <strong>Figure 1:</strong> Spectral scaling exponents depend on optimizer choice. Soft rank grows with FFN width across optimizers, but hard-rank scaling shows stronger optimizer dependence. AdamW exhibits the largest hard&ndash;soft asymmetry (&Delta;<sub>1,2</sub> = 0.37), while Muon and Dion 1/2 reduce this asymmetry to 0.14.
       </p>
     </div>
   </div>
@@ -453,7 +453,7 @@
 
         <!-- Table 1: Compact spectral-scaling summary -->
         <div style="overflow-x: auto;">
-          <table class="results-table" style="font-size: 0.9rem;">
+          <table class="results-table" style="font-size: 0.95rem;">
             <thead>
               <tr>
                 <th style="text-align: left;"></th>
