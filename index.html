@@ -352,7 +352,7 @@
 <section class="section">
   <div class="container is-max-desktop">
     <div class="columns is-centered">
-      <div class="column is-four-fifths">
+      <div class="column is-full-width">
         <h2 class="title is-3 has-text-centered">Spectral Scaling Across Token Regimes</h2>
 
         <div class="content has-text-justified">
@@ -439,7 +439,7 @@
 <section class="section">
   <div class="container is-max-desktop">
     <div class="columns is-centered">
-      <div class="column is-four-fifths">
+      <div class="column is-full-width">
         <h2 class="title is-3 has-text-centered">Matched Loss &ne; Matched Geometry</h2>
 
         <div class="content has-text-justified">
@@ -603,7 +603,7 @@
 <section class="section">
   <div class="container is-max-desktop">
     <div class="columns is-centered">
-      <div class="column is-four-fifths">
+      <div class="column is-full-width">
         <h2 class="title is-3 has-text-centered">Update Rank Constrains Hard-Capacity Scaling</h2>
 
         <div class="content has-text-justified">
@@ -629,7 +629,7 @@
 <section class="section">
   <div class="container is-max-desktop">
     <div class="columns is-centered">
-      <div class="column is-four-fifths">
+      <div class="column is-full-width">
         <h2 class="title is-3 has-text-centered">Scale Persistence at 350M</h2>
 
         <div class="content has-text-justified">
@@ -655,8 +655,8 @@
 <section class="section">
   <div class="container is-max-desktop">
     <div class="columns is-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3 has-text-centered">Optimizer Effects Dominate Architecture</h2>
+      <div class="column is-full-width">
+        <h2 class="title is-3 has-text-centered">Optimizer Effects Can Dominate Architectural Interventions</h2>
 
         <div class="content has-text-justified">
           <p>
@@ -681,7 +681,7 @@
 <section class="section">
   <div class="container is-max-desktop">
     <div class="columns is-centered">
-      <div class="column is-four-fifths">
+      <div class="column is-full-width">
         <h2 class="title is-3 has-text-centered">R&eacute;nyi View of Optimizer-Induced Capacity</h2>
 
         <div class="content has-text-justified">
@@ -708,8 +708,8 @@
 <section class="section">
   <div class="container is-max-desktop">
     <div class="columns is-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3 has-text-centered">Optimizer Expands Trainable Architecture Space</h2>
+      <div class="column is-full-width">
+        <h2 class="title is-3 has-text-centered">Optimizer Geometry Expands the Trainable Architecture Space</h2>
 
         <div class="content has-text-justified">
           <p>
@@ -784,39 +784,45 @@
 </section>
 
 
-<!-- ======== RELATED WORK ======== -->
+<!-- ======== RESEARCH LINEAGE ======== -->
 <section class="section">
   <div class="container is-max-desktop">
     <div class="columns is-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3 has-text-centered">Related Work</h2>
+      <div class="column is-full-width">
+        <h2 class="title is-3 has-text-centered">Research Lineage</h2>
 
         <div class="content has-text-justified">
-          <p>This paper builds on our prior work on spectral analysis of LLM representations:</p>
+          <p>This paper extends a line of work on FFN representation geometry in language models: from nonlinear eigenspectrum dynamics, to spectral scaling laws under a fixed optimizer, to optimizer-induced scaling laws of realized capacity.</p>
         </div>
 
         <div class="related-card">
           <h4>NerVE: Nonlinear Eigenspectrum Dynamics in LLM Feed-Forward Networks</h4>
-          <p>Published at <strong>ICLR 2026</strong>. NerVE showed that FFN nonlinearities reinject variance across eigenmodes, and that optimizer geometry modulates the extent of this reinjection. The present work extends this analysis to the scaling regime.
+          <p>Published at <strong>ICLR 2026</strong>. NerVE studied how FFN nonlinearities reshape representation spectra at a fixed model width, showing that nonlinearities can reinject variance across eigendirections and that optimizer geometry modulates this redistribution. The present work lifts this fixed-width analysis into the scaling regime, asking how optimizer geometry changes the law by which added FFN width becomes realized capacity.
           <br><a href="https://nerve-eigenspectrum.github.io/">Project Page</a></p>
-          <pre style="background: #f0f0f0; padding: 0.8rem 1rem; border-radius: 4px; font-size: 0.78rem; margin-top: 0.8rem; overflow-x: auto;"><code>@inproceedings{jha2026nerve,
+          <details style="margin-top: 0.6rem;">
+            <summary style="cursor: pointer; font-size: 0.85rem; color: #888; font-weight: 600;">BibTeX</summary>
+            <pre style="background: #f0f0f0; padding: 0.8rem 1rem; border-radius: 4px; font-size: 0.78rem; margin-top: 0.5rem; overflow-x: auto;"><code>@inproceedings{jha2026nerve,
   title={NerVE: Nonlinear Eigenspectrum Dynamics in LLM Feed-Forward Networks},
   author={Nandan Kumar Jha and Brandon Reagen},
   booktitle={The Fourteenth International Conference on Learning Representations (ICLR)},
   year={2026}
 }</code></pre>
+          </details>
         </div>
 
         <div class="related-card">
           <h4>Spectral Scaling Laws in Language Models: How Effectively Do Feed-Forward Networks Use Their Latent Space?</h4>
-          <p>Published at <strong>EMNLP 2025</strong>. Established spectral scaling laws for FFN latent-space utilization under a fixed optimizer. The present work shows that these scaling laws are not invariant to optimizer choice.
+          <p>Published at <strong>EMNLP 2025</strong>. This work established spectral scaling laws for FFN latent-space utilization under a fixed optimizer, showing that soft and hard spectral ranks scale differently with FFN width and revealing a hard&ndash;soft asymmetry in how added width is used. The present work shows that this asymmetry is not architecture-invariant: optimizer choice can change the scaling exponents themselves.
           <br><a href="https://arxiv.org/abs/2510.00537">arXiv</a></p>
-          <pre style="background: #f0f0f0; padding: 0.8rem 1rem; border-radius: 4px; font-size: 0.78rem; margin-top: 0.8rem; overflow-x: auto;"><code>@inproceedings{jha2025spectral,
+          <details style="margin-top: 0.6rem;">
+            <summary style="cursor: pointer; font-size: 0.85rem; color: #888; font-weight: 600;">BibTeX</summary>
+            <pre style="background: #f0f0f0; padding: 0.8rem 1rem; border-radius: 4px; font-size: 0.78rem; margin-top: 0.5rem; overflow-x: auto;"><code>@inproceedings{jha2025spectral,
   title={Spectral Scaling Laws in Language Models: How Effectively Do Feed-Forward Networks Use Their Latent Space?},
   author={Jha, Nandan Kumar and Reagen, Brandon},
   booktitle={Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing},
   year={2025}
 }</code></pre>
+          </details>
         </div>
 
       </div>
