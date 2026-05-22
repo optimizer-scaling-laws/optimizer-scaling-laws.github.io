@@ -634,25 +634,25 @@
 
         <div class="content has-text-justified">
           <p>
-            <strong>Why Dion?</strong> Dion provides a controlled intervention: it varies the rank of the projected optimizer update while preserving orthonormalized-update structure. This lets us ask whether orthonormalization alone is sufficient, or whether update rank controls how added FFN width becomes usable hard capacity.
+            <strong>Why Dion?</strong> Dion provides a controlled intervention: it varies the rank of the projected optimizer update while preserving orthonormalized-update structure. This lets us separate the effect of update geometry from update rank, and ask whether orthonormalization alone is sufficient.
           </p>
           <p>
             <strong>Main result:</strong> Update rank acts as a hard-capacity bottleneck. As the Dion rank fraction decreases, TAIL hard-rank scaling drops sharply, while soft-rank scaling degrades more gradually.
           </p>
         </div>
 
-        <div style="text-align: center;">
+        <div style="text-align: center; margin-top: 1.5rem;">
           <img src="./static/figures/figure4.png" alt="Dion rank sweep" style="width: 100%;">
           <p class="has-text-justified fig-caption">
-            <strong>Figure 4:</strong> TAIL-token spectral scaling under Dion rank sweeps. As update rank decreases from <em>r</em>=1/2 to <em>r</em>=1/16, hard-rank scaling drops from &beta;=0.88 to &beta;=0.40, approaching the AdamW regime. Soft-rank scaling degrades more gradually (0.95 &rarr; 0.72), indicating that low update rank primarily limits dominant-mode hard capacity rather than all spectral growth.
+            <strong>Figure 4:</strong> TAIL-token spectral scaling under Dion rank sweeps. As the Dion rank fraction decreases from <em>r</em>=1/2 to <em>r</em>=1/16, hard-rank scaling drops from &beta;=0.88 to &beta;=0.40, approaching the AdamW regime. Soft-rank scaling degrades more gradually (0.95 &rarr; 0.72), indicating that low update rank primarily limits dominant-mode hard capacity rather than all spectral growth.
           </p>
         </div>
 
         <!-- Takeaway box -->
         <div style="background: #fafafa; border-left: 4px solid #c0392b; padding: 1.1rem 1.5rem; margin-top: 1.8rem; border-radius: 0 8px 8px 0;">
           <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #c0392b; margin-bottom: 0.45rem;">Takeaway</div>
-          <p style="font-size: 1rem; line-height: 1.7; color: #333; margin: 0; font-style: italic;">
-            Orthonormalization alone is not enough. The optimizer must have sufficient update rank to convert added FFN width into dominant-mode capacity.
+          <p style="font-size: 1rem; line-height: 1.7; color: #333; margin: 0;">
+            <em>Orthonormalization alone is not enough.</em> The optimizer must have sufficient update rank to convert added FFN width into dominant-mode capacity.
           </p>
         </div>
 
