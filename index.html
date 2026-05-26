@@ -166,6 +166,52 @@
     .related-card a {
       color: hsl(204, 86%, 53%);
     }
+
+    /* Formula / math box */
+    .math-box {
+      background: #f7f8fa;
+      border-left: 4px solid #4a5568;
+      padding: 1.1rem 1.4rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1.4rem 0 1.8rem 0;
+      font-size: 0.96rem;
+      line-height: 1.65;
+      color: #333;
+      overflow-x: auto;
+    }
+    .math-box strong {
+      color: #1a1a1a;
+    }
+    .math-box .citation {
+      display: block;
+      margin-top: 0.6rem;
+      font-size: 0.82rem;
+      color: #888;
+      font-style: italic;
+    }
+
+    /* Renyi callouts */
+    .renyi-callout {
+      background: #fafafa;
+      border-left: 4px solid #c0392b;
+      padding: 1rem 1.3rem;
+      border-radius: 0 8px 8px 0;
+      margin-top: 1rem;
+    }
+    .renyi-callout-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #c0392b;
+      margin-bottom: 0.4rem;
+    }
+    .renyi-callout p {
+      font-size: 0.92rem;
+      line-height: 1.65;
+      color: #444;
+      margin: 0;
+    }
   </style>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -173,6 +219,18 @@
   <script src="./static/js/bulma-carousel.min.js"></script>
   <script src="./static/js/bulma-slider.min.js"></script>
   <script src="./static/js/index.js"></script>
+
+  <!-- MathJax for LaTeX rendering (Renyi formula box, inline math) -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 
@@ -715,7 +773,7 @@
             We reduce the number of attention heads from 12 to 6, which increases per-head attention rank at fixed total parameter count. We then compare the resulting architecture-induced change in spectral-scaling exponent against the optimizer-induced change under the original architecture.
           </p>
           <p>
-            <strong>Main result:</strong> Optimizer-induced gains exceed attention-rank-induced shifts in 28 of 30 comparisons. The only exceptions occur in HEAD hard-rank scaling, making MID and TAIL regimes the clearest evidence that optimizer geometry can shift representation scaling more than this architectural intervention.
+            <strong>Main result:</strong> Optimizer-induced gains exceed attention-rank-induced shifts in 28 of 30 comparisons. The only exceptions occur in HEAD hard-rank scaling. In MID and TAIL regimes, optimizer geometry produces the larger spectral-scaling shift.
           </p>
         </div>
 
@@ -745,19 +803,58 @@
   <div class="container is-max-desktop">
     <div class="columns is-centered">
       <div class="column is-full-width">
-        <h2 class="title is-3 has-text-centered">R&eacute;nyi Analysis: Where Optimizer-Induced Capacity Forms?</h2>
+        <h2 class="title is-3 has-text-centered">A R&eacute;nyi Lens on Where Optimizer-Induced Capacity Forms</h2>
 
         <div class="content has-text-justified">
           <p>
-            The R&eacute;nyi effective-rank family reveals that AdamW&rsquo;s FFN nonlinearity must perform 10&ndash;12&times; larger compensatory reinjection than Muon&rsquo;s, yet still achieves the lowest post-activation rank. Large reinjection is compensatory, not beneficial &mdash; it indicates the optimizer has created a more collapsed pre-activation geometry.
+            <strong>Why R&eacute;nyi effective rank?</strong> Soft and hard rank are two anchor points of a broader R&eacute;nyi family. By varying the R&eacute;nyi order \(\alpha\), we can probe whether optimizer-induced capacity appears in weak eigendirections, entropy-weighted spread, or dominant spectral modes.
           </p>
         </div>
 
-        <div style="text-align: center;">
+        <!-- Renyi effective-rank formula box -->
+        <div class="math-box">
+          <strong>R&eacute;nyi effective rank.</strong>
+          Given normalized eigenvalues \(p_i = \lambda_i / \sum_j \lambda_j\),
+          \[
+            H_\alpha(p)=\frac{1}{1-\alpha}\log\sum_i p_i^\alpha,
+            \qquad
+            R_\alpha(p)=\exp(H_\alpha(p)).
+          \]
+          Lower \(\alpha\) gives more weight to weak eigendirections; higher \(\alpha\) emphasizes dominant modes. \(R_1\) recovers soft rank and \(R_2\) corresponds to participation-ratio hard rank.
+          <span class="citation">(<a href="https://projecteuclid.org/proceedings/berkeley-symposium-on-mathematical-statistics-and-probability/Proceedings-of-the-Fourth-Berkeley-Symposium-on-Mathematical-Statistics-and/Chapter/On-Measures-of-Entropy-and-Information/bsmsp/1200512181?tab=ChapterArticleLink">R&eacute;nyi, 1961</a>; <a href="https://ieeexplore.ieee.org/document/7098875">Roy &amp; Vetterli, 2007</a>)</span>
+        </div>
+
+        <div class="content has-text-justified">
+          <p>
+            We measure pre-activation rank, post-activation rank, and nonlinear reinjection \(\rho_\alpha = R_\alpha^{\text{post}} / R_\alpha^{\text{pre}}\). The strongest optimizer separation appears before the FFN nonlinearity: AdamW enters the nonlinearity with a more collapsed precursor spectrum, forcing much larger compensatory reinjection than Muon/NorMuon.
+          </p>
+        </div>
+
+        <div style="text-align: center; margin-top: 1.5rem;">
           <img src="./static/figures/figure7.png" alt="Renyi family analysis" style="width: 100%;">
           <p class="has-text-justified fig-caption">
-            <strong>Figure 7:</strong> R&eacute;nyi-family view of optimizer-shaped spectral capacity in GPT-2 350M. Pre-activation rank (left), post-activation rank (middle), and nonlinear reinjection ratio (right). The strongest optimizer separation appears <em>before</em> the FFN nonlinearity.
+            <strong>Figure 7:</strong> R&eacute;nyi-family view of optimizer-shaped spectral capacity in GPT-2 350M. Left: pre-activation rank. Middle: post-activation rank. Right: nonlinear reinjection ratio \(\rho_\alpha = R_\alpha^{\text{post}} / R_\alpha^{\text{pre}}\). The strongest optimizer separation appears <strong>before</strong> the FFN nonlinearity.
           </p>
+        </div>
+
+        <!-- Two compact callouts -->
+        <div class="columns" style="margin-top: 1.2rem;">
+          <div class="column">
+            <div class="renyi-callout" style="height: 100%;">
+              <div class="renyi-callout-label">Compensatory reinjection</div>
+              <p>
+                Large nonlinear reinjection is not necessarily beneficial. It can indicate that the optimizer produced a collapsed pre-activation geometry that the FFN nonlinearity must compensate for.
+              </p>
+            </div>
+          </div>
+          <div class="column">
+            <div class="renyi-callout" style="height: 100%;">
+              <div class="renyi-callout-label">Hidden by a single rank</div>
+              <p>
+                At high R&eacute;nyi order \(\alpha = 5\), Dion \(r = 1/16\) has much lower pre-activation rank than Muon/NorMuon, yet its post-activation rank can slightly exceed them. This rank-order reversal shows why effective rank should be treated as a family of probes, not a single scalar.
+              </p>
+            </div>
+          </div>
         </div>
 
       </div>
