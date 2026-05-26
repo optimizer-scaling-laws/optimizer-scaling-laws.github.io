@@ -667,19 +667,34 @@
   <div class="container is-max-desktop">
     <div class="columns is-centered">
       <div class="column is-full-width">
-        <h2 class="title is-3 has-text-centered">Scale Persistence at 350M</h2>
+        <h2 class="title is-3 has-text-centered">Optimizer-Dependent Scaling Persists at 350M</h2>
 
         <div class="content has-text-justified">
           <p>
-            The optimizer-dependent structure persists at 350M scale. Muon achieves near-linear hard-rank scaling (&beta;<sub>hard</sub> = 1.13, R<sup>2</sup> = 0.94), while AdamW remains clearly sublinear (&beta;<sub>hard</sub> = 0.39, R<sup>2</sup> = 0.82).
+            <strong>Why this matters:</strong> A spectral scaling law is only meaningful if the optimizer-dependent ordering is not tied to one model size. We therefore repeat the TAIL-token scaling experiment at 350M using a coarser four-point FFN-width sweep as a scale-replication check of the denser 160M results.
+          </p>
+          <p>
+            The same qualitative ordering persists: Muon achieves near-linear TAIL hard-rank scaling (&beta;<sub>hard</sub> = 1.13), NorMuon remains strong (0.88), while AdamW remains sublinear (0.39). Low-rank Dion <em>r</em> = 1/16 also remains in a lower hard-capacity regime (0.48).
           </p>
         </div>
 
-        <div style="text-align: center;">
+        <!-- Scale check callout (replaces full Table 5) -->
+        <div style="background: #f8f8f8; border-left: 3px solid #333; padding: 1rem 1.5rem; margin-top: 1.2rem; border-radius: 0 6px 6px 0;">
+          <div style="font-family: 'Google Sans', sans-serif; font-size: 0.85rem; font-weight: 700; color: #333; margin-bottom: 0.4rem;">Scale check: 160M &rarr; 350M</div>
+          <p style="font-size: 0.95rem; line-height: 1.7; color: #444; margin: 0;">
+            TAIL hard-rank scaling preserves the optimizer ordering: AdamW 0.44 &rarr; 0.39, Muon 1.02 &rarr; 1.13, NorMuon 1.04 &rarr; 0.88, Dion 1/16 0.40 &rarr; 0.48.<br>
+            Hard&ndash;soft asymmetry also persists: AdamW remains positive (+0.18 &rarr; +0.19), while Dion 1/16 remains elevated (+0.31 &rarr; +0.27).
+          </p>
+        </div>
+
+        <div style="text-align: center; margin-top: 1.5rem;">
           <img src="./static/figures/figure5.png" alt="350M scale persistence" style="width: 100%;">
           <p class="has-text-justified fig-caption">
-            <strong>Figure 5:</strong> Optimizer-dependent TAIL spectral scaling persists at 350M scale. Muon and NorMuon maintain stronger hard-rank scaling than AdamW, while low-rank Dion(1/16) remains in a lower hard-capacity regime.
+            <strong>Figure 5:</strong> Optimizer-dependent TAIL spectral scaling persists at 350M. Muon and NorMuon maintain stronger hard-rank scaling than AdamW, while low-rank Dion 1/16 remains in a lower hard-capacity regime. This coarser four-point sweep serves as a scale-replication check of the denser 160M results.
           </p>
+          <div style="margin-top: 0.9rem;">
+            <span style="display: inline-block; background: #f0f0f0; color: #555; padding: 0.35rem 1rem; border-radius: 50px; font-family: 'Google Sans', sans-serif; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.02em;">160M &rarr; 350M &middot; trend replicated</span>
+          </div>
         </div>
 
       </div>
