@@ -806,7 +806,7 @@
   <div class="container is-max-desktop">
     <div class="columns is-centered">
       <div class="column is-full-width">
-        <h2 class="title is-3 has-text-centered">A R&eacute;nyi Lens on Where Optimizer-Induced Capacity Forms</h2>
+        <h2 class="title is-3 has-text-centered">A R&eacute;nyi Lens on Where Optimizer-Induced Capacity Emerges</h2>
 
         <div class="content has-text-justified">
           <p>
@@ -872,7 +872,7 @@
   <div class="container is-max-desktop">
     <div class="columns is-centered">
       <div class="column is-full-width">
-        <h2 class="title is-3 has-text-centered">Optimizer Geometry Expands Trainable Architecture Space</h2>
+        <h2 class="title is-3 has-text-centered">Optimizer Geometry Expands the Trainable Architecture Space</h2>
 
         <div class="content has-text-justified">
           <p>
@@ -938,6 +938,14 @@
           </table>
           <p class="has-text-justified fig-caption">
             <strong>Table:</strong> Validation perplexity for partial PostLN configurations in GPT-2 160M. &times; denotes diverged runs (PPL &gt; 1000). NorMuon reaches PPL=32.8 at PostLN-75 where AdamW collapses to PPL=106.7.
+          </p>
+        </div>
+
+        <!-- Takeaway box -->
+        <div style="background: #fafafa; border-left: 4px solid #c0392b; padding: 1.1rem 1.5rem; margin-top: 1.8rem; border-radius: 0 8px 8px 0;">
+          <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #c0392b; margin-bottom: 0.45rem;">Takeaway</div>
+          <p style="font-size: 1rem; line-height: 1.7; color: #333; margin: 0;">
+            <em>Optimizer choice can expand or shrink the architecture search space:</em> some architectural configurations that fail under AdamW become trainable under Muon-family optimizers.
           </p>
         </div>
 
