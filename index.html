@@ -705,18 +705,32 @@
   <div class="container is-max-desktop">
     <div class="columns is-centered">
       <div class="column is-full-width">
-        <h2 class="title is-3 has-text-centered">Optimizer Effects Can Dominate Architectural Interventions</h2>
+        <h2 class="title is-3 has-text-centered">Optimizer Effects Can Exceed Architectural Interventions</h2>
 
         <div class="content has-text-justified">
           <p>
-            We compare optimizer-induced spectral scaling shifts against the effect of increasing per-head attention rank at fixed parameter count. Optimizer-induced gains exceed attention-rank shifts in 28 of 30 comparisons.
+            <strong>Why this matters:</strong> Architectural changes are usually treated as the primary way to alter model capacity, while optimizers are treated as training details. We test this assumption by comparing optimizer-induced spectral-scaling shifts against a controlled architectural intervention: increasing per-head attention rank while keeping total parameter count fixed.
+          </p>
+          <p>
+            We reduce the number of attention heads from 12 to 6, which increases per-head attention rank at fixed total parameter count. We then compare the resulting architecture-induced change in spectral-scaling exponent against the optimizer-induced change under the original architecture.
+          </p>
+          <p>
+            <strong>Main result:</strong> Optimizer-induced gains exceed attention-rank-induced shifts in 28 of 30 comparisons. The only exceptions occur in HEAD hard-rank scaling, making MID and TAIL regimes the clearest evidence that optimizer geometry can shift representation scaling more than this architectural intervention.
           </p>
         </div>
 
-        <div style="text-align: center;">
+        <div style="text-align: center; margin-top: 1.5rem;">
           <img src="./static/figures/figure6.png" alt="Optimizer effects exceed architectural effects" style="width: 100%;">
           <p class="has-text-justified fig-caption">
-            <strong>Figure 6:</strong> Optimizer-induced shifts in spectral-scaling exceed attention-rank shifts in GPT-2 160M. Optimizer-induced gains (&Delta;&beta;<sup>&#9733;</sup><sub>opt</sub>, red dashed lines) exceed attention-rank shifts (bars) in 28 of 30 comparisons (marked with &#9733;).
+            <strong>Figure 6:</strong> Optimizer-induced shifts in spectral-scaling exponents compared with attention-rank architectural shifts. Red dashed lines show the largest optimizer-induced gain over AdamW in the original 12-head architecture. Bars show the magnitude of the shift caused by increasing per-head attention rank. Optimizer-induced gains exceed attention-rank shifts in 28 of 30 comparisons, with exceptions only in HEAD hard-rank scaling.
+          </p>
+        </div>
+
+        <!-- Takeaway box -->
+        <div style="background: #fafafa; border-left: 4px solid #c0392b; padding: 1.1rem 1.5rem; margin-top: 1.8rem; border-radius: 0 8px 8px 0;">
+          <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #c0392b; margin-bottom: 0.45rem;">Takeaway</div>
+          <p style="font-size: 1rem; line-height: 1.7; color: #333; margin: 0;">
+            <em>Architecture does not determine realized capacity in isolation.</em> The effect of an architectural intervention is mediated by optimizer geometry, and in many regimes switching optimizers shifts representation scaling more than changing attention rank.
           </p>
         </div>
 
