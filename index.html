@@ -215,6 +215,51 @@
       color: #444;
       margin: 0;
     }
+
+    /* Co-design framing boxes (three-view section) */
+    .framing-box {
+      background: #f7f8fa;
+      border-left: 3px solid #555;
+      padding: 1.1rem 1.3rem;
+      border-radius: 0 6px 6px 0;
+      height: 100%;
+    }
+    .framing-box-label {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 0.5rem;
+    }
+    .framing-box p {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+    }
+    .framing-box-citation {
+      display: block;
+      margin-top: 0.7rem;
+      font-size: 0.82rem;
+      color: #4a6fa5;
+      font-style: italic;
+    }
+    .framing-box-citation a {
+      color: #4a6fa5;
+    }
+    .framing-bridge {
+      border-left: 3px solid #4a6fa5;
+      padding: 0.9rem 1.4rem;
+      margin-top: 1.6rem;
+      background: #fafbfc;
+      border-radius: 0 6px 6px 0;
+    }
+    .framing-bridge p {
+      font-size: 0.98rem;
+      line-height: 1.7;
+      color: #333;
+      margin: 0;
+    }
   </style>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -945,6 +990,48 @@
               </p>
             </div>
           </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- ======== CO-DESIGN FRAMING ======== -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3 has-text-centered">Why architecture&ndash;optimizer co-design?</h2>
+
+        <!-- Three framing boxes -->
+        <div class="columns" style="margin-top: 1.5rem;">
+          <div class="column">
+            <div class="framing-box">
+              <div class="framing-box-label">Capacity view</div>
+              <p>Architecture provides available capacity; optimizer geometry determines realized capacity.</p>
+            </div>
+          </div>
+          <div class="column">
+            <div class="framing-box">
+              <div class="framing-box-label">Computation-graph view</div>
+              <p>Architecture defines the static computation graph; optimizer shapes the effective graph used during training.</p>
+            </div>
+          </div>
+          <div class="column">
+            <div class="framing-box">
+              <div class="framing-box-label">Hypothesis-space view</div>
+              <p>Architecture is a hard structural bias; optimizer is a soft dynamic bias over reachable solutions.</p>
+              <span class="framing-box-citation">(<a href="https://arxiv.org/abs/2304.05366">Goldblum et al., 2024</a>; <a href="https://arxiv.org/abs/2503.02113">Wilson, 2025</a> on hard vs. soft inductive bias)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bridge to empirical result -->
+        <div class="framing-bridge">
+          <p>In our attention-rank intervention, architectural effects are most competitive in HEAD hard-rank scaling, while optimizer-induced effects dominate MID/TAIL regimes. This suggests that rare-token capacity is not only an architecture problem; it is an architecture&ndash;optimizer co-design problem.</p>
         </div>
 
       </div>
