@@ -218,23 +218,24 @@
 
     /* Co-design framing boxes (three-view section) */
     .framing-box {
-      background: #f7f8fa;
-      border-left: 3px solid #555;
-      padding: 1.1rem 1.3rem;
-      border-radius: 0 6px 6px 0;
+      background: #fafafa;
+      border-left: 4px solid #c0392b;
+      padding: 1rem 1.3rem;
+      border-radius: 0 8px 8px 0;
       height: 100%;
     }
     .framing-box-label {
-      font-family: 'Google Sans', sans-serif;
-      font-size: 0.85rem;
+      font-size: 0.78rem;
       font-weight: 700;
-      color: #1a1a1a;
-      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #c0392b;
+      margin-bottom: 0.4rem;
     }
     .framing-box p {
-      font-size: 0.95rem;
-      line-height: 1.6;
-      color: #333;
+      font-size: 0.92rem;
+      line-height: 1.65;
+      color: #444;
       margin: 0;
     }
     .framing-box-citation {
@@ -248,11 +249,11 @@
       color: #4a6fa5;
     }
     .framing-bridge {
-      border-left: 3px solid #4a6fa5;
-      padding: 0.9rem 1.4rem;
+      background: #fafafa;
+      border-left: 4px solid #c0392b;
+      padding: 1.1rem 1.5rem;
       margin-top: 1.6rem;
-      background: #fafbfc;
-      border-radius: 0 6px 6px 0;
+      border-radius: 0 8px 8px 0;
     }
     .framing-bridge p {
       font-size: 0.98rem;
@@ -1011,27 +1012,27 @@
           <div class="column">
             <div class="framing-box">
               <div class="framing-box-label">Capacity view</div>
-              <p>Architecture provides available capacity; optimizer geometry determines realized capacity.</p>
+              <p>Architecture provides available capacity; optimizer geometry determines how much becomes realized capacity.</p>
             </div>
           </div>
           <div class="column">
             <div class="framing-box">
               <div class="framing-box-label">Computation-graph view</div>
-              <p>Architecture defines the static computation graph; optimizer shapes the effective graph used during training.</p>
+              <p>Architecture defines the static computation graph; optimizer geometry shapes the effective graph used during training.</p>
             </div>
           </div>
           <div class="column">
             <div class="framing-box">
               <div class="framing-box-label">Hypothesis-space view</div>
-              <p>Architecture is a hard structural bias; optimizer is a soft dynamic bias over reachable solutions.</p>
-              <span class="framing-box-citation">(<a href="https://arxiv.org/abs/2304.05366">Goldblum et al., 2024</a>; <a href="https://arxiv.org/abs/2503.02113">Wilson, 2025</a> on hard vs. soft inductive bias)</span>
+              <p>Architecture imposes a hard structural bias; optimizer geometry imposes a soft dynamic bias over reachable solutions.</p>
+              <span class="framing-box-citation"><a href="https://arxiv.org/abs/2304.05366">Goldblum et al., 2024</a>; <a href="https://arxiv.org/abs/2503.02113">Wilson, 2025</a> on hard vs. soft inductive biases</span>
             </div>
           </div>
         </div>
 
         <!-- Bridge to empirical result -->
         <div class="framing-bridge">
-          <p>In our attention-rank intervention, architectural effects are most competitive in HEAD hard-rank scaling, while optimizer-induced effects dominate MID/TAIL regimes. This suggests that rare-token capacity is not only an architecture problem; it is an architecture&ndash;optimizer co-design problem.</p>
+          <p>In our controlled attention-rank intervention, architectural effects are most competitive in HEAD hard-rank scaling, while optimizer-induced effects dominate MID/TAIL regimes. This suggests that low-frequency / rare-token capacity is not only an architecture problem; it is an architecture&ndash;optimizer co-design problem.</p>
         </div>
 
       </div>
