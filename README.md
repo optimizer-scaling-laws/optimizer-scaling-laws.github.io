@@ -1,7 +1,6 @@
-# Optimizer-Induced Spectral Scaling Laws — Project Page
+# Optimizer-Induced Spectral Scaling Laws
 
-This repository hosts the static project page for the paper *Same Architecture, Different Capacity: Optimizer-Induced Spectral Scaling Laws* (Jha & Reagen, 2026). The page is served via GitHub Pages at the URL below.
-
+This repository host the project page for the paper *Same Architecture, Different Capacity: Optimizer-Induced Spectral Scaling Laws*. 
 ## Links
 
 - **Project page:** https://optimizer-scaling-laws.github.io
