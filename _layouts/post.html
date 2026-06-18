@@ -6,7 +6,9 @@ layout: default
     <h1 class="post-title">{{ page.title }}</h1>
     {% if page.subtitle %}<p class="post-subtitle">{{ page.subtitle }}</p>{% endif %}
     <p class="post-meta">
-      <span class="post-author">{{ page.author | default: site.author }}</span>
+      {% assign author_name = page.author | default: site.author %}
+      {% assign author_link = page.author_url | default: site.author_url %}
+      <span class="post-author">{% if author_link %}<a href="{{ author_link }}" target="_blank" rel="noopener">{{ author_name }}</a>{% else %}{{ author_name }}{% endif %}</span>
       <span class="post-date">{{ page.date | date: "%B %d, %Y" }}</span>
       {% if page.reading_time %}<span class="post-reading-time">{{ page.reading_time }}</span>{% endif %}
     </p>

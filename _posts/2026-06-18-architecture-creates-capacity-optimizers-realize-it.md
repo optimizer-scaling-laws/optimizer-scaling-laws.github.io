@@ -25,8 +25,6 @@ reading_time: "~20 min read"
 - **The empirical claim, in one line.** Holding architecture, data, and width schedule fixed, optimizers produce sharply different capacity-scaling exponents. On rare-token (TAIL) representations, AdamW exhibits weak hard-rank scaling ($\beta_{\mathrm{hard}} = 0.44$) while Muon and NorMuon achieve near-linear hard-rank scaling ($\beta_{\mathrm{hard}} \approx 1.0$) — a $2.3\times$ larger exponent under identical architecture. Soft-rank scaling separates these optimizers much less, so the optimizer-induced effect is concentrated where it matters most: dominant-mode capacity in the long tail.
 - **Architecture–optimizer co-design should be a first-class LLM design axis.** The right question is not only which architecture scales, or which optimizer trains fastest, but which pair converts compute, parameters, and data into useful internal structure.
 
-**Paper context.** This essay is the first blog in a series around our paper **[Same Architecture, Different Capacity: Optimizer-Induced Spectral Scaling Laws](https://arxiv.org/abs/2605.21803)** by **Nandan Kumar Jha** and **Brandon Reagen**. Project page: [optimizer-scaling-laws.github.io](https://optimizer-scaling-laws.github.io/). Code: [optimizer-scaling-laws/spectral-scaling-laws](https://github.com/optimizer-scaling-laws/spectral-scaling-laws).
-
 ---
 
 ## 1. Same loss is not the same model
@@ -405,20 +403,7 @@ A model with similar loss but different spectral allocation may differ in its ab
 
 ---
 
-## Suggested links
-
-- Paper: *[Same Architecture, Different Capacity: Optimizer-Induced Spectral Scaling Laws](https://arxiv.org/abs/2605.21803)*
-- Code: [`optimizer-scaling-laws/spectral-scaling-laws`](https://github.com/optimizer-scaling-laws/spectral-scaling-laws)
-- Project page: [`optimizer-scaling-laws.github.io`](https://optimizer-scaling-laws.github.io/)
-- Next post: *Rényi Effective Rank: A Spectral Lens on Realized Capacity*
-
----
-
 ## References
-
-### This project
-
-- Jha, N. K., and Reagen, B. *Same Architecture, Different Capacity: Optimizer-Induced Spectral Scaling Laws*. arXiv:2605.21803, 2026. [`arXiv`](https://arxiv.org/abs/2605.21803) / [`project`](https://optimizer-scaling-laws.github.io/) / [`code`](https://github.com/optimizer-scaling-laws/spectral-scaling-laws)
 
 ### Scaling laws and Transformer architecture
 
