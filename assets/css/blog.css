@@ -14,7 +14,7 @@ html {
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   line-height: 1.65;
-  max-width: 1100px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 0 1rem;
   color: #1a1a1a;
@@ -254,9 +254,7 @@ body {
 
 /* ---------- Wider publication figures ---------- */
 .post-content figure.figure-wide {
-  width: min(1100px, calc(100vw - 2rem));
-  margin-left: 50%;
-  transform: translateX(-50%);
+  width: 100%;
 }
 .post-content figure.figure-wide img {
   border: 1px solid #e5e7eb;
@@ -264,14 +262,9 @@ body {
   background: #fff;
 }
 .post-content figure.figure-wide figcaption {
-  max-width: 980px;
+  max-width: 100%;
   margin-left: auto;
   margin-right: auto;
 }
 @media (max-width: 900px) {
-  .post-content figure.figure-wide {
-    width: 100%;
-    margin-left: 0;
-    transform: none;
-  }
 }
