@@ -25,8 +25,6 @@ reading_time: "~20 min read"
 - **The empirical claim, in one line.** Holding architecture, data, and width schedule fixed, optimizers produce sharply different capacity-scaling exponents. On rare-token (TAIL) representations, AdamW exhibits weak hard-rank scaling ($\beta_{\mathrm{hard}} = 0.44$) while Muon and NorMuon achieve near-linear hard-rank scaling ($\beta_{\mathrm{hard}} \approx 1.0$) — a $2.3\times$ larger exponent under identical architecture. Soft-rank scaling separates these optimizers much less, so the optimizer-induced effect is concentrated where it matters most: dominant-mode capacity in the long tail.
 - **Architecture–optimizer co-design should be a first-class LLM design axis.** The right question is not only which architecture scales, or which optimizer trains fastest, but which pair converts compute, parameters, and data into useful internal structure.
 
-> **Citation note.** I cite primary papers and original technical sources at the point where an external concept enters the argument. Claims about the optimizer-induced spectral-scaling-law experiments refer to our paper *Same Architecture, Different Capacity: Optimizer-Induced Spectral Scaling Laws* and its project/code release linked below. For very recent optimizers, I distinguish peer-reviewed papers from arXiv reports and original public write-ups.
-
 **Paper context.** This essay is the first blog in a series around our paper **[Same Architecture, Different Capacity: Optimizer-Induced Spectral Scaling Laws](https://arxiv.org/abs/2605.21803)** by **Nandan Kumar Jha** and **Brandon Reagen**. Project page: [optimizer-scaling-laws.github.io](https://optimizer-scaling-laws.github.io/). Code: [optimizer-scaling-laws/spectral-scaling-laws](https://github.com/optimizer-scaling-laws/spectral-scaling-laws).
 
 ---
@@ -47,15 +45,7 @@ Prior work gives direct evidence for this concern. Liu et al. show that pretrain
 
 This means the upstream–downstream gap is not only a question of nominal capacity. It is also a question of **realized capacity**: which internal directions training activates, which token regimes receive capacity, which minima become reachable, and which structures become strong enough to transfer.
 
-So the question is not only:
-
-> How low did the loss go?
-
-It is also:
-
-> What internal capacity did training realize in order to reach that loss?
-
-That second question is the subject of this post.
+So the question is not only *how low did the loss go*, but **what internal capacity did training realize in order to reach that loss?** That second question is the subject of this post.
 
 The same issue appears inside our own experiments as a controlled loss-matching example. Extending AdamW training from 6K to 12K improves validation perplexity and brings it close to the low-rank Dion $(r=1/16)$ control across the FFN-width sweep. But the realized-capacity trajectories do not match: AdamW 12K remains much weaker in hard-rank growth, while Dion preserves steadily increasing hard and soft effective ranks.
 
@@ -189,7 +179,7 @@ C_{\mathrm{available}}(\mathcal{A})
 $$
 </div>
 
-In words: architecture sets the available capacity, while optimization and data determine the realized fraction. The first term is controlled mostly by architecture. The second is controlled by the optimization trajectory and its implicit bias, conditioned on the data distribution.
+In words: architecture sets the available capacity; the optimization trajectory and its implicit bias, conditioned on data, determine the realized fraction.
 
 A compact way to keep the distinction straight is:
 
@@ -211,7 +201,7 @@ This decomposition is not meant to be a literal scalar law. It is a mental model
 
 If the optimizer-realized fraction is near one, adding architecture translates cleanly into realized capacity. If that fraction is far below one, adding architecture raises the ceiling but does not fill it. In the second regime, optimizer choice becomes first-order.
 
-That is the regime modern LLMs increasingly live in: long-tail data, sparse supervision, deep networks, rare skills, tool-use patterns, code, multilingual data, domain-specific knowledge, and increasingly structured behaviors.
+That is the regime modern LLMs increasingly live in: long-tail data, sparse supervision, deep networks, multilingual and code-heavy distributions, and structured behaviors like tool use.
 
 <figure>
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure3_phase_diagram_for_realized_capacity.png' | relative_url }}" alt="Phase diagram for realized capacity">
@@ -265,8 +255,6 @@ In this blog, I use the following naming convention:
 - **Dominant-mode Capacity** refers to the participation-ratio-like rank $R_{\mathrm{hard}} = R_2$. It measures how many directions carry substantial, load-bearing mass.
 - **Capacity Asymmetry** refers to $\Delta = \log R_{\mathrm{soft}} - \log R_{\mathrm{hard}} = \log\!\left(R_{\mathrm{soft}} / R_{\mathrm{hard}}\right)$. It measures the multiplicative gap between broad support and dominant-mode structure. In the phase diagram, these ranks are shown as width-comparable log coordinates, e.g. normalized $\log R_{\mathrm{soft}}$ and normalized $\log R_{\mathrm{hard}}$. The inequality $R_{\mathrm{hard}} \le R_{\mathrm{soft}}$ holds in general, so valid points lie on or below the diagonal in Figure 3.
 
-We report $R_{\mathrm{soft}}$ and $R_{\mathrm{hard}}$ as effective-rank capacity measures, and define Capacity Asymmetry in log space, $\Delta = \log R_{\mathrm{soft}} - \log R_{\mathrm{hard}}$, so that asymmetry measures the multiplicative gap between average-realized and dominant-mode capacity.
-
 ---
 
 ## 6. Rare-token regimes expose capacity allocation
@@ -275,9 +263,7 @@ Natural language is not statistically uniform. Token frequency follows a long-ta
 
 This matters because the role of the optimizer changes with the statistical regime.
 
-For HEAD tokens, the likelihood is sharp. The model sees abundant evidence. Many reasonable optimizers can find similar solutions because the data strongly constrains what should be learned.
-
-For TAIL tokens, the likelihood is weak. The model sees fewer examples. Many solutions remain compatible with sparse evidence. In this regime, the implicit bias of the optimizer matters much more.
+For HEAD tokens, the likelihood is sharp: many reasonable optimizers find similar solutions because the data strongly constrains what should be learned. For TAIL tokens, the likelihood is weak: many solutions remain compatible with sparse evidence, and the implicit bias of the optimizer matters much more.
 
 In Bayesian language:
 
@@ -299,12 +285,9 @@ This predicts that optimizer-induced differences should become more visible in M
 This is practically important. Many frontier LLM behaviors are long-tail behaviors:
 
 - low-resource multilingual modeling,
-- rare code libraries and identifiers,
-- scientific and technical vocabulary,
-- tool-use edge cases,
-- long-tail factual recall,
-- structured reasoning patterns,
-- rare instruction formats,
+- rare code libraries, identifiers, and scientific terminology,
+- long-tail factual recall and tool-use edge cases,
+- structured reasoning patterns and rare instruction formats,
 - expert specialization in sparse MoE settings.
 
 If a model's average loss is dominated by frequent patterns, then loss can hide whether rare regimes are receiving usable representational capacity. Frequency-conditioned spectral telemetry is one way to expose that hidden allocation.
@@ -318,31 +301,25 @@ If a model's average loss is dominated by frequent patterns, then loss can hide 
 
 ## 7. Why co-design is the right abstraction
 
-The conclusion is not that optimizers matter more than architectures. That would be the wrong lesson.
-
-The right lesson is that they do different jobs.
+The conclusion is not that optimizers matter more than architectures. They do different jobs.
 
 Architecture is the right tool when we need hard structure:
 
 - enforce causal or equivariant constraints,
-- reduce inference cost,
-- create routing paths,
-- add experts or sparsity,
 - increase width or depth,
-- provide modularity,
-- change memory and compute patterns.
+- add experts, sparsity, or routing structure,
+- change memory and compute patterns,
+- reduce inference cost.
 
 Optimization is the right tool when we need to decide how capacity is filled:
 
-- which directions grow,
-- which modes become dominant,
+- which directions grow and which modes become dominant,
 - whether capacity spreads or concentrates,
 - whether rare signals remain coherent,
 - which minima are reachable,
-- how added width turns into representation structure,
 - how the same architecture behaves across data regimes.
 
-Both are necessary because they operate at different levels. Architecture controls support. Optimization controls measure. Architecture provides the operator graph. Optimization shapes the effective signal-flow graph. Architecture gives nominal capacity. Optimization realizes a fraction of it.
+Both are necessary because they operate at different levels: architecture sets the support, the optimizer reweights it.
 
 <table>
 <thead><tr><th>If the goal is…</th><th>Architecture contributes…</th><th>Optimization contributes…</th></tr></thead>
@@ -387,11 +364,7 @@ This is the core claim behind optimizer-induced spectral scaling laws. If two op
 
 That is a design axis.
 
-The next generation of LLM design should not only ask how many parameters we train, how many tokens we consume, or how low the loss goes.
-
-It should also ask what capacity becomes real.
-
-Architecture creates degrees of freedom. Optimization decides which of them become active. Data determines where evidence is dense enough to constrain the solution and where the optimizer's prior fills in the gaps. The trained model is the joint outcome of all three.
+The next generation of LLM design should not only ask how many parameters we train, how many tokens we consume, or how low the loss goes. It should also ask what capacity becomes real.
 
 > **Capacity-aware LLM design means tracking not just what the model could represent, but what training actually made it represent.**
 
@@ -408,8 +381,6 @@ Second, optimizer-induced spectral capacity is not automatically good. More capa
 Third, architecture remains indispensable. Optimizers cannot create structural guarantees, reduce inference cost by construction, or represent functions excluded by the architecture. Co-design is not optimizer maximalism.
 
 Fourth, the strongest claims require more evidence: larger models, more architectures, longer training, downstream probes, continued-learning tests, interpretability comparisons, and direct studies of rare-regime behavior.
-
-But the basic point is already hard to ignore: architecture alone does not determine how a model uses its capacity, and loss alone does not reveal it.
 
 ---
 
