@@ -4,6 +4,7 @@ title: "Architecture Creates Capacity. Optimizers Realize It."
 subtitle: "Why LLM design needs to track realized capacity, not just parameter count or loss"
 author: "Nandan Kumar Jha"
 date: 2026-06-18
+permalink: /blog/optimizer-induced-capacity/
 description: "A flagship essay on realized capacity: why architecture creates available degrees of freedom, while optimizers determine which capacity is actually realized."
 reading_time: "~20 min read"
 ---
