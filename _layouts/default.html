@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+  <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+  <meta name="author" content="{{ site.author }}">
+
+  <!-- Open Graph for sharing -->
+  <meta property="og:title" content="{{ page.title | default: site.title }}">
+  <meta property="og:description" content="{{ page.description | default: site.description }}">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="{{ site.url }}{{ page.url }}">
+
+  <link rel="stylesheet" href="{{ '/assets/css/blog.css' | relative_url }}">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="site-nav">
+      <a href="{{ site.url }}/" class="site-title">Optimizer-Induced Spectral Scaling Laws</a>
+      <span class="nav-links">
+        <a href="{{ site.url }}/">Project</a>
+        <a href="{{ site.url }}/posts.html">Posts</a>
+        <a href="https://arxiv.org/abs/2605.21803">Paper</a>
+        <a href="https://github.com/optimizer-scaling-laws/spectral-scaling-laws">Code</a>
+      </span>
+    </nav>
+  </header>
+
+  <main class="site-content">
+    {{ content }}
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; {{ site.time | date: '%Y' }} {{ site.author }}. Project page uses the <a href="https://nerfies.github.io">Nerfies</a> template.</p>
+  </footer>
+</body>
+</html>

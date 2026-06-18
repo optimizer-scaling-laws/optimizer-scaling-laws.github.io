@@ -1,0 +1,277 @@
+/* ============================================================
+   Blog stylesheet — coherent with project page aesthetic
+   Red accent family: #c0392b
+   ============================================================ */
+
+* { box-sizing: border-box; }
+
+html {
+  color: #1a1a1a;
+  background-color: #fdfdfd;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 1.2rem;
+  color: #1a1a1a;
+}
+
+/* ---------- Site header ---------- */
+.site-header {
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 2rem;
+  padding: 1rem 0;
+}
+.site-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.site-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #1a1a1a;
+  text-decoration: none;
+}
+.nav-links a {
+  margin-left: 1.2rem;
+  color: #4b5563;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+.nav-links a:hover { color: #c0392b; }
+
+/* ---------- Post header ---------- */
+.post-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+.post-title {
+  font-size: 2.35rem;
+  line-height: 1.15;
+  margin: 0 0 0.5rem 0;
+  font-weight: 700;
+}
+.post-subtitle {
+  color: #4b5563;
+  font-size: 1.15rem;
+  margin: 0 0 1rem 0;
+  font-weight: 400;
+}
+.post-meta {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin: 0;
+}
+.post-meta span { margin-right: 1rem; }
+
+/* ---------- Body text ---------- */
+.post-content {
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+.post-content h2 {
+  margin-top: 2.8rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+  font-size: 1.6rem;
+}
+.post-content h3 {
+  margin-top: 1.8rem;
+  font-size: 1.25rem;
+}
+.post-content p { margin: 1rem 0; }
+
+.post-content a { color: #1d4ed8; }
+.post-content a:hover { color: #c0392b; }
+
+/* ---------- Quote (Core thesis, etc.) ---------- */
+.post-content blockquote {
+  border-left: 4px solid #c0392b;
+  padding: 0.2rem 1rem;
+  margin: 1.5rem 0 1.5rem 0;
+  color: #374151;
+  background: #fafafa;
+  font-style: normal;
+}
+
+/* ---------- Tables ---------- */
+.post-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+}
+.post-content th, .post-content td {
+  border: 1px solid #d1d5db;
+  padding: 0.6rem 0.7rem;
+  vertical-align: top;
+  text-align: left;
+}
+.post-content th { background: #f3f4f6; font-weight: 600; }
+
+/* ---------- Code ---------- */
+.post-content code {
+  background: #f3f4f6;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  font-size: 0.92em;
+  font-family: Menlo, Monaco, Consolas, monospace;
+}
+.post-content pre code { background: transparent; padding: 0; }
+.post-content pre {
+  background: #f3f4f6;
+  padding: 0.8rem 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 0.88rem;
+}
+
+/* ---------- Figures ---------- */
+.post-content figure {
+  margin: 2rem 0;
+  text-align: center;
+}
+.post-content figure img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+.post-content figcaption {
+  color: #4b5563;
+  font-size: 0.92rem;
+  margin-top: 0.6rem;
+  text-align: left;
+  line-height: 1.5;
+}
+
+/* ---------- Math callout box (matches project page .math-box) ---------- */
+.math-box {
+  background: #f5f5f7;
+  border-left: 4px solid #4a5568;
+  padding: 1rem 1.2rem;
+  margin: 1.4rem 0;
+  font-size: 1rem;
+  overflow-x: auto;
+}
+
+/* ---------- Takeaway / framing callouts (matches project page) ---------- */
+.takeaway-box {
+  border: 2px solid #c0392b;
+  border-radius: 4px;
+  padding: 1rem 1.2rem;
+  margin: 1.5rem 0;
+  background: #fff;
+}
+.takeaway-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #c0392b;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+/* ---------- Citation marker (matches project page) ---------- */
+.citation {
+  color: #4a6fa5;
+  font-style: italic;
+  font-size: 0.92em;
+}
+
+/* ---------- TODO/placeholder markers (will be removed in final) ---------- */
+.todo-marker {
+  background: #fff8e1;
+  border: 1px dashed #f59e0b;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.88em;
+  color: #92400e;
+  font-family: Menlo, Monaco, Consolas, monospace;
+}
+
+/* ---------- Post footer (citation block) ---------- */
+.post-footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+}
+.post-cite { margin-bottom: 0.5rem; font-size: 0.95rem; }
+.post-bibtex {
+  font-size: 0.82rem;
+  background: #f0f0f0;
+  padding: 0.8rem 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+/* ---------- References section ---------- */
+.post-content .references h3 {
+  font-size: 1.1rem;
+  margin-top: 1.5rem;
+  color: #374151;
+}
+.post-content .references ul {
+  font-size: 0.93rem;
+  line-height: 1.55;
+}
+
+/* ---------- Site footer ---------- */
+.site-footer {
+  margin-top: 4rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid #e5e7eb;
+  color: #6b7280;
+  font-size: 0.88rem;
+  text-align: center;
+}
+.site-footer a { color: #4b5563; }
+
+/* ---------- Posts index page ---------- */
+.posts-index h1 { margin-bottom: 1.5rem; }
+.posts-list { list-style: none; padding-left: 0; }
+.posts-list li { margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #f0f0f0; }
+.posts-list a { font-size: 1.15rem; font-weight: 600; color: #1a1a1a; text-decoration: none; }
+.posts-list a:hover { color: #c0392b; }
+.posts-list .post-date { color: #6b7280; font-size: 0.88rem; display: block; margin: 0.2rem 0; }
+.posts-list .post-excerpt { color: #4b5563; font-size: 0.95rem; margin: 0.3rem 0 0 0; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+  body { font-size: 0.95em; }
+  .post-title { font-size: 1.8rem; }
+  .post-content { font-size: 1rem; }
+  .site-nav { flex-direction: column; align-items: flex-start; }
+  .nav-links a { margin-left: 0; margin-right: 1rem; }
+}
+
+/* ---------- Wider publication figures ---------- */
+.post-content figure.figure-wide {
+  width: min(1100px, calc(100vw - 2rem));
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+.post-content figure.figure-wide img {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fff;
+}
+.post-content figure.figure-wide figcaption {
+  max-width: 980px;
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (max-width: 900px) {
+  .post-content figure.figure-wide {
+    width: 100%;
+    margin-left: 0;
+    transform: none;
+  }
+}

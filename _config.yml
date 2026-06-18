@@ -1,0 +1,28 @@
+title: "Optimizer-Induced Spectral Scaling Laws"
+description: "Project page and blog for the paper Same Architecture, Different Capacity: Optimizer-Induced Spectral Scaling Laws"
+author: "Nandan Kumar Jha"
+url: "https://optimizer-scaling-laws.github.io"
+permalink: /posts/:title/
+
+# Build settings — kramdown for markdown, no math_engine so MathJax handles raw LaTeX
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  math_engine: ~  # disable kramdown math processing; MathJax handles $...$ and $$...$$ directly
+
+# Plugins (GitHub Pages provides these)
+plugins:
+  - jekyll-feed
+
+# Exclude from build
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - .gitignore
+
+# Pagination (for blog index)
+paginate: 10
+paginate_path: "/posts/page:num/"
