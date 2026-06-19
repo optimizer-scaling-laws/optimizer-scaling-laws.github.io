@@ -1,171 +1,110 @@
 ---
 layout: post
-title: "Architecture Creates Capacity. Optimizers Realize It."
-subtitle: "Why LLM design needs to track realized capacity, not just parameter count or loss"
+title: "Architecture Creates Capacity, Optimizers Realize It."
+subtitle: "Why LLM scaling needs realized-capacity telemetry, not just loss curves and parameter counts"
 author: "Nandan Kumar Jha"
 date: 2026-06-18
 permalink: /blog/optimizer-induced-capacity/
-description: "A flagship essay on realized capacity: why architecture creates available degrees of freedom, while optimizers determine which capacity is actually realized."
-reading_time: "~20 min read"
+description: "Why architecture creates available degrees of freedom, while optimization determines which internal capacity training actually realizes."
+reading_time: "~25 min read"
 ---
 
-> **Core thesis.** Architecture defines the representational degrees of freedom a model *could* use. Optimization decides which of those degrees of freedom become active, distributed, transferable, and adaptable.
-
-<figure class="figure-wide">
-  <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure1_optimizer_capacity_scaling.png' | relative_url }}" alt="Same architecture, different optimizer, different realized capacity">
-  <figcaption><strong>Figure 1.</strong> <em>Same architecture, different optimizer, different realized capacity scaling.</em> The architecture and data are fixed, but the optimizer changes the training trajectory and the resulting spectral scaling laws. The right panel summarizes optimizer-level scaling exponents: $\beta_{\mathrm{soft}}$ for Average-realized Capacity Scaling, $\beta_{\mathrm{hard}}$ for Dominant-mode Capacity Scaling, and $\Delta\beta=\beta_{\mathrm{soft}}-\beta_{\mathrm{hard}}$ for Scaling Asymmetry.</figcaption>
-</figure>
+> **Core thesis.** Architecture specifies the degrees of freedom a model *could* use. Optimization determines which of those degrees of freedom become active, load-bearing, transferable, and usable during training.
 
 ## TL;DR
 
-- **Same loss is not the same model.** Prior work shows that models with the same pretraining loss can differ substantially in downstream transfer; training dynamics can select different same-loss solutions.
-- **Parameter count is nominal capacity.** Width, depth, heads, experts, and FLOPs describe what the architecture makes available, not what training actually uses.
-- **Realized capacity is the missing coordinate.** We need internal telemetry for which representation directions become active, which regimes receive capacity, and which structures become strong enough to transfer.
-- **Spectral geometry gives one such telemetry layer.** In this post, $R_{\mathrm{soft}}$ is the **Average-realized Capacity** effective-rank measure, $R_{\mathrm{hard}}$ is the **Dominant-mode Capacity** effective-rank measure, and **Capacity Asymmetry** is the log-ratio $\Delta = \log R_{\mathrm{soft}} - \log R_{\mathrm{hard}}$. When comparing how ranks scale with FFN width, we use $\beta_{\mathrm{soft}}$, $\beta_{\mathrm{hard}}$, and $\Delta\beta=\beta_{\mathrm{soft}}-\beta_{\mathrm{hard}}$.
-- **The empirical claim, in one line.** Holding architecture, data, and width schedule fixed, optimizers produce sharply different capacity-scaling exponents. On rare-token (TAIL) representations, AdamW exhibits weak hard-rank scaling ($\beta_{\mathrm{hard}} = 0.44$) while Muon and NorMuon achieve near-linear hard-rank scaling ($\beta_{\mathrm{hard}} \approx 1.0$) — a $2.3\times$ larger exponent under identical architecture. Soft-rank scaling separates these optimizers much less, so the optimizer-induced effect is concentrated where it matters most: dominant-mode capacity in the long tail.
-- **Architecture–optimizer co-design should be a first-class LLM design axis.** The right question is not only which architecture scales, or which optimizer trains fastest, but which pair converts compute, parameters, and data into useful internal structure.
+- **Loss curves and parameter counts are incomplete telemetry.** They show how a training run looks from the outside, but not whether added architectural capacity becomes usable internal structure.
+- **The empirical result is controlled and direct.** Holding the Transformer architecture, data, and FFN-width schedule fixed, different optimizers produce different spectral-capacity scaling laws.
+- **The long tail is where the gap becomes most consequential.** In rare-token representations, AdamW and Dion-1/16 realize much weaker dominant-mode capacity scaling than Muon and NorMuon under the same architecture.
+- **Optimizer choice is not only a convergence-speed decision.** It shapes which representation directions grow, which weak signals remain coherent, and which same-loss solutions become reachable.
+- **The design implication is architecture–optimizer co-design.** The right object is not the architecture alone, or the optimizer alone, but the pair that converts compute, parameters, and data into realized internal structure.
 
----
+## The one-minute version
 
-## 1. Same loss is not the same model
+Scaling laws have made us good at asking how loss changes with parameters, data, and compute. But they leave a quieter question under-measured: when we add capacity to a model, does training actually use it?
 
-Most LLM training dashboards are organized around a small set of signals: loss, gradient norm, learning rate, tokens/sec, memory, and sometimes downstream evaluations. These signals are necessary. They are not sufficient.
+Our experiments suggest that the answer depends strongly on the optimizer. The architecture, data, and width schedule are fixed. What changes is the training algorithm. Yet the resulting models realize different spectral scaling laws inside their FFN representations. The difference is especially visible in rare-token regimes, where data is sparse and optimizer-induced bias has more room to matter.
+
+This is the central point of the blog: **optimization is not a neutral procedure that merely fills a fixed architecture. In overparameterized LLMs, optimization helps decide what capacity becomes real.**
+
+This is the controlled setup behind the empirical claim. The architecture and data are fixed; the optimizer is the intervention. What changes is the training trajectory, and with it the internal spectral-capacity profile reached by the model.
+
+<figure class="figure-wide">
+  <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure0_same_architecture_same_data_different_optimizer.png' | relative_url }}" alt="Same architecture, same data, different optimizer conceptual setup">
+  <figcaption><strong>Figure 0.</strong> <em>Same architecture, same data, different optimizer.</em> The model family, data distribution, and training task are held fixed. Optimizer choice changes the path through parameter space, and those different training dynamics can lead to different internal spectral-capacity profiles, even when final loss is similar.</figcaption>
+</figure>
+
+## 1. The blind spot: same loss is not the same model
+
+Most LLM training dashboards are organized around a small set of external signals: loss, gradient norm, learning rate, tokens/sec, memory, and downstream evaluation scores. These signals are necessary. They are not sufficient.
 
 The reason is simple: **the same loss can be reached through different internal organizations of the model**.
 
-A language model can reduce average next-token error by building broad, distributed representations across many directions, or by concentrating prediction-relevant variance into a smaller number of dominant modes. It can allocate capacity uniformly across token regimes, or it can spend most of its structure on frequent patterns while leaving rare regimes under-realized. It can use added FFN width as genuinely new representational structure, or it can leave much of that width only nominally present.
+A language model can reduce next-token error by distributing representation across many directions, or by concentrating prediction-relevant variance into a smaller number of dominant modes. It can allocate capacity broadly across token regimes, or spend most of its internal structure on frequent patterns while leaving rare regimes under-realized. It can use added FFN width as genuinely new representational structure, or leave much of that width visible only in the parameter count.
 
-From the outside, two models may look similar: same architecture, similar parameter count, similar pretraining loss. Internally, they may not be the same model at all.
+From the outside, two models may look similar: same architecture, similar parameter count, similar validation loss. Internally, they may not be the same model.
 
-This matters because many things we care about in LLMs are not fully summarized by average loss: downstream transfer, rare-token behavior, domain robustness, multilingual coverage, tool-use reliability, code identifiers, scientific terminology, future adaptation, and the reserve of degrees of freedom left for continued learning.
+This matters because many behaviors we care about in frontier systems are not fully summarized by average pretraining loss: downstream transfer, rare-token reliability, domain robustness, multilingual coverage, code identifiers, scientific terminology, tool-use edge cases, future adaptation, and the reserve of degrees of freedom left for continued learning.
 
-Prior work gives direct evidence for this concern. Liu et al. show that pretraining loss does not fully explain downstream performance: among models with the same pretraining loss, changing the training algorithm can produce different downstream transfer, revealing an implicit bias of the pretraining procedure itself ([Liu et al., 2022](https://arxiv.org/abs/2210.14199)). More recent optimizer-level work makes the geometric version of the point: same-loss pretraining can converge to solutions with different relationships among task-specific minima, and optimizer design can bias training toward solutions that transfer better ([Chen et al., 2026](https://arxiv.org/abs/2604.09258)). Representation-geometry studies also show why this is plausible: standard metrics like loss can miss non-monotonic changes in learned representation geometry during pretraining and post-training ([Li et al., 2025](https://arxiv.org/abs/2509.23024)).
+Prior work already makes this concern concrete. Liu et al. show that pretraining loss does not fully explain downstream performance: among models with the same pretraining loss, changing the training algorithm can produce different downstream transfer, revealing an implicit bias of the pretraining procedure itself ([Liu et al., 2022](https://arxiv.org/abs/2210.14199)). More recent optimizer-level work makes the geometric version of the point: same-loss pretraining can converge to solutions with different relationships among task-specific minima, and optimizer design can bias training toward solutions that transfer better ([Chen et al., 2026](https://arxiv.org/abs/2604.09258)). Representation-geometry studies also show why this is plausible: scalar metrics can miss non-monotonic changes in learned representation geometry during pretraining and post-training ([Li et al., 2025](https://arxiv.org/abs/2509.23024)).
 
-This means the upstream–downstream gap is not only a question of nominal capacity. It is also a question of **realized capacity**: which internal directions training activates, which token regimes receive capacity, which minima become reachable, and which structures become strong enough to transfer.
+So the question is not only **how low did the loss go?** It is also:
 
-So the question is not only *how low did the loss go*, but **what internal capacity did training realize in order to reach that loss?** That second question is the subject of this post.
+> **What internal capacity did training realize in order to reach that loss?**
 
-The same issue appears inside our own experiments as a controlled loss-matching example. Extending AdamW training from 6K to 12K improves validation perplexity and brings it close to the low-rank Dion $(r=1/16)$ control across the FFN-width sweep. But the realized-capacity trajectories do not match: AdamW 12K remains much weaker in hard-rank growth, while Dion preserves steadily increasing hard and soft effective ranks.
+That second question is the subject of this post.
+
+## 2. The empirical surprise: same architecture, different capacity scaling
+
+The controlled result behind this essay is simple:
+
+> **When architecture, data, and width schedule are fixed, changing the optimizer changes how representational capacity scales.**
+
+In the paper, we vary FFN width under the same model family and compare how spectral effective ranks grow. The optimizer changes the slope of that growth. In other words, the model does not merely train faster or slower; it converts the same architectural budget into different internal capacity.
+
+Figure 1 gives the aggregate view across token-frequency regimes. The important quantity is not just the final rank value. It is the **scaling exponent**: how much additional FFN width becomes additional realized spectral capacity. In this aggregate view, Muon and NorMuon exhibit much stronger hard-rank scaling than AdamW, while also showing lower soft–hard scaling asymmetry. That means the added width is not merely broadening weak spectral support; more of it becomes load-bearing dominant-mode structure.
 
 <figure class="figure-wide">
-  <picture>
-    <source srcset="{{ '/assets/blog/architecture-optimizer-codesign/figure2_matched_loss_capacity_comparison.svg' | relative_url }}" type="image/svg+xml">
-    <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure2_matched_loss_capacity_comparison.png' | relative_url }}" alt="Realized capacity comparison for matched loss">
-  </picture>
-  <figcaption><strong>Figure 2.</strong> <em>Realized capacity comparison for matched loss.</em> Extended AdamW training improves validation loss, but it does not recover the same rank trajectory as the low-rank Dion control. This is the concrete version of the broader argument: loss can improve while width-to-capacity scaling remains structurally different. The slope difference between the AdamW-12K hard-rank trace and Dion's is exactly what the optimizer-level scaling-asymmetry coefficient $\Delta\beta$ in Figure 1 quantifies.</figcaption>
+  <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure1_optimizer_capacity_scaling.png' | relative_url }}" alt="Aggregated optimizer-level realized-capacity scaling">
+  <figcaption><strong>Figure 1.</strong> <em>Aggregated optimizer-level realized-capacity scaling.</em> Architecture, data, and FFN-width schedule are fixed; only the optimizer changes. Panel A shows aggregated scaling exponents for soft effective rank, $\beta_{\mathrm{soft}}$, and hard effective rank, $\beta_{\mathrm{hard}}$. Panel B shows scaling asymmetry, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$. Muon and NorMuon show stronger hard-rank scaling and lower asymmetry than AdamW, indicating that more of the added width becomes load-bearing realized capacity. Figure 4 later resolves where this effect is strongest across HEAD, MID, and TAIL regimes.</figcaption>
 </figure>
 
----
+This is the main empirical reason to treat optimizer choice as a design axis. If two optimizers train the same architecture but produce different capacity-scaling exponents, then optimization is not just finding weights inside a fixed architecture. It is shaping which parts of that architecture become load-bearing.
 
-## 2. Architecture creates nominal capacity
-
-A common way to reason about LLM design is to treat architecture as the main object and optimization as the procedure that fits it. In this view, architecture gives us the model, and the optimizer is the training algorithm used to find the weights.
-
-That view is useful, but incomplete.
-
-Architecture certainly matters. It provides things optimization cannot create after the fact:
-
-- **Structural guarantees:** causal masking, equivariance, locality, sparse activation, routing constraints.
-- **Compute pattern:** FLOPs per token, KV-cache structure, memory movement, conditional computation.
-- **Dimensional ceilings:** width, depth, number of heads, FFN expansion, embedding dimension.
-- **Compositional structure:** residual streams, normalization placement, attention blocks, MLP blocks, parameter sharing.
-
-These are hard design choices. No optimizer can make a non-causal model causal, give a dense model sparse inference, or recover capacity that the architecture never admitted.
-
-But architecture has a crucial limitation: **it creates capacity; it does not guarantee that capacity is used**. Adding FFN width raises a ceiling on representable structure but does not commit training to fill those new directions; increasing depth opens more computation paths but does not route signal through them; adding heads, experts, or low-rank structure changes the available function class without selecting which parts of it become load-bearing.
-
-Architecture defines the space of possible computations. Which computation training actually realizes is decided elsewhere — by the optimizer.
+This does not mean that one optimizer is universally better, or that spectral rank is a sufficient measure of capability. The narrower claim is more precise: **optimizer choice can change the internal scaling law by which width becomes usable representation.** That is already enough to make it a first-class object in pretraining science.
 
 ---
 
-## 3. Optimizers realize capacity
+## 3. Loss can improve while capacity geometry remains different
 
-Optimization is not just the engine that minimizes loss. In overparameterized models, many solutions can fit the training data comparably well. The optimizer helps decide which of those solutions training actually finds.
+The same issue appears inside our experiments as a controlled loss-matching example. Extending AdamW training from 6K to 12K improves validation perplexity and brings it close to the low-rank Dion-1/16 control across the FFN-width sweep. But the realized-capacity trajectories do not match: AdamW-12K remains much weaker in hard-rank growth, while Dion-1/16 preserves steadily increasing hard and soft effective ranks.
 
-This is the sense in which optimizers realize capacity: they shape which available directions grow, which spectral modes become load-bearing, which circuits become active, and which parts of the hypothesis space are reachable.
+This is the sanity check that prevents the argument from collapsing into "one run trained longer." More training can improve loss without recovering the same width-to-capacity geometry.
 
-### 3.1 Hard Inductive Bias vs. Soft Inductive Bias
+<figure class="figure-wide">
+  <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure2_matched_loss_capacity_comparison.png' | relative_url }}" alt="Matched loss but different realized capacity">
+  <figcaption><strong>Figure 2.</strong> <em>Matched loss, different realized capacity.</em> Extending AdamW training improves validation perplexity and brings it closer to the Dion-1/16 control, but the realized-capacity trajectories remain different. The hard-rank trajectory is especially diagnostic: closer loss does not imply matched internal geometry. The lesson is not that loss is unimportant; it is that loss alone does not tell us whether two training runs converted width into the same internal structure.</figcaption>
+</figure>
 
-Architecture is the natural instrument for **Hard Inductive Bias**.
+This is the practical warning. If we only compare loss curves, we may conclude that two training runs have reached similar solutions. But if their internal capacity trajectories differ, they may not have built the same kind of model.
 
-It restricts the support of the hypothesis space. Causal masking forbids attention to future tokens. Convolutional sharing enforces translation structure. Sparse MoE routing changes which parameters can activate for each token. These are not preferences; they are constraints. This hard-inductive-bias/soft-inductive-bias distinction is also consistent with the broader no-free-lunch/Kolmogorov-complexity view: learning succeeds when the learner's biases concentrate search on the low-complexity structure that real data tends to exhibit ([Goldblum et al., 2024](https://arxiv.org/abs/2304.05366); [Wilson, 2025](https://arxiv.org/abs/2503.02113)).
+That difference can matter for downstream transfer, rare-token reliability, future adaptation, and interpretability. A model's loss tells us something about output error. It does not tell us whether the model used the same internal directions, reached the same kind of minimum, or preserved the same capacity for future learning.
 
-Optimization is the natural instrument for **Soft Inductive Bias**.
+For pretraining, this is a familiar problem in a sharper form. We already know that validation loss is an imperfect proxy for downstream behavior. The deeper issue is that loss is also an imperfect proxy for **the internal mechanism by which the model became good**.
 
-It does not usually remove hypotheses from the function class. Instead, it changes which hypotheses are easy to reach. AdamW, Muon, Shampoo, Dion, and related optimizers encode different geometric assumptions about parameters: coordinate-wise scaling, matrix-level orthogonalization, Kronecker-factored curvature, low-rank projected updates, and different forms of momentum and preconditioning.
+## 4. Nominal capacity vs. realized capacity
 
-The distinction can be summarized as support versus measure:
+The architecture–optimizer distinction becomes clearer if we separate two notions of capacity.
 
-<table>
-<thead><tr><th>Design object</th><th>Role</th><th>Practical effect</th></tr></thead>
-<tbody>
-<tr><td>Architecture</td><td>Hard Inductive Bias: restricts support</td><td>Determines what functions and computation patterns are possible</td></tr>
-<tr><td>Optimizer</td><td>Soft Inductive Bias: reweights reachable solutions</td><td>Determines which solutions are likely to be found</td></tr>
-<tr><td>Data</td><td>Likelihood/evidence</td><td>Determines where the solution is sharply constrained or underdetermined</td></tr>
-<tr><td>Trained model</td><td>Joint outcome</td><td>The actual computation implemented by the learned weights</td></tr>
-</tbody>
-</table>
-
-Equivalently, as a Bayesian-style analogy:
-
-<div class="math-box">
-$$
-p(h \mid \mathcal{D}, \mathcal{A}, \mathcal{O})
-\;\propto\;
-p(\mathcal{D} \mid h)\,
-p_{\mathcal{O}}(h \mid \mathcal{A}).
-$$
-</div>
-
-Here, $\mathcal{A}$ is the architecture, $\mathcal{O}$ is the optimizer/training algorithm, $\mathcal{D}$ is the data, and $h$ is the trained hypothesis. Architecture acts as the support of the hypothesis space; the optimizer induces a prior over reachable solutions inside that support; data acts as the likelihood.
-
-AdamW comes from decoupled weight decay for adaptive optimization ([Loshchilov and Hutter, 2019](https://arxiv.org/abs/1711.05101)); Shampoo is a structure-aware tensor preconditioner ([Gupta, Koren, and Singer, 2018](https://arxiv.org/abs/1802.09568)); Muon was introduced as a matrix-orthogonalized optimizer in an original public write-up and has since been studied for LLM scaling ([Jordan et al., 2024](https://kellerjordan.github.io/posts/muon/); [Liu et al., 2025](https://arxiv.org/abs/2502.16982)); NorMuon combines Muon-style orthogonalization with neuron-wise adaptive rates ([Li et al., 2025](https://arxiv.org/abs/2510.05491)); and Dion studies distributed orthonormalized updates with low-rank communication structure ([Ahn et al., 2025](https://arxiv.org/abs/2504.05295)). These choices change the path through parameter space, the effective prior over solutions, and the spectral structure that emerges in representations.
-
-The architecture determines what functions are available. The optimizer determines which available functions become likely.
-
-### 3.2 Static graph vs. effective graph
-
-The Transformer architecture gives us a static operator graph: attention blocks, MLP blocks, residual additions, layer normalizations, and projection matrices ([Vaswani et al., 2017](https://arxiv.org/abs/1706.03762)).
-
-But the trained model is not just this static graph. Inside it is an **effective signal-flow graph**: the set of routes through heads, MLP directions, residual-stream features, and layer compositions that actually carry meaningful signal for a behavior.
-
-The operator graph is the menu. The effective graph is what training orders from the menu. This framing is closely related to the transformer-circuits view of a Transformer as a composition of residual-stream paths and attention/MLP components ([Elhage et al., 2021](https://transformer-circuits.pub/2021/framework/index.html)).
-
-<table>
-<thead><tr><th>Graph</th><th>Fixed by</th><th>What it contains</th><th>What it misses</th></tr></thead>
-<tbody>
-<tr><td>Static operator graph</td><td>Architecture</td><td>Matmuls, attention, MLPs, residual additions, normalization placement</td><td>Which routes actually carry meaningful signal after training</td></tr>
-<tr><td>Effective signal-flow graph</td><td>Architecture × optimizer × data</td><td>Load-bearing paths, active representation directions, behavior-specific circuits</td><td>Formal paths that exist but carry negligible signal</td></tr>
-</tbody>
-</table>
-
-Two models with the same architecture can therefore have different effective graphs. The same paths exist in both models, but different paths become load-bearing, and even the same path can carry signal with different spectral shape. One optimizer may fragment a rare signal across coordinate-wise statistics. Another may preserve it as a coherent matrix-level direction.
-
-This matters for interpretability. A circuit found in an AdamW-trained model is not automatically a circuit of the architecture. It may be a circuit of the architecture–optimizer pair. Change the optimizer, and the same architecture may build a different effective computation for the same behavior.
-
-### 3.3 Reachability: the trainable frontier is pair-dependent
-
-There is a third phenomenon between Hard Inductive Bias and Soft Inductive Bias: **reachability**.
-
-A function may be representable by the architecture but effectively unreachable under a given optimizer. In that case, the optimizer has not changed the formal hypothesis space, but it has changed the subset of that space training can actually access.
-
-This is why architecture search under a fixed optimizer can be misleading. An architecture that appears unstable or underperforming under one optimizer may become viable under another. Conversely, an architecture that looks strong under AdamW may be partly strong because AdamW and that architecture form a historically well-tuned pair.
-
-The trainable frontier is therefore not the set of architectures alone. It is the set of viable architecture–optimizer pairs.
-
----
-
-## 4. Realized capacity: the missing coordinate
-
-The architecture–optimizer distinction becomes sharper if we separate nominal capacity from realized capacity.
-
-> **Nominal capacity** is the capacity implied by architecture: parameter count, width, depth, heads, experts, and FLOPs.
+> **Nominal capacity** is the capacity implied by the architecture: parameter count, width, depth, heads, experts, routing paths, memory layout, and FLOPs.
 
 > **Realized capacity** is the capacity actually used by the trained model: which representation directions become active, how spectral mass is distributed, which modes grow with width, and which data regimes receive usable internal structure.
 
-A wider road does not guarantee higher traffic flow if the routing policy does not use the lanes. A wider FFN does not guarantee more useful representation capacity if training concentrates activity into a small subset of directions.
+Architecture certainly matters. It gives the learning system things optimization cannot create after the fact: causal masking, equivariance, sparse routing, inference-time compute patterns, memory movement, dimensional ceilings, residual topology, normalization placement, and parameter sharing. No optimizer can make a non-causal model causal, give a dense model sparse inference, or recover capacity that the architecture never admitted.
 
-This leads to a useful decomposition:
+But architecture has a crucial limitation: **it creates available capacity; it does not guarantee realized capacity**. Adding FFN width raises the ceiling on representable structure, but it does not force training to fill those new directions. Increasing depth opens additional computation paths, but it does not guarantee that signal will route through them. Adding heads, experts, or low-rank structure changes the available function class without selecting which parts of it become load-bearing.
+
+A useful mental model is:
 
 <div class="math-box">
 $$
@@ -177,9 +116,9 @@ C_{\mathrm{available}}(\mathcal{A})
 $$
 </div>
 
-In words: architecture sets the available capacity; the optimization trajectory and its implicit bias, conditioned on data, determine the realized fraction.
+Here, $\mathcal{A}$ is the architecture, $\mathcal{O}$ is the optimizer/training algorithm, and $\mathcal{D}$ is the data. The equation is not meant to be a literal scalar law. It expresses a design principle: architecture sets the available capacity; optimization and data determine how much of that capacity becomes active, coherent, and useful.
 
-A compact way to keep the distinction straight is:
+The distinction is easy to lose if all we log is loss and parameter count:
 
 <table>
 <thead><tr><th>Observable</th><th>What it tells us</th><th>Mostly controlled by</th></tr></thead>
@@ -187,26 +126,19 @@ A compact way to keep the distinction straight is:
 <tr><td>Parameter count</td><td>How many trainable degrees of freedom exist</td><td>Architecture</td></tr>
 <tr><td>Width, depth, heads, experts</td><td>The nominal capacity ceiling</td><td>Architecture</td></tr>
 <tr><td>FLOPs and memory movement</td><td>The cost and shape of computation</td><td>Architecture</td></tr>
-<tr><td>Average-realized Capacity</td><td>How broadly representation mass spreads across modes</td><td>Training dynamics</td></tr>
-<tr><td>Dominant-mode Capacity</td><td>How many directions become load-bearing</td><td>Architecture–optimizer pair</td></tr>
-<tr><td>Capacity Asymmetry</td><td>The gap between broad support and dominant-mode structure</td><td>Architecture–optimizer pair</td></tr>
+<tr><td>Soft effective rank</td><td>How broadly representation mass spreads across modes</td><td>Training dynamics</td></tr>
+<tr><td>Hard effective rank</td><td>How many directions become load-bearing</td><td>Architecture–optimizer pair</td></tr>
+<tr><td>Capacity asymmetry</td><td>The gap between broad support and dominant-mode structure</td><td>Architecture–optimizer pair</td></tr>
 <tr><td>Frequency-conditioned capacity</td><td>Which token regimes receive usable capacity</td><td>Data distribution × optimizer</td></tr>
 <tr><td>Downstream/continued-learning behavior</td><td>Whether internal structure transfers or remains plastic</td><td>Model state × evaluation regime</td></tr>
 </tbody>
 </table>
 
-This decomposition is not meant to be a literal scalar law. It is a mental model. But it makes a concrete prediction: **the same architectural intervention can have different realized effects under different optimizers**.
+This decomposition makes a concrete prediction: **the same architectural intervention can have different realized effects under different optimizers**.
 
-If the optimizer-realized fraction is near one, adding architecture translates cleanly into realized capacity. If that fraction is far below one, adding architecture raises the ceiling but does not fill it. In the second regime, optimizer choice becomes first-order.
+If $\rho_{\mathrm{realized}}$ is high, added width translates cleanly into usable representation. If it is low, added width raises the ceiling without filling it. In the second regime, optimizer choice becomes first-order.
 
-That is the regime modern LLMs increasingly live in: long-tail data, sparse supervision, deep networks, multilingual and code-heavy distributions, and structured behaviors like tool use.
-
-<figure>
-  <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure3_phase_diagram_for_realized_capacity.png' | relative_url }}" alt="Phase diagram for realized capacity">
-  <figcaption><strong>Figure 3.</strong> <em>Phase diagram for realized capacity.</em> Average-realized Capacity (normalized $\log R_{\mathrm{soft}}$) on the horizontal axis; Dominant-mode Capacity (normalized $\log R_{\mathrm{hard}}$) on the vertical. The forbidden region encodes the constraint $R_{\mathrm{hard}} \le R_{\mathrm{soft}}$. Four regimes emerge: Collapsed (low average, low dominant-mode), Compact/coherent (moderate support, coherent usable structure), Diffuse/weakly load-bearing (broad support but weaker dominant structure), and Distributed usable (broad support with high dominant-mode capacity). The Asymmetry gap $\Delta = \log R_{\mathrm{soft}} - \log R_{\mathrm{hard}}$ measures how much of the apparently "used" capacity is genuinely load-bearing.</figcaption>
-</figure>
-
----
+Modern LLMs increasingly operate in precisely the regime where this distinction matters: long-tail data, sparse supervision, multilingual and code-heavy distributions, deep residual computation, tool-use edge cases, and behaviors that are valuable but statistically rare.
 
 ## 5. Spectral telemetry for realized capacity
 
@@ -214,9 +146,9 @@ If realized capacity is the object we care about, we need measurements that see 
 
 Parameter count does not see it. FLOPs do not see it. Loss sees output error, but not the internal structure used to reduce that error.
 
-Spectral geometry gives a practical telemetry layer.
+Spectral geometry gives one practical telemetry layer.
 
-Given a representation covariance, its eigenspectrum tells us how variance is distributed across directions. Effective-rank measures summarize this distribution; they sit in the broader information-theoretic tradition of treating capacity as effective dimensionality, with roots in rate-distortion theory ([Shannon, 1959](https://gwern.net/doc/cs/algorithm/information/1959-shannon.pdf)). The entropy-based effective-rank formulation traces back to Roy and Vetterli, and the broader Rényi family gives a principled way to vary the sensitivity to tail versus dominant modes ([Roy and Vetterli, 2007](https://www.eurasip.org/Proceedings/Eusipco/Eusipco2007/Papers/a5p-h05.pdf); [Rényi, 1961](https://projecteuclid.org/ebooks/berkeley-symposium-on-mathematical-statistics-and-probability/On-Measures-of-Entropy-and-Information/chapter/On-Measures-of-Entropy-and-Information/bsmsp/1200512181)). They are not perfect, but they expose structure that scalar loss hides.
+Given a representation covariance, its eigenspectrum tells us how variance is distributed across directions. Effective-rank measures summarize this distribution; they sit in the broader information-theoretic tradition of treating capacity as effective dimensionality, with roots in rate-distortion theory ([Shannon, 1959](https://gwern.net/doc/cs/algorithm/information/1959-shannon.pdf)). The entropy-based effective-rank formulation traces back to Roy and Vetterli, and the broader Rényi family gives a principled way to vary the sensitivity to tail versus dominant modes ([Roy and Vetterli, 2007](https://www.eurasip.org/Proceedings/Eusipco/Eusipco2007/Papers/a5p-h05.pdf); [Rényi, 1961](https://projecteuclid.org/ebooks/berkeley-symposium-on-mathematical-statistics-and-probability/On-Measures-of-Entropy-and-Information/chapter/On-Measures-of-Entropy-and-Information/bsmsp/1200512181)). These quantities are not a complete theory of capability, but they expose structure that scalar loss hides.
 
 Let the eigenvalues of a representation covariance be $(\lambda_1, \ldots, \lambda_d)$, and normalize them into a spectral distribution:
 
@@ -249,23 +181,99 @@ $$
 
 In this blog, I use the following naming convention:
 
-- **Average-realized Capacity** refers to the entropy-like rank $R_{\mathrm{soft}} = R_1$. It measures broad spectral support: how much representation mass is spread across many directions.
-- **Dominant-mode Capacity** refers to the participation-ratio-like rank $R_{\mathrm{hard}} = R_2$. It measures how many directions carry substantial, load-bearing mass.
-- **Capacity Asymmetry** refers to $\Delta = \log R_{\mathrm{soft}} - \log R_{\mathrm{hard}} = \log\!\left(R_{\mathrm{soft}} / R_{\mathrm{hard}}\right)$. It measures the multiplicative gap between broad support and dominant-mode structure. In the phase diagram, these ranks are shown as width-comparable log coordinates, e.g. normalized $\log R_{\mathrm{soft}}$ and normalized $\log R_{\mathrm{hard}}$. The inequality $R_{\mathrm{hard}} \le R_{\mathrm{soft}}$ holds in general, so valid points lie on or below the diagonal in Figure 3.
+- **Soft effective rank** $R_{\mathrm{soft}} = R_1$ measures broad spectral support: how much representation mass is spread across many directions. I sometimes call this **Average-realized Capacity**.
+- **Hard effective rank** $R_{\mathrm{hard}} = R_2$ measures how many directions carry substantial, load-bearing mass. I sometimes call this **Dominant-mode Capacity**.
+- **Capacity asymmetry** is $\Delta = \log R_{\mathrm{soft}} - \log R_{\mathrm{hard}} = \log\!\left(R_{\mathrm{soft}} / R_{\mathrm{hard}}\right)$. It measures the multiplicative gap between broad support and dominant-mode structure.
+
+<figure>
+  <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure3_phase_diagram_for_realized_capacity.png' | relative_url }}" alt="Phase diagram for realized capacity">
+  <figcaption><strong>Figure 3.</strong> <em>Conceptual phase diagram for realized capacity.</em> The horizontal axis tracks broad spectral support, using normalized $\log R_{\mathrm{soft}}$; the vertical axis tracks load-bearing dominant-mode capacity, using normalized $\log R_{\mathrm{hard}}$. The shaded forbidden region reflects the constraint $R_{\mathrm{hard}} \le R_{\mathrm{soft}}$. The low-asymmetry frontier marks the regime where broad support and load-bearing dominant modes are closely matched. The gap $\Delta = \log R_{\mathrm{soft}} - \log R_{\mathrm{hard}}$ measures capacity asymmetry: how much broad spectral support is not yet matched by load-bearing structure.</figcaption>
+</figure>
+
+This phase diagram separates cases that scalar loss can collapse together. A model can be collapsed in both soft and hard rank; compact but coherent; broad but weakly load-bearing; or distributed and usable. The asymmetry gap asks whether apparently broad capacity has become load-bearing structure.
+
+That is why the distinction between soft and hard rank matters. Broad spectral support is useful, but it is not the whole story. In many regimes we also care about whether capacity becomes strong enough to carry signal, transfer, and support rare behaviors. The gap between support and load-bearing structure is precisely what capacity asymmetry tries to expose.
 
 ---
 
-## 6. Rare-token regimes expose capacity allocation
+## 6. Why optimizers realize capacity
+
+Optimization is not just the engine that minimizes loss. In overparameterized models, many solutions can fit the training data comparably well. The optimizer helps decide which of those solutions training actually finds.
+
+This is the sense in which optimizers realize capacity: they shape which available directions grow, which spectral modes become load-bearing, which circuits become active, and which parts of the hypothesis space are reachable.
+
+Architecture is the natural instrument for **hard inductive bias**. It restricts the support of the hypothesis space. Causal masking forbids attention to future tokens. Sparse MoE routing changes which parameters can activate for each token. Convolutional sharing enforces translation structure. These are not preferences; they are constraints. This hard-inductive-bias/soft-inductive-bias distinction is also consistent with the broader no-free-lunch/Kolmogorov-complexity view: learning succeeds when the learner's biases concentrate search on the low-complexity structure that real data tends to exhibit ([Goldblum et al., 2024](https://arxiv.org/abs/2304.05366); [Wilson, 2025](https://arxiv.org/abs/2503.02113)).
+
+Optimization is the natural instrument for **soft inductive bias**. It does not usually remove hypotheses from the function class. Instead, it changes which hypotheses are easy to reach. AdamW, Muon, Shampoo, Dion, and related optimizers encode different geometric assumptions about parameters: coordinate-wise scaling, matrix-level orthogonalization, Kronecker-factored curvature, low-rank projected updates, and different forms of momentum and preconditioning.
+
+The distinction can be summarized as support versus measure:
+
+<table>
+<thead><tr><th>Design object</th><th>Role</th><th>Practical effect</th></tr></thead>
+<tbody>
+<tr><td>Architecture</td><td>Hard inductive bias: restricts support</td><td>Determines what functions and computation patterns are possible</td></tr>
+<tr><td>Optimizer</td><td>Soft inductive bias: reweights reachable solutions</td><td>Determines which solutions are likely to be found</td></tr>
+<tr><td>Data</td><td>Likelihood/evidence</td><td>Determines where the solution is sharply constrained or underdetermined</td></tr>
+<tr><td>Trained model</td><td>Joint outcome</td><td>The actual computation implemented by the learned weights</td></tr>
+</tbody>
+</table>
+
+A useful analogy — not a literal Bayesian claim — is:
+
+<div class="math-box">
+$$
+p(h \mid \mathcal{D}, \mathcal{A}, \mathcal{O})
+\;\propto\;
+p(\mathcal{D} \mid h)\,
+p_{\mathcal{O}}(h \mid \mathcal{A}).
+$$
+</div>
+
+Here, $\mathcal{A}$ is the architecture, $\mathcal{O}$ is the optimizer/training algorithm, $\mathcal{D}$ is the data, and $h$ is the trained hypothesis. Architecture acts like the support of the hypothesis space; the optimizer induces something like a prior over reachable solutions inside that support; data acts like the likelihood.
+
+AdamW comes from decoupled weight decay for adaptive optimization ([Loshchilov and Hutter, 2019](https://arxiv.org/abs/1711.05101)); Shampoo is a structure-aware tensor preconditioner ([Gupta, Koren, and Singer, 2018](https://arxiv.org/abs/1802.09568)); Muon was introduced as a matrix-orthogonalized optimizer in an original public write-up and has since been studied for LLM scaling ([Jordan et al., 2024](https://kellerjordan.github.io/posts/muon/); [Liu et al., 2025](https://arxiv.org/abs/2502.16982)); NorMuon combines Muon-style orthogonalization with neuron-wise adaptive rates ([Li et al., 2025](https://arxiv.org/abs/2510.05491)); and Dion studies distributed orthonormalized updates with low-rank communication structure ([Ahn et al., 2025](https://arxiv.org/abs/2504.05295)). These choices change the path through parameter space, the effective prior over solutions, and the spectral structure that emerges in representations.
+
+This is also why architecture search under a fixed optimizer can be misleading. An architecture that appears unstable or underperforming under one optimizer may become viable under another. Conversely, an architecture that looks strong under AdamW may be partly strong because AdamW and that architecture form a historically well-tuned pair.
+
+The trainable frontier is therefore not the set of architectures alone. It is the set of viable architecture–optimizer pairs.
+
+---
+
+## 7. Effective graphs, circuits, and reachability
+
+The Transformer architecture gives us a static operator graph: attention blocks, MLP blocks, residual additions, layer normalizations, and projection matrices ([Vaswani et al., 2017](https://arxiv.org/abs/1706.03762)). But the trained model is not just this static graph.
+
+Inside it is an **effective signal-flow graph**: the set of routes through heads, MLP directions, residual-stream features, and layer compositions that actually carry meaningful signal for a behavior. This framing is closely related to the transformer-circuits view of a Transformer as a composition of residual-stream paths and attention/MLP components ([Elhage et al., 2021](https://transformer-circuits.pub/2021/framework/index.html)).
+
+<table>
+<thead><tr><th>Graph</th><th>Fixed by</th><th>What it contains</th><th>What it misses</th></tr></thead>
+<tbody>
+<tr><td>Static operator graph</td><td>Architecture</td><td>Matmuls, attention, MLPs, residual additions, normalization placement</td><td>Which routes actually carry meaningful signal after training</td></tr>
+<tr><td>Effective signal-flow graph</td><td>Architecture × optimizer × data</td><td>Load-bearing paths, active representation directions, behavior-specific circuits</td><td>Formal paths that exist but carry negligible signal</td></tr>
+</tbody>
+</table>
+
+Two models with the same architecture can therefore have different effective graphs. The same formal paths exist in both models, but different paths become load-bearing, and even the same path can carry signal with different spectral shape. One optimizer may fragment a rare signal across coordinate-wise statistics. Another may preserve it as a coherent matrix-level direction.
+
+This matters for interpretability. A circuit found in an AdamW-trained model is not automatically a circuit of the architecture. It may be a circuit of the architecture–optimizer pair. Change the optimizer, and the same architecture may build a different effective computation for the same behavior.
+
+There is also a reachability issue. A function may be representable by the architecture but effectively unreachable under a given optimizer and schedule. In that case, the optimizer has not changed the formal hypothesis space, but it has changed the subset of that space training can actually access.
+
+This is one of the reasons I prefer the language of **realized capacity** to raw capacity. It points to the model that training actually produced, not only the model class we wrote down.
+
+---
+
+## 8. Rare-token regimes expose optimizer-induced capacity allocation
 
 Natural language is not statistically uniform. Token frequency follows a long-tailed, approximately Zipfian distribution. A small number of HEAD tokens receive enormous gradient mass. A large number of TAIL tokens receive sparse, noisy, and intermittent supervision.
 
 This matters because the role of the optimizer changes with the statistical regime.
 
-For HEAD tokens, the likelihood is sharp: many reasonable optimizers find similar solutions because the data strongly constrains what should be learned. For TAIL tokens, the likelihood is weak: many solutions remain compatible with sparse evidence, and the implicit bias of the optimizer matters much more.
+For HEAD tokens, the likelihood is sharp: many reasonable optimizers can find similar solutions because the data strongly constrains what should be learned. For TAIL tokens, the likelihood is weak: many solutions remain compatible with sparse evidence, and the implicit bias of the optimizer matters much more.
 
-In Bayesian language:
+In the Bayesian analogy:
 
-> Where data is dense, the likelihood dominates. Where data is sparse, the prior dominates. The optimizer acts like a Soft Inductive Bias over reachable solutions.
+> Where data is dense, the likelihood dominates. Where data is sparse, the prior dominates. The optimizer acts like a soft inductive bias over reachable solutions.
 
 This gives a simple regime map:
 
@@ -290,14 +298,18 @@ This is practically important. Many frontier LLM behaviors are long-tail behavio
 
 If a model's average loss is dominated by frequent patterns, then loss can hide whether rare regimes are receiving usable representational capacity. Frequency-conditioned spectral telemetry is one way to expose that hidden allocation.
 
+Figure 4 resolves the aggregate result from Figure 1 into HEAD, MID, and TAIL regimes. The left panel shows dominant-mode capacity scaling directly through $\beta_{\mathrm{hard}}$. This is the most important long-tail signal: in TAIL representations, AdamW and Dion-1/16 have much weaker hard-rank scaling, while Muon and NorMuon approach near-linear dominant-mode capacity growth. The right panel shows the corresponding soft–hard scaling asymmetry.
+
 <figure class="figure-wide">
-  <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure4_capacity_scaling_asymmetry_token_regimes.png' | relative_url }}" alt="Capacity-scaling asymmetry across token regimes">
-  <figcaption><strong>Figure 4.</strong> <em>Capacity-scaling asymmetry across token-frequency regimes.</em> Here $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$ measures whether broad spectral support scales faster than dominant-mode capacity as FFN width increases. Values near zero indicate low scaling asymmetry. The small negative MID values for Muon and NorMuon should be read as effectively zero asymmetry in this finite-width fit: hard-rank scaling keeps pace with soft-rank scaling.</figcaption>
+  <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure4_capacity_scaling_asymmetry_token_regimes.png' | relative_url }}" alt="Frequency-conditioned realized-capacity scaling across token regimes">
+  <figcaption><strong>Figure 4.</strong> <em>Frequency-conditioned realized-capacity scaling.</em> Panel A shows hard-rank scaling exponents, $\beta_{\mathrm{hard}}$, across HEAD, MID, and TAIL token regimes. Panel B shows soft–hard scaling asymmetry, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$. The regime-conditioned view reveals where the optimizer effect becomes most consequential: in MID and especially TAIL regimes, where sparse supervision gives optimizer-induced bias more room to shape which representation directions become load-bearing.</figcaption>
 </figure>
 
----
+The rare-token result is not a side observation. It is one of the main reasons this matters for frontier LLMs. The behaviors we increasingly care about are not only high-frequency language modeling behaviors. They often live in sparse, structured, high-value parts of the data distribution.
 
-## 7. Why co-design is the right abstraction
+A capacity-aware training run should therefore not only ask whether loss improved on average. It should ask whether the long tail received usable internal structure.
+
+## 9. Why co-design is the right abstraction
 
 The conclusion is not that optimizers matter more than architectures. They do different jobs.
 
@@ -332,47 +344,76 @@ Both are necessary because they operate at different levels: architecture sets t
 </tbody>
 </table>
 
-This is why the object of design should be the pair.
+The historical default for LLMs has been a strong and productive equilibrium: dense Transformer architecture plus AdamW-like optimization plus carefully tuned data and schedules. That recipe worked extremely well. But it also made it easy to mistake properties of a particular architecture–optimizer pair for properties of the architecture alone.
+
+Co-design is the right abstraction because the object we deploy is not an architecture. It is a trained model. And the trained model is the joint outcome of architecture, data, optimizer, schedule, initialization, regularization, and scale.
+
+If two optimizers convert the same FFN width into different realized capacity, then a scaling decision is incomplete unless it specifies the optimizer. Likewise, an optimizer evaluation is incomplete if it reports speed and loss but not the internal capacity geometry it induces.
 
 ---
 
-## 8. Beyond this paper: scaling laws, plasticity, and training dynamics
+## 10. What should change in LLM practice?
 
-The architecture–optimizer view is not an isolated concern. It is part of a broader shift in how modern AI systems are being understood.
+The practical message is not "replace loss." Loss remains the central external training signal. The point is to add internal telemetry that tells us what kind of solution training is building.
 
-First, recent discussions in vision make the same methodological point from another domain. A CVPR 2026 invited-talk abstract argues that benchmark-level scaling can hide divergent internal strategies: vision models may match or surpass human accuracy on ImageNet while failing simple cognitive probes and relying on visual strategies unlike human perception. The proposed remedy is not merely to push scale further, but to align scaling laws with stronger learning objectives, naturalistic data, and architectural inductive biases inspired by biological vision ([CVPR 2026 invited talk abstract](https://cvpr.thecvf.com/virtual/2026/invited-talk/40399)). The analogy to LLMs is direct: the question is not only whether a model scales, but what internal strategy scaling produces.
+A capacity-aware pretraining run should make several comparisons routine:
 
-Second, continual learning provides a useful analogy for why architecture alone is not the whole story. Wider networks can reduce catastrophic forgetting by giving tasks more room and reducing gradient interference ([Mirzadeh et al., 2022](https://arxiv.org/abs/2110.11526)), but future learnability is not determined by raw width alone. Work on loss of plasticity suggests that trainability can degrade through changes in activation structure, feature-rank collapse, spectral collapse, optimizer dynamics, and regularization ([Abbas et al., 2023](https://arxiv.org/abs/2303.07507); [Dohare et al., 2024](https://www.nature.com/articles/s41586-024-07711-7); [He et al., 2025](https://arxiv.org/abs/2509.22335)). This reinforces the architecture–optimizer view of scaling: width and depth define potential capacity, but learning dynamics determine how much of that capacity remains realized, usable, and adaptable.
+- **Compare optimizers at matched loss**, not only at matched steps or wall-clock time.
+- **Log soft and hard effective ranks** during width, depth, and optimizer sweeps.
+- **Inspect frequency-conditioned capacity**, especially MID and TAIL regimes.
+- **Diagnose wasted width**, where parameters increase but hard-rank scaling remains weak.
+- **Treat optimizer choice as part of model design**, not as an implementation detail fixed after architecture is chosen.
+- **Look for architecture–optimizer interactions**, because the same architecture can have different realized capacity under different training dynamics.
 
-Third, recent position work makes the methodological point explicit: AI systems should be studied as time-evolving training processes, not only as static artifacts to analyze or patch after training. Scaling laws have made loss prediction routine; the harder challenge is building predictive accounts of capabilities, biases, robustness, and safety-relevant behavior as they emerge through training ([Biderman et al., 2026](https://arxiv.org/abs/2606.06533)).
+These are not expensive philosophical additions. They are telemetry. The goal is to know whether a training run is converting added architectural budget into internal structure that can carry signal, transfer, and remain adaptable.
 
-These three threads converge on a common point: the vision-scaling, plasticity, and training-dynamics communities all face the same diagnostic gap that scalar-loss scaling laws leave open. Each is, in its own setting, asking what internal structure scaling actually produces rather than only how a benchmark number moves.
+## 11. Broader research agenda
 
-Optimizer-induced spectral scaling laws fit naturally into this broader agenda. They track one measurable part of the coupling between architecture, data, and optimization dynamics: how training converts nominal capacity into realized internal structure.
+The architecture–optimizer view is part of a broader shift in how modern AI systems are being studied: from static artifacts to time-evolving training processes.
 
----
+### Scaling laws
 
-## 9. Toward capacity-aware LLM design
+Classical scaling laws predict loss from parameters, data, and compute ([Kaplan et al., 2020](https://arxiv.org/abs/2001.08361); [Hoffmann et al., 2022](https://arxiv.org/abs/2203.15556)). That has been enormously useful. But loss-based scaling laws do not tell us whether added parameters became usable internal dimensions, whether capacity was allocated to rare regimes, or whether two same-loss models reached the same representation geometry.
 
-The historical default for LLMs has been a strong and productive equilibrium: dense Transformer architecture plus AdamW-like optimization plus carefully tuned data and schedules. That recipe worked extremely well. But it also made it easy to mistake properties of a particular **architecture–optimizer pair** for properties of the architecture alone.
+A capacity-aware scaling law would not replace loss scaling. It would complement it with internal scaling variables: how soft rank, hard rank, asymmetry, and frequency-conditioned capacity scale with width, depth, optimizer, and data.
 
-Modern models are deeper, more heterogeneous, more sparse, more tool-oriented, more multilingual, more code-heavy, and more dependent on rare, structured, and long-tail behaviors. In these regimes, the optimizer's Soft Inductive Bias can become first-order.
+### Plasticity and future learnability
 
-This is the core claim behind optimizer-induced spectral scaling laws. If two optimizers train the same architecture but produce different spectral-capacity scaling, then the optimizer has changed the model's realized capacity. The matched-loss control in Figure 2 strengthens the point: even improving or matching loss does not guarantee matching internal geometry. If those effects concentrate in MID and TAIL regimes, then the optimizer is not only changing optimization speed. It is changing how the model allocates internal structure across the data distribution.
+Continual learning provides a useful analogy. Wider networks can reduce catastrophic forgetting by giving tasks more room and reducing gradient interference ([Mirzadeh et al., 2022](https://arxiv.org/abs/2110.11526)), but future learnability is not determined by raw width alone. Work on loss of plasticity suggests that trainability can degrade through changes in activation structure, feature-rank collapse, spectral collapse, optimizer dynamics, and regularization ([Abbas et al., 2023](https://arxiv.org/abs/2303.07507); [Dohare et al., 2024](https://www.nature.com/articles/s41586-024-07711-7); [He et al., 2025](https://arxiv.org/abs/2509.22335)).
+
+This reinforces the architecture–optimizer view: width and depth define potential capacity, but learning dynamics determine how much of that capacity remains realized, usable, and adaptable.
+
+### Interpretability and circuits
+
+If optimizers change the effective signal-flow graph, then circuits may be optimizer-conditional. A behavior discovered in one trained model may depend not only on the Transformer architecture, but on the training dynamics that made particular paths load-bearing.
+
+This suggests a sharper interpretability question: which circuits are architecture-stable, and which are training-dynamics-specific?
+
+### Training dynamics as the object of study
+
+Recent position work makes the methodological point explicit: AI systems should be studied as time-evolving training processes, not only as static artifacts to analyze or patch after training. Scaling laws have made loss prediction routine; the harder challenge is building predictive accounts of capabilities, biases, robustness, and safety-relevant behavior as they emerge through training ([Biderman et al., 2026](https://arxiv.org/abs/2606.06533)).
+
+Optimizer-induced spectral scaling laws fit naturally into this agenda. They track one measurable part of the coupling between architecture, data, and optimization dynamics: how training converts nominal capacity into realized internal structure.
+
+## 12. Toward capacity-aware LLM design
+
+This is the core claim behind optimizer-induced spectral scaling laws. If two optimizers train the same architecture but produce different spectral-capacity scaling, then the optimizer has changed the model's realized capacity. The matched-loss control in Figure 2 strengthens the point: even improving or matching loss does not guarantee matching internal geometry. Figure 4 shows where this becomes most consequential: MID and TAIL regimes, where optimizer-induced bias can shape how capacity is allocated across the data distribution.
 
 That is a design axis.
 
-The next generation of LLM design should not only ask how many parameters we train, how many tokens we consume, or how low the loss goes. It should also ask what capacity becomes real.
+The next generation of LLM design should not only ask how many parameters we train, how many tokens we consume, or how low the loss goes. It should also ask what capacity becomes real — and where in the data distribution that capacity becomes usable.
 
 > **Capacity-aware LLM design means tracking not just what the model could represent, but what training actually made it represent.**
 
----
+The long-term version of this agenda is not just better plots. It is a more complete science of pretraining: one that connects external scaling laws to internal representation geometry, optimizer-induced bias, long-tail capability, transfer, and future learnability.
+
+Architecture creates the space of possible computation. Optimization decides which parts of that space become real.
 
 ## What this does not claim
 
 There are several ways to overstate this argument, so it is worth being explicit.
 
-First, spectral rank is not a complete theory of intelligence, generalization, or downstream ability. It is a telemetry signal. It should be interpreted alongside loss, evaluations, robustness tests, calibration, interpretability, and application-specific metrics.
+First, spectral rank is not a complete theory of intelligence, generalization, or downstream ability. It is a telemetry signal. It should be interpreted alongside loss, evaluations, robustness tests, calibration, interpretability, and application-specific metrics. We are not claiming that spectral rank alone predicts capability; we are claiming that it exposes an internal axis that loss and parameter count do not measure.
 
 Second, optimizer-induced spectral capacity is not automatically good. More capacity is not always better. The right question is where capacity appears, whether it is stable, whether it supports useful behaviors, and whether it improves generalization in the regimes that matter.
 
@@ -380,28 +421,24 @@ Third, architecture remains indispensable. Optimizers cannot create structural g
 
 Fourth, the strongest claims require more evidence: larger models, more architectures, longer training, downstream probes, continued-learning tests, interpretability comparisons, and direct studies of rare-regime behavior.
 
----
-
 ## Open questions
 
 This framing leads to several questions that I think are worth treating as first-class pretraining-science problems.
 
-**1. Do optimizer-induced spectra predict downstream behavior?**
+**1. Do optimizer-induced spectra predict downstream behavior?**  
 If two models have similar loss but different realized capacity, which spectral differences predict transfer, robustness, rare-token reliability, or domain adaptation?
 
-**2. Are mechanistic circuits optimizer-conditional?**
+**2. Are mechanistic circuits optimizer-conditional?**  
 If the optimizer changes the effective signal-flow graph, then circuits discovered in one trained model may not be stable across optimizers, even with the same architecture.
 
-**3. How should we search over pairs?**
+**3. How should we search over architecture–optimizer pairs?**  
 Neural architecture search typically fixes the optimizer. Optimizer evaluation typically fixes the architecture. The co-design view suggests this may miss regions where neither component looks optimal alone, but the pair is strong.
 
-**4. Can realized-capacity telemetry improve scaling laws?**
-Classical scaling laws predict loss from parameters, data, and compute ([Kaplan et al., 2020](https://arxiv.org/abs/2001.08361); [Hoffmann et al., 2022](https://arxiv.org/abs/2203.15556)). A capacity-aware scaling law would also track how internal representation structure scales, and whether added parameters become usable degrees of freedom.
+**4. Can realized-capacity telemetry improve scaling laws?**  
+A capacity-aware scaling law would track how internal representation structure scales, and whether added parameters become usable degrees of freedom.
 
-**5. What is the connection to plasticity and future learnability?**
+**5. What is the connection to plasticity and future learnability?**  
 A model with similar loss but different spectral allocation may differ in its ability to keep learning. If realized capacity measures active degrees of freedom, then capacity telemetry may also help diagnose loss of plasticity, representational collapse, or the exhaustion of useful directions during continued training. Recent work even reframes plasticity itself as a measure of empowerment over future learning trajectories, suggesting that *what training preserves* may be as important as what it minimizes ([Abel et al., 2025](https://arxiv.org/abs/2505.10361)).
-
----
 
 ## References
 
@@ -410,7 +447,6 @@ A model with similar loss but different spectral allocation may differ in its ab
 - Kaplan, J., McCandlish, S., Henighan, T., Brown, T. B., Chess, B., Child, R., Gray, S., Radford, A., Wu, J., and Amodei, D. *Scaling Laws for Neural Language Models*. arXiv:2001.08361, 2020. [`arXiv`](https://arxiv.org/abs/2001.08361)
 - Hoffmann, J. et al. *Training Compute-Optimal Large Language Models*. NeurIPS, 2022. [`arXiv`](https://arxiv.org/abs/2203.15556)
 - Vaswani, A. et al. *Attention Is All You Need*. NeurIPS, 2017. [`arXiv`](https://arxiv.org/abs/1706.03762)
-- CVPR 2026 invited talk abstract. *Scaling laws, neural laws, and human-like visual strategies* (title paraphrased from abstract). [`CVPR virtual page`](https://cvpr.thecvf.com/virtual/2026/invited-talk/40399)
 
 ### Upstream–downstream gap and training dynamics
 
