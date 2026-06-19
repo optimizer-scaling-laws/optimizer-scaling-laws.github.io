@@ -34,8 +34,6 @@ Our experiments suggest that the answer depends strongly on the optimizer. The t
 
 The point is not that loss stops mattering. The point is that **optimization is not a neutral procedure that merely fills a fixed architecture. In overparameterized LLMs, optimization helps decide what capacity becomes real.**
 
-<p class="resource-line"><strong>Resources:</strong> <a href="https://optimizer-scaling-laws.github.io/">project page</a> · <a href="https://arxiv.org/abs/2605.21803">paper</a> · spectral telemetry code coming soon</p>
-
 <nav class="toc-box" aria-label="Table of contents">
   <div class="toc-title">On this page</div>
   <ol>
@@ -419,7 +417,7 @@ A model with similar loss but different spectral allocation may differ in its ab
 ## Citation
 {: #citation }
 
-If you find this post useful, please cite the associated paper and/or this essay.
+If you find this post useful, please cite the associated paper.
 
 ```bibtex
 @article{jha2026optimizerinduced,
@@ -430,23 +428,13 @@ If you find this post useful, please cite the associated paper and/or this essay
 }
 ```
 
-```bibtex
-@misc{jha2026samearchitectureblog,
-  title        = {Same Architecture, Different Capacity: Why Optimizer Choice Changes the Spectral Scaling Laws inside LLM Representations},
-  author       = {Jha, Nandan Kumar},
-  year         = {2026},
-  month        = {June},
-  howpublished = {Blog post},
-  url          = {https://optimizer-scaling-laws.github.io/blog/optimizer-induced-capacity/}
-}
-```
 
 ## References
 {: #references }
 
 <div class="references">
 
-### Scaling laws and Transformer architecture
+<h3>Scaling laws and Transformer architecture</h3>
 
 <ol class="references-list">
   <li>Kaplan, J., McCandlish, S., Henighan, T., Brown, T. B., Chess, B., Child, R., Gray, S., Radford, A., Wu, J., and Amodei, D. <em>Scaling Laws for Neural Language Models</em>. arXiv:2001.08361, 2020. <a href="https://arxiv.org/abs/2001.08361">arXiv</a></li>
@@ -456,7 +444,7 @@ If you find this post useful, please cite the associated paper and/or this essay
   <li>Vaswani, A. et al. <em>Attention Is All You Need</em>. NeurIPS, 2017. <a href="https://arxiv.org/abs/1706.03762">arXiv</a></li>
 </ol>
 
-### Upstream–downstream gap and training dynamics
+<h3>Upstream–downstream gap and training dynamics</h3>
 
 <ol class="references-list" start="6">
   <li>Liu, H., Xie, S. M., Li, Z., and Ma, T. <em>Same Pre-training Loss, Better Downstream: Implicit Bias Matters for Language Models</em>. arXiv:2210.14199, 2022. <a href="https://arxiv.org/abs/2210.14199">arXiv</a></li>
@@ -466,7 +454,7 @@ If you find this post useful, please cite the associated paper and/or this essay
   <li>Biderman, S., Khan, M. A., Mireshghallah, N., Arnett, C., Barez, F., and Saphra, N. <em>Position: Don't Just "Fix it in Post": A Science of AI Must Study Training Dynamics</em>. arXiv:2606.06533, 2026. <a href="https://arxiv.org/abs/2606.06533">arXiv</a></li>
 </ol>
 
-### Optimization and optimizer-induced bias
+<h3>Optimization and optimizer-induced bias</h3>
 
 <ol class="references-list" start="11">
   <li>Loshchilov, I., and Hutter, F. <em>Decoupled Weight Decay Regularization</em>. ICLR, 2019. <a href="https://arxiv.org/abs/1711.05101">arXiv</a></li>
@@ -477,7 +465,7 @@ If you find this post useful, please cite the associated paper and/or this essay
   <li>Ahn, K., Xu, B., Abreu, N., and Langford, J. <em>Dion: Distributed Orthonormalized Updates</em>. arXiv:2504.05295, 2025. <a href="https://arxiv.org/abs/2504.05295">arXiv</a></li>
 </ol>
 
-### Spectral capacity and information-theoretic framing
+<h3>Spectral capacity and information-theoretic framing</h3>
 
 <ol class="references-list" start="17">
   <li>Alemi, A. A., Poole, B., Fischer, I., Dillon, J. V., Saurous, R. A., and Murphy, K. <em>Fixing a Broken ELBO</em>. ICML, 2018. <a href="https://proceedings.mlr.press/v80/alemi18a.html">PMLR</a></li>
@@ -485,7 +473,7 @@ If you find this post useful, please cite the associated paper and/or this essay
   <li>Roy, O., and Vetterli, M. <em>The Effective Rank: A Measure of Effective Dimensionality</em>. EUSIPCO, 2007. <a href="https://www.eurasip.org/Proceedings/Eusipco/Eusipco2007/Papers/a5p-h05.pdf">PDF</a></li>
 </ol>
 
-### Inductive bias, interpretability, and plasticity
+<h3>Inductive bias, interpretability, and plasticity</h3>
 
 <ol class="references-list" start="20">
   <li>Elhage, N. et al. <em>A Mathematical Framework for Transformer Circuits</em>. Transformer Circuits, 2021. <a href="https://transformer-circuits.pub/2021/framework/index.html">article</a></li>

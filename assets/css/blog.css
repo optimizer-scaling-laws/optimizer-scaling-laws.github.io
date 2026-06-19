@@ -483,14 +483,6 @@ body {
 /* Hide tags inside the post header; keep tags available for blog index/cards. */
 .post-header .post-tags { display: none; }
 
-.resource-line {
-  color: #4b5563;
-  font-size: 0.95rem;
-  margin: 1.1rem 0 1.4rem;
-}
-.resource-line a {
-  font-weight: 500;
-}
 
 .toc-box {
   border: 1px solid #e5e7eb;
