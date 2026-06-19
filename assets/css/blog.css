@@ -268,3 +268,209 @@ body {
 }
 @media (max-width: 900px) {
 }
+
+/* ============================================================
+   Publication polish: navigation, callouts, references, tags
+   ============================================================ */
+
+.post-tags,
+.post-list-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+}
+.post-tag {
+  display: inline-block;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  padding: 0.16rem 0.55rem;
+  color: #4b5563;
+  background: #fafafa;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.thesis-card,
+.resource-box,
+.metric-box,
+.view-box,
+.toc-box {
+  border-radius: 8px;
+  margin: 1.6rem 0;
+}
+
+.thesis-card {
+  border: 1px solid #f1c7c0;
+  border-left: 5px solid #c0392b;
+  background: linear-gradient(180deg, #fff7f5 0%, #ffffff 100%);
+  padding: 1.1rem 1.3rem;
+}
+.thesis-card-label {
+  display: block;
+  color: #c0392b;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+}
+.thesis-card p {
+  margin: 0;
+  font-size: 1.12rem;
+  line-height: 1.55;
+}
+
+.resource-box {
+  border: 1px solid #dbeafe;
+  background: #f8fbff;
+  padding: 1rem 1.2rem;
+}
+.resource-box ul,
+.metric-box ul {
+  margin: 0.55rem 0 0 1.2rem;
+  padding: 0;
+}
+.resource-box li,
+.metric-box li {
+  margin: 0.22rem 0;
+}
+
+.toc-box {
+  border: 1px solid #e5e7eb;
+  background: #fbfbfc;
+  padding: 1rem 1.2rem 1.05rem;
+}
+.toc-title {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin-bottom: 0.45rem;
+}
+.toc-box ol {
+  margin: 0;
+  padding-left: 1.35rem;
+}
+.toc-box ol ol {
+  margin-top: 0.15rem;
+  padding-left: 1.1rem;
+}
+.toc-box li {
+  margin: 0.18rem 0;
+  line-height: 1.45;
+}
+.toc-box a {
+  color: #374151;
+  text-decoration: none;
+}
+.toc-box a:hover {
+  color: #c0392b;
+  text-decoration: underline;
+}
+
+.metric-box {
+  border: 1px solid #dde6ef;
+  border-left: 4px solid #4a6fa5;
+  background: #f7fafc;
+  padding: 1rem 1.2rem;
+}
+
+.view-box {
+  border: 1px solid #ead7d3;
+  border-left: 4px solid #c0392b;
+  background: #fffdfc;
+  padding: 1rem 1.2rem;
+}
+.view-box p { margin-bottom: 0; }
+
+.post-content h3[id^="view-"] {
+  border-left: 4px solid #c0392b;
+  padding-left: 0.8rem;
+  margin-top: 2.2rem;
+  color: #1f2937;
+}
+
+.takeaway-box {
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+}
+
+/* Make long technical tables usable on narrow screens. */
+.post-content table {
+  display: block;
+  overflow-x: auto;
+  white-space: normal;
+}
+.post-content thead,
+.post-content tbody,
+.post-content tr {
+  width: 100%;
+}
+
+/* Slightly more editorial figure treatment. */
+.post-content figcaption strong {
+  color: #1f2937;
+}
+.post-content figure.figure-wide {
+  margin-top: 2.2rem;
+  margin-bottom: 2.2rem;
+}
+.post-content figure.figure-wide img {
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
+}
+
+/* Better reference section readability. */
+.post-content .references h3 {
+  border-top: 1px solid #edf0f3;
+  padding-top: 1rem;
+}
+.references-list {
+  font-size: 0.93rem;
+  line-height: 1.55;
+  padding-left: 1.6rem;
+}
+.references-list li {
+  margin: 0.55rem 0;
+}
+.references-list a {
+  white-space: nowrap;
+}
+
+.posts-index-subtitle {
+  color: #4b5563;
+  margin-bottom: 2rem;
+}
+
+.post-footer p {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+.post-footer a {
+  color: #4b5563;
+  text-decoration: none;
+}
+.post-footer a:hover {
+  color: #c0392b;
+  text-decoration: underline;
+}
+
+@media (min-width: 1100px) {
+  body {
+    max-width: 1020px;
+  }
+}
+
+@media (max-width: 600px) {
+  .thesis-card,
+  .resource-box,
+  .metric-box,
+  .view-box,
+  .toc-box,
+  .takeaway-box {
+    padding: 0.9rem 1rem;
+  }
+  .thesis-card p { font-size: 1.02rem; }
+  .post-tags { gap: 0.25rem; }
+}

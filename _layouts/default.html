@@ -6,22 +6,30 @@
   <title>{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
   <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
   <meta name="author" content="{{ site.author }}">
+  <link rel="canonical" href="{{ site.url }}{{ page.url }}">
 
   <!-- Open Graph for sharing -->
   <meta property="og:title" content="{{ page.title | default: site.title }}">
   <meta property="og:description" content="{{ page.description | default: site.description }}">
-  <meta property="og:type" content="article">
+  <meta property="og:type" content="{% if page.layout == 'post' %}article{% else %}website{% endif %}">
   <meta property="og:url" content="{{ site.url }}{{ page.url }}">
+  {% if page.image %}<meta property="og:image" content="{{ site.url }}{{ page.image | relative_url }}">{% endif %}
+
+  <!-- Twitter cards -->
+  <meta name="twitter:card" content="{% if page.image %}summary_large_image{% else %}summary{% endif %}">
+  <meta name="twitter:title" content="{{ page.title | default: site.title }}">
+  <meta name="twitter:description" content="{{ page.description | default: site.description }}">
+  {% if page.image %}<meta name="twitter:image" content="{{ site.url }}{{ page.image | relative_url }}">{% endif %}
 
   <link rel="stylesheet" href="{{ '/assets/css/blog.css' | relative_url }}">
 </head>
 <body>
   <header class="site-header">
     <nav class="site-nav">
-      <a href="{{ site.url }}/" class="site-title">Optimizer-Induced Spectral Scaling Laws</a>
+      <a href="{{ '/' | relative_url }}" class="site-title">Optimizer-Induced Spectral Scaling Laws</a>
       <span class="nav-links">
-        <a href="{{ site.url }}/">Project</a>
-        <a href="{{ site.url }}/blog/">Blog</a>
+        <a href="{{ '/' | relative_url }}">Project</a>
+        <a href="{{ '/blog/' | relative_url }}">Blog</a>
         <a href="https://arxiv.org/abs/2605.21803">Paper</a>
         <a href="https://github.com/optimizer-scaling-laws/spectral-scaling-laws">Code</a>
       </span>
