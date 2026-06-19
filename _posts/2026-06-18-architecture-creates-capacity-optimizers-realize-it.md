@@ -6,7 +6,7 @@ author: "Nandan Kumar Jha"
 date: 2026-06-18
 permalink: /blog/optimizer-induced-capacity/
 description: "Why architecture creates available degrees of freedom, while optimization determines which internal capacity training actually realizes."
-reading_time: "~25 min read"
+reading_time: "~20 min read"
 ---
 
 > **Core thesis.** Architecture specifies the degrees of freedom a model *could* use. Optimization determines which of those degrees of freedom become active, load-bearing, transferable, and usable during training.
@@ -27,7 +27,7 @@ Our experiments suggest that the answer depends strongly on the optimizer. The a
 
 This is the central point of the blog: **optimization is not a neutral procedure that merely fills a fixed architecture. In overparameterized LLMs, optimization helps decide what capacity becomes real.**
 
-This is the controlled setup behind the empirical claim. The architecture and data are fixed; the optimizer is the intervention. What changes is the training trajectory, and with it the internal spectral-capacity profile reached by the model.
+Figure 0 summarizes the controlled setup: the optimizer changes the training trajectory, and with it the internal spectral-capacity profile reached by the model.
 
 <figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure0_same_architecture_same_data_different_optimizer.png' | relative_url }}" alt="Same architecture, same data, different optimizer conceptual setup">
@@ -62,22 +62,26 @@ The controlled result behind this essay is simple:
 
 In the paper, we vary FFN width under the same model family and compare how spectral effective ranks grow. The optimizer changes the slope of that growth. In other words, the model does not merely train faster or slower; it converts the same architectural budget into different internal capacity.
 
-Figure 1 gives the aggregate view across token-frequency regimes. The important quantity is not just the final rank value. It is the **scaling exponent**: how much additional FFN width becomes additional realized spectral capacity. In this aggregate view, Muon and NorMuon exhibit much stronger hard-rank scaling than AdamW, while also showing lower soft–hard scaling asymmetry. That means the added width is not merely broadening weak spectral support; more of it becomes load-bearing dominant-mode structure.
+Figure 1 gives the aggregate view across token-frequency regimes. The important quantity is not just the final rank value. It is the **scaling exponent**: how much additional FFN width becomes additional realized spectral capacity. In the TAIL regime, the separation is large: AdamW has weak hard-rank scaling ($\beta_{\mathrm{hard}} \approx 0.44$), while Muon and NorMuon approach near-linear hard-rank scaling ($\beta_{\mathrm{hard}} \approx 1.0$). That is roughly a $2.3\times$ larger exponent under the same architecture and data. In the aggregate view, the same pattern appears as stronger hard-rank scaling and lower soft–hard scaling asymmetry for Muon/NorMuon than for AdamW.
 
 <figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure1_optimizer_capacity_scaling.png' | relative_url }}" alt="Aggregated optimizer-level realized-capacity scaling">
   <figcaption><strong>Figure 1.</strong> <em>Aggregated optimizer-level realized-capacity scaling.</em> Architecture, data, and FFN-width schedule are fixed; only the optimizer changes. Panel A shows aggregated scaling exponents for soft effective rank, $\beta_{\mathrm{soft}}$, and hard effective rank, $\beta_{\mathrm{hard}}$. Panel B shows scaling asymmetry, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$. Muon and NorMuon show stronger hard-rank scaling and lower asymmetry than AdamW, indicating that more of the added width becomes load-bearing realized capacity. Figure 4 later resolves where this effect is strongest across HEAD, MID, and TAIL regimes.</figcaption>
 </figure>
 
+The full result tables, frequency-conditioned fits, and additional ablations are on the [project page](https://optimizer-scaling-laws.github.io/). The blog's role is interpretive: to explain why these scaling differences matter for how we think about architecture, optimization, and realized capacity.
+
+A scale caveat is important. These experiments are not frontier-scale training runs. They are controlled GPT-2-scale studies, including 160M and 350M model families on FineWeb-Edu. That scale is large enough to test whether optimizer choice can change internal capacity-scaling exponents under matched architecture and data; it is not large enough to claim that the same optimizer ordering must persist unchanged at multi-billion-parameter scale. This also matches concurrent optimizer-scaling work: preconditioned optimizers can change apparent scaling behavior, but there is evidence that the advantage may attenuate at larger LLM scale ([Ramani and Jain, 2026](https://arxiv.org/abs/2605.29387)). The senior question is therefore not "does this already settle frontier scaling?" It is: **what trend survives as we move from 160M to 350M, what might attenuate at larger scale, and what experiment would decide it?** The right next experiment is a calibrated billion-scale sweep that keeps architecture, data, tokenizer, width schedule, and compute accounting fixed while measuring whether the soft/hard-rank and HEAD/MID/TAIL effects persist.
+
 This is the main empirical reason to treat optimizer choice as a design axis. If two optimizers train the same architecture but produce different capacity-scaling exponents, then optimization is not just finding weights inside a fixed architecture. It is shaping which parts of that architecture become load-bearing.
 
 This does not mean that one optimizer is universally better, or that spectral rank is a sufficient measure of capability. The narrower claim is more precise: **optimizer choice can change the internal scaling law by which width becomes usable representation.** That is already enough to make it a first-class object in pretraining science.
 
----
-
 ## 3. Loss can improve while capacity geometry remains different
 
 The same issue appears inside our experiments as a controlled loss-matching example. Extending AdamW training from 6K to 12K improves validation perplexity and brings it close to the low-rank Dion-1/16 control across the FFN-width sweep. But the realized-capacity trajectories do not match: AdamW-12K remains much weaker in hard-rank growth, while Dion-1/16 preserves steadily increasing hard and soft effective ranks.
+
+The sharper point is counterintuitive. In this matched-loss control, training AdamW longer improves loss while weakening the hard-rank scaling trend: the hard-rank exponent drops from about $0.29$ to about $0.03$. In other words, the wider AdamW models are not simply "catching up" internally as loss improves. On this diagnostic, they are losing usable dominant-mode scaling.
 
 This is the sanity check that prevents the argument from collapsing into "one run trained longer." More training can improve loss without recovering the same width-to-capacity geometry.
 
@@ -85,6 +89,8 @@ This is the sanity check that prevents the argument from collapsing into "one ru
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure2_matched_loss_capacity_comparison.png' | relative_url }}" alt="Matched loss but different realized capacity">
   <figcaption><strong>Figure 2.</strong> <em>Matched loss, different realized capacity.</em> Extending AdamW training improves validation perplexity and brings it closer to the Dion-1/16 control, but the realized-capacity trajectories remain different. The hard-rank trajectory is especially diagnostic: closer loss does not imply matched internal geometry. The lesson is not that loss is unimportant; it is that loss alone does not tell us whether two training runs converted width into the same internal structure.</figcaption>
 </figure>
+
+The full matched-loss comparison and accompanying fits are available on the [project page](https://optimizer-scaling-laws.github.io/). The gap is also not closed by learning-rate tuning: it survives a learning-rate sweep reported with the project results. The blog-level point is the collapse of a common shortcut: lower or closer validation loss does not guarantee the same internal capacity geometry.
 
 This is the practical warning. If we only compare loss curves, we may conclude that two training runs have reached similar solutions. But if their internal capacity trajectories differ, they may not have built the same kind of model.
 
@@ -181,8 +187,8 @@ $$
 
 In this blog, I use the following naming convention:
 
-- **Soft effective rank** $R_{\mathrm{soft}} = R_1$ measures broad spectral support: how much representation mass is spread across many directions. I sometimes call this **Average-realized Capacity**.
-- **Hard effective rank** $R_{\mathrm{hard}} = R_2$ measures how many directions carry substantial, load-bearing mass. I sometimes call this **Dominant-mode Capacity**.
+- **Soft effective rank** $R_{\mathrm{soft}} = R_1$ measures broad spectral support: how much representation mass is spread across many directions.
+- **Hard effective rank** $R_{\mathrm{hard}} = R_2$ measures how many directions carry substantial, load-bearing mass.
 - **Capacity asymmetry** is $\Delta = \log R_{\mathrm{soft}} - \log R_{\mathrm{hard}} = \log\!\left(R_{\mathrm{soft}} / R_{\mathrm{hard}}\right)$. It measures the multiplicative gap between broad support and dominant-mode structure.
 
 <figure>
@@ -331,6 +337,8 @@ Optimization is the right tool when we need to decide how capacity is filled:
 
 Both are necessary because they operate at different levels: architecture sets the support, the optimizer reweights it.
 
+In our ablations, optimizer choice moved realized-capacity scaling more than the attention-rank and RoPE interventions we tested; the comparison is reported on the [project page](https://optimizer-scaling-laws.github.io/).
+
 <table>
 <thead><tr><th>If the goal is…</th><th>Architecture contributes…</th><th>Optimization contributes…</th></tr></thead>
 <tbody>
@@ -377,6 +385,8 @@ Classical scaling laws predict loss from parameters, data, and compute ([Kaplan 
 
 A capacity-aware scaling law would not replace loss scaling. It would complement it with internal scaling variables: how soft rank, hard rank, asymmetry, and frequency-conditioned capacity scale with width, depth, optimizer, and data.
 
+A similar warning appears in recent vision work: scaling can improve benchmark accuracy while widening the gap between the model's internal visual strategy and human vision, motivating stronger learning and architectural inductive biases rather than scaling alone ([CVPR 2026 invited talk abstract](https://cvpr.thecvf.com/virtual/2026/invited-talk/40399)).
+
 ### Plasticity and future learnability
 
 Continual learning provides a useful analogy. Wider networks can reduce catastrophic forgetting by giving tasks more room and reducing gradient interference ([Mirzadeh et al., 2022](https://arxiv.org/abs/2110.11526)), but future learnability is not determined by raw width alone. Work on loss of plasticity suggests that trainability can degrade through changes in activation structure, feature-rank collapse, spectral collapse, optimizer dynamics, and regularization ([Abbas et al., 2023](https://arxiv.org/abs/2303.07507); [Dohare et al., 2024](https://www.nature.com/articles/s41586-024-07711-7); [He et al., 2025](https://arxiv.org/abs/2509.22335)).
@@ -419,7 +429,7 @@ Second, optimizer-induced spectral capacity is not automatically good. More capa
 
 Third, architecture remains indispensable. Optimizers cannot create structural guarantees, reduce inference cost by construction, or represent functions excluded by the architecture. Co-design is not optimizer maximalism.
 
-Fourth, the strongest claims require more evidence: larger models, more architectures, longer training, downstream probes, continued-learning tests, interpretability comparisons, and direct studies of rare-regime behavior.
+Fourth, the scale question remains open. The present evidence establishes a controlled optimizer-induced capacity-scaling effect at GPT-2 160M/350M scale; the strongest frontier-scale claims require larger models, longer training, more architectures, downstream probes, continued-learning tests, interpretability comparisons, and direct studies of rare-regime behavior.
 
 ## Open questions
 
@@ -446,6 +456,8 @@ A model with similar loss but different spectral allocation may differ in its ab
 
 - Kaplan, J., McCandlish, S., Henighan, T., Brown, T. B., Chess, B., Child, R., Gray, S., Radford, A., Wu, J., and Amodei, D. *Scaling Laws for Neural Language Models*. arXiv:2001.08361, 2020. [`arXiv`](https://arxiv.org/abs/2001.08361)
 - Hoffmann, J. et al. *Training Compute-Optimal Large Language Models*. NeurIPS, 2022. [`arXiv`](https://arxiv.org/abs/2203.15556)
+- Ramani, V., and Jain, S. V. *On the Optimizer Dependence of Neural Scaling Laws*. ICML HiLD Workshop, 2026. [`arXiv`](https://arxiv.org/abs/2605.29387)
+- CVPR 2026 invited talk abstract. [`CVPR virtual`](https://cvpr.thecvf.com/virtual/2026/invited-talk/40399)
 - Vaswani, A. et al. *Attention Is All You Need*. NeurIPS, 2017. [`arXiv`](https://arxiv.org/abs/1706.03762)
 
 ### Upstream–downstream gap and training dynamics
