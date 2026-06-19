@@ -18,10 +18,6 @@ tags:
 ---
 > **Core thesis.** Architecture specifies the degrees of freedom a model *could* use. Optimization helps determine which of those degrees of freedom become active, variance-carrying, organized, transferable, and usable during training.
 
-<div class="thesis-card">
-  <span class="thesis-card-label">Main claim</span>
-  <p>Same architecture. Same data. Same tokenizer. Same FFN-width schedule. <strong>Different optimizer. Different internal capacity law.</strong></p>
-</div>
 
 ## TL;DR
 {: #tldr }
@@ -38,38 +34,19 @@ Our experiments suggest that the answer depends strongly on the optimizer. The t
 
 The point is not that loss stops mattering. The point is that **optimization is not a neutral procedure that merely fills a fixed architecture. In overparameterized LLMs, optimization helps decide what capacity becomes real.**
 
-<div class="resource-box">
-  <strong>Associated resources.</strong>
-  <ul>
-    <li><strong>Project page:</strong> <a href="https://optimizer-scaling-laws.github.io/">optimizer-scaling-laws.github.io</a></li>
-    <li><strong>Paper:</strong> <a href="https://arxiv.org/abs/2605.21803">Optimizer-Induced Spectral Scaling Laws</a></li>
-    <li><strong>Spectral telemetry code:</strong> planned release</li>
-  </ul>
-</div>
+<p class="resource-line"><strong>Resources:</strong> <a href="https://optimizer-scaling-laws.github.io/">project page</a> · <a href="https://arxiv.org/abs/2605.21803">paper</a> · spectral telemetry code coming soon</p>
 
 <nav class="toc-box" aria-label="Table of contents">
-  <div class="toc-title">Table of contents</div>
+  <div class="toc-title">On this page</div>
   <ol>
     <li><a href="#same-architecture-different-capacity-scaling">Same architecture, different capacity scaling</a></li>
     <li><a href="#matched-loss-is-not-matched-geometry">Matched loss is not matched geometry</a></li>
-    <li><a href="#rare-tokens-expose-optimizer-induced-capacity-allocation">Rare tokens expose optimizer-induced capacity allocation</a></li>
-    <li><a href="#five-views-of-the-same-gap">Five views of the same gap</a>
-      <ol>
-        <li><a href="#view-i-upstream-downstream-gap">View I — Upstream–downstream gap</a></li>
-        <li><a href="#view-ii-rate-distortion">View II — Rate–distortion</a></li>
-        <li><a href="#view-iii-realized-capacity">View III — Realized capacity</a></li>
-        <li><a href="#view-iv-plasticity-and-continual-learning">View IV — Plasticity and continual learning</a></li>
-        <li><a href="#view-v-effective-computational-graph">View V — Effective Computational Graph</a></li>
-      </ol>
-    </li>
+    <li><a href="#rare-tokens-expose-optimizer-induced-capacity-allocation">Rare-token capacity allocation</a></li>
+    <li><a href="#five-views-of-the-same-gap">Five views of the same gap</a></li>
     <li><a href="#why-optimizers-realize-capacity">Why optimizers realize capacity</a></li>
-    <li><a href="#the-design-object-is-the-architecture-optimizer-pair">The design object is the architecture–optimizer pair</a></li>
+    <li><a href="#the-design-object-is-the-architecture-optimizer-pair">Architecture–optimizer co-design</a></li>
     <li><a href="#what-changes-in-pretraining-practice">What changes in pretraining practice?</a></li>
-    <li><a href="#conclusion-toward-capacity-aware-llm-design">Conclusion</a></li>
-    <li><a href="#what-this-does-not-claim">What this does not claim</a></li>
-    <li><a href="#open-questions">Open questions</a></li>
-    <li><a href="#citation">Citation</a></li>
-    <li><a href="#references">References</a></li>
+    <li><a href="#what-this-does-not-claim">Caveats and open questions</a></li>
   </ol>
 </nav>
 
@@ -114,10 +91,7 @@ The senior question is therefore not, "does this settle frontier scaling?" It is
 
 The narrow claim is precise: **optimizer choice can change the internal scaling law by which width becomes usable representation.** That is enough to make it a first-class object in pretraining science.
 
-<div class="takeaway-box">
-  <span class="takeaway-label">Takeaway</span>
-  Optimizer choice changes not only training speed or final loss, but the scaling law by which added FFN width becomes realized internal capacity.
-</div>
+<p class="takeaway-inline"><strong>Takeaway.</strong> Optimizer choice changes not only training speed or final loss, but the scaling law by which added FFN width becomes realized internal capacity.</p>
 
 ## 2. Matched loss is not matched geometry
 {: #matched-loss-is-not-matched-geometry }
@@ -137,10 +111,7 @@ The full matched-loss comparison and accompanying fits are available on the [pro
 
 This is the practical warning. If we only compare loss curves, we may conclude that two training runs reached similar solutions. But if their internal capacity trajectories differ, they may not have built the same kind of model. Loss tells us something about output error. It does not tell us whether the model used the same internal directions, reached the same kind of minimum, or preserved the same capacity for future adaptation.
 
-<div class="takeaway-box">
-  <span class="takeaway-label">Takeaway</span>
-  Matched validation loss can still hide different width-to-capacity trajectories. Loss matching is necessary for a fair comparison, but it is not enough to establish matched internal geometry.
-</div>
+<p class="takeaway-inline"><strong>Takeaway.</strong> Matched validation loss can still hide different width-to-capacity trajectories. Loss matching is necessary for a fair comparison, but it is not enough to establish matched internal geometry.</p>
 
 ## 3. Rare tokens expose optimizer-induced capacity allocation
 {: #rare-tokens-expose-optimizer-induced-capacity-allocation }
@@ -175,18 +146,12 @@ The rare-token result is not a side observation. It is one of the main reasons t
 
 A capacity-aware training run should therefore not only ask whether loss improved on average. It should ask whether the long tail received usable internal structure.
 
-<div class="takeaway-box">
-  <span class="takeaway-label">Takeaway</span>
-  Rare-token regimes are where optimizer-induced bias has the most room to shape which weak signals become coherent representation directions.
-</div>
+<p class="takeaway-inline"><strong>Takeaway.</strong> Rare-token regimes are where optimizer-induced bias has the most room to shape which weak signals become coherent representation directions.</p>
 
 ## 4. Five views of the same gap
 {: #five-views-of-the-same-gap }
 
-<div class="view-box">
-  <strong>Five views of the same gap.</strong>
-  <p>The empirical result is one instance of a broader pattern: scalar training success does not fully describe the internal state of the learned model. Upstream–downstream transfer, rate–distortion, realized capacity, continual learning, and effective computational graphs all point to the same warning: loss and architecture do not fully specify the trained model.</p>
-</div>
+The empirical result is one instance of a broader pattern: scalar training success does not fully describe the internal state of the learned model. Upstream–downstream transfer, rate–distortion, realized capacity, continual learning, and effective computational graphs all point to the same warning: loss and architecture do not fully specify the trained model.
 
 Optimizer-induced spectral scaling gives these views a concrete pretraining-science object: **the width-to-capacity conversion law of a fixed architecture can change with the optimizer.**
 
