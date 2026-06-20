@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Architecture Creates Capacity, Optimizers Realize It."
-subtitle: "Why LLM scaling should account for realized capacity, not just loss curves and parameter counts"
+subtitle: "Why LLM scaling laws should account for realized capacity, not just loss curves and parameter counts"
 author: "Nandan Kumar Jha"
 date: 2026-06-18
 permalink: /blog/optimizer-induced-capacity/
