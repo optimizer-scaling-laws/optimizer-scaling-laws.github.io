@@ -1,11 +1,11 @@
 ---
 layout: post
-title: "Same Architecture, Different Capacity"
-subtitle: "Why optimizer choice changes the spectral scaling laws inside LLM representations"
+title: "Architecture Creates Capacity, Optimizers Realize It."
+subtitle: "Why LLM scaling should account for realized capacity, not just loss curves and parameter counts"
 author: "Nandan Kumar Jha"
 date: 2026-06-18
 permalink: /blog/optimizer-induced-capacity/
-description: "A controlled look at why LLM scaling needs realized-capacity telemetry: same architecture, same data, different optimizer, different internal capacity law."
+description: "Why LLM scaling should account for realized capacity: the same architecture and training data can produce different internal capacity under different optimizers."
 reading_time: "~28 min read"
 image: /assets/blog/architecture-optimizer-codesign/figure0_same_architecture_same_data_different_optimizer.png
 tags:
