@@ -16,7 +16,7 @@ tags:
   - spectral-geometry
   - continual-learning
 ---
-> **Core thesis.** Architecture defines the degrees of freedom a model *could* use. Optimization helps determine which of those degrees of freedom become realized, as variance-carrying directions, during training.
+> **Core thesis.** Architecture defines the degrees of freedom a model *could* use. Optimization helps determine which of those degrees of freedom become realized, *as variance-carrying directions*, during training.
 
 
 ## TL;DR
