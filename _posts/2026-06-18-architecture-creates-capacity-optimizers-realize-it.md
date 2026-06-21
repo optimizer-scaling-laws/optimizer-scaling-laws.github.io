@@ -22,11 +22,11 @@ tags:
 ## TL;DR
 {: #tldr }
 
-- **Same architecture, different capacity law.** Holding architecture, data, tokenizer, and FFN-width schedule fixed, optimizer choice changes the spectral-capacity scaling law realized inside FFN representations.
-- **Matched loss is not matched geometry.** Longer AdamW training improves validation perplexity without recovering the same dominant-mode capacity scaling reached by a different optimizer.
-- **The long tail exposes the gap.** In rare-token regimes, AdamW and Dion-1/16 realize much weaker dominant-mode capacity scaling than Muon and NorMuon under the same architecture.
-- **Several literatures point to the same failure mode.** Upstream–downstream transfer, rate–distortion, continual-learning plasticity, and effective computational graphs all warn that scalar performance does not fully describe the model training produced.
-- **The design object is the architecture–optimizer pair.** Architecture creates available capacity; optimization helps decide which parts become realized internal structure.
+We usually treat model capacity as something mostly determined by architecture: width, depth, parameter count, and data scale. But in our experiments, the same GPT-2 architecture trained on the same data with different optimizers realizes very different spectral scaling laws inside its FFN representations.
+
+The key finding is not just that optimizers affect loss. It is that two models can reach similar validation loss while organizing their internal representation space very differently, especially in rare-token regimes where data provides weaker constraints.
+
+This suggests a broader view: architecture defines the space of possible computation, but the optimizer helps determine which parts of that space become usable. Capacity is therefore not purely architectural. It is realized by the architecture–optimizer pair.
 
 That is the controlled fact behind this post. Scaling laws made us good at asking how loss changes with parameters, data, and compute. They left a quieter question under-measured: when we add capacity to a model, does training actually use it?
 
@@ -149,9 +149,9 @@ A capacity-aware training run should therefore not only ask whether loss improve
 ## 4. Five views of the same gap
 {: #five-views-of-the-same-gap }
 
-The empirical result is one instance of a broader pattern: scalar training success does not fully describe the internal state of the learned model. Upstream–downstream transfer, rate–distortion, realized capacity, continual learning, and effective computational graphs all point to the same warning: loss and architecture do not fully specify the trained model.
+The empirical result is one instance of a broader pattern: scalar training success does not fully describe the internal state of the learned model. Upstream–downstream transfer, rate–distortion, realized capacity, continual-learning plasticity, and inductive-bias views all point to the same warning: loss and architecture do not fully specify the trained model.
 
-Optimizer-induced spectral scaling gives these views a concrete pretraining-science object: **the width-to-capacity conversion law of a fixed architecture can change with the optimizer.**
+Optimizer-induced spectral scaling gives these views a concrete pretraining-science object: the width-to-capacity conversion law of a fixed architecture can change with the optimizer.
 
 ### View I — Upstream–downstream gap: same loss is not same usefulness
 {: #view-i-upstream-downstream-gap }
@@ -268,16 +268,16 @@ Spectral ranks do not prove plasticity by themselves. They measure how capacity 
 
 The continual-learning lesson is not that architecture does not matter. It is that architecture creates potential capacity, while learning dynamics determine how much of that capacity becomes realized, usable, and adaptable.
 
-### View V — Effective Computational Graph: same architecture, different realized computation
-{: #view-v-effective-computational-graph }
+### View V — Hard and soft inductive bias: same architecture, different reachable solutions
+{: #view-v-hard-and-soft-inductive-bias }
 
-The Transformer architecture gives us a static operator graph: attention blocks, MLP blocks, residual additions, layer normalizations, and projection matrices ([Vaswani et al., 2017](https://arxiv.org/abs/1706.03762)). But the trained model is not just this static graph.
+Another way to state the same gap is through inductive bias. Architecture provides a hard inductive bias: it restricts the support of possible computation. Causal masking, residual topology, normalization placement, attention structure, parameter sharing, sparse routing, and FFN width all decide what kinds of computation the model can express efficiently.
 
-A trained model contains an **effective computational graph**: the routes through heads, MLP directions, residual-stream features, and layer compositions that actually carry meaningful signal for a behavior. This framing is closely related to the transformer-circuits view of a Transformer as a composition of residual-stream paths and attention/MLP components ([Elhage et al., 2021](https://transformer-circuits.pub/2021/framework/index.html)).
+Optimization provides a softer inductive bias. It does not usually change the formal hypothesis space, but it changes which solutions inside that space are reachable, stable, and likely under a given training budget. In overparameterized models, many parameter settings can reach similar loss. The optimizer helps decide which one training actually finds.
 
-Two models with the same architecture can therefore have different effective computational graphs. The same formal paths exist, but different paths carry different amounts of variance and signal. A circuit found in an AdamW-trained model is not automatically a circuit of the architecture. It may be a circuit of the architecture–optimizer pair.
+This distinction is especially important in rare-token regimes. Where data is dense, the likelihood strongly constrains the solution. Where data is sparse, many internal organizations remain compatible with the observations, and optimizer-induced bias has more room to decide which representation directions grow.
 
-There is also a reachability issue. A function may be representable by the architecture but effectively unreachable under a given optimizer and schedule. The optimizer has not changed the formal hypothesis space, but it has changed the subset of that space training can actually access.
+From this perspective, the effective computational graph is not determined by the architecture alone. The formal Transformer graph defines the available paths, but the optimizer helps decide which heads, MLP directions, residual-stream features, and layer compositions actually carry signal. A circuit found in an AdamW-trained model may therefore be a circuit of the architecture–optimizer pair, not a circuit of the architecture in isolation.
 
 ## 5. Why optimizers realize capacity
 {: #why-optimizers-realize-capacity }
