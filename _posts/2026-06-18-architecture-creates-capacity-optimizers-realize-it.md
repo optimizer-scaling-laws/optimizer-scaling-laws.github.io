@@ -19,35 +19,6 @@ tags:
 > **Core thesis.** Architecture defines the degrees of freedom a model *could* use. Optimization helps determine which of those degrees of freedom become realized, *as variance-carrying directions*, during training.
 
 
-<style>
-.tldr-box {
-  background: #f8fafc;
-  border-left: 4px solid #334155;
-  padding: 1.1rem 1.25rem;
-  margin: 1.25rem 0 1.75rem 0;
-  border-radius: 8px;
-}
-
-.tldr-box p {
-  margin-top: 0;
-  margin-bottom: 0.85rem;
-}
-
-.tldr-box ul {
-  margin-bottom: 0;
-  padding-left: 1.25rem;
-}
-
-.tldr-box li {
-  margin-bottom: 0.75rem;
-}
-
-.tldr-box li:last-child {
-  margin-bottom: 0;
-}
-</style>
-
-
 ## TL;DR
 {: #tldr }
 
@@ -186,18 +157,79 @@ A capacity-aware training run should therefore not only ask whether loss improve
 ## 4. Five views of the same gap
 {: #five-views-of-the-same-gap }
 
-The empirical result is one instance of a broader pattern: scalar training success does not fully describe the internal state of the learned model. Upstream–downstream transfer, rate–distortion, realized capacity, continual-learning plasticity, and inductive-bias views all point to the same warning: loss and architecture do not fully specify the trained model.
+The empirical result is not an isolated optimizer anecdote. It belongs to a broader pattern: scalar training success does not fully describe the internal state of the learned model. The common warning is that loss and architecture alone do not specify the representation that training produced.
 
-Optimizer-induced spectral scaling gives these views a concrete pretraining-science object: the width-to-capacity conversion law of a fixed architecture can change with the optimizer.
+Optimizer-induced spectral scaling gives this warning a concrete pretraining-science object: the width-to-capacity conversion law of a fixed architecture can change with the optimizer. The map below shows the role each view plays in the argument.
 
-### View I — Upstream–downstream gap: same loss is not same usefulness
+<style>
+.view-map {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.1rem 0 1.75rem 0;
+  font-size: 0.95rem;
+}
+.view-map th {
+  text-align: left;
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid #cbd5e1;
+  background: #f8fafc;
+}
+.view-map td {
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: top;
+}
+.view-map td:first-child {
+  font-weight: 600;
+  white-space: nowrap;
+}
+</style>
+
+<table class="view-map">
+<thead>
+<tr>
+<th>View</th>
+<th>Main lesson</th>
+<th>What it adds here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Upstream–downstream gap</td>
+<td>Same loss is not the same useful representation</td>
+<td>Loss alone does not identify the representation learned for downstream tasks.</td>
+</tr>
+<tr>
+<td>Rate–distortion</td>
+<td>One objective can hide different internal structures</td>
+<td>Spectral capacity gives a missing internal axis beyond scalar prediction error.</td>
+</tr>
+<tr>
+<td>Realized capacity</td>
+<td>Nominal width is not usable representation capacity</td>
+<td>Width matters only if training converts it into active representation directions.</td>
+</tr>
+<tr>
+<td>Hard/soft inductive bias</td>
+<td>Same architecture does not mean same reachable solution</td>
+<td>The architecture–optimizer pair is the real design object.</td>
+</tr>
+<tr>
+<td>Plasticity</td>
+<td>Realized capacity must remain adaptable for future tasks</td>
+<td>Capacity matters for future learning, not only current loss.</td>
+</tr>
+</tbody>
+</table>
+
+### View I — Upstream–downstream gap: same loss is not the same useful representation
 {: #view-i-upstream-downstream-gap }
 
-Loss curves, gradient norms, learning rates, tokens/sec, memory, and downstream evaluations are necessary training signals. They are not sufficient.
+Loss curves, gradient norms, learning rates, tokens/sec, memory, and downstream evaluations are useful signals. They are not complete descriptions of the trained model.
 
-The reason is simple: **the same loss can be reached through different internal organizations of the model**. A language model can reduce next-token error by spreading representation across many directions, or by concentrating prediction-relevant variance into fewer dominant modes. It can allocate capacity broadly across token regimes, or spend most of its internal structure on frequent patterns while leaving rare regimes under-realized.
+The reason is simple: **the same loss can be reached through different internal organizations of the model**. A language model can reduce next-token error by spreading variance across many directions, concentrating prediction-relevant variance into fewer dominant modes, or allocating capacity unevenly across token-frequency regimes.
 
-Prior work makes this concern concrete. Liu et al. show that pretraining loss does not fully explain downstream performance: among models with the same pretraining loss, changing the training algorithm can produce different downstream transfer ([Liu et al., 2022](https://arxiv.org/abs/2210.14199)). More recent optimizer-level work makes the geometric version of the point: same-loss pretraining can converge to solutions with different relationships among task-specific minima, and optimizer design can bias training toward solutions that transfer better ([Chen et al., 2026](https://arxiv.org/abs/2604.09258)). Representation-geometry studies show why this is plausible: scalar metrics can miss non-monotonic changes in learned geometry during pretraining and post-training ([Li et al., 2025](https://arxiv.org/abs/2509.23024)).
+Prior work makes this concern concrete. Liu et al. show that pretraining loss does not fully explain downstream performance: among models with the same pretraining loss, changing the training algorithm can produce different downstream transfer ([Liu et al., 2022](https://arxiv.org/abs/2210.14199)). Optimizer-level work gives a geometric version of the point: same-loss pretraining can converge to solutions with different relationships among task-specific minima, and optimizer design can bias training toward solutions that transfer better ([Chen et al., 2026](https://arxiv.org/abs/2604.09258)). Representation-geometry studies give the same warning from another angle: scalar metrics can miss non-monotonic changes in learned geometry during pretraining and post-training ([Li et al., 2025](https://arxiv.org/abs/2509.23024)).
 
 There is also a theoretical reason to expect this gap. Wu, Lee, and Ge show that low pretraining loss alone does not guarantee that every downstream-relevant feature is recoverable from the representation; downstream transfer depends on properties of the learned representation and the task, including weakly constrained or low-probability structure ([Wu, Lee, and Ge, 2023](https://proceedings.neurips.cc/paper_files/paper/2023/hash/93712c59f6a81bd92040facf04c8b308-Abstract-Conference.html)).
 
@@ -205,7 +237,7 @@ Our result is a spectral-capacity version of the same warning. If two optimizers
 
 > **What internal capacity did training realize in order to reach that loss?**
 
-### View II — Rate–distortion: one scalar can hide different internal coordinates
+### View II — Rate–distortion: one objective can hide different internal structures
 {: #view-ii-rate-distortion }
 
 A useful analogy comes from rate–distortion thinking. Spectral rank is not literally rate: classical rate is a KL-style encoding cost for a latent variable relative to a marginal distribution, while spectral rank measures how variance is distributed across eigendirections.
@@ -216,7 +248,7 @@ Alemi et al. made this concrete for VAEs: identical ELBO values can correspond t
 
 Spectral capacity is one way to expose that hidden coordinate. It does not replace loss, just as rate–distortion plots do not replace the ELBO. It adds a second axis: not only how well the model predicts, but what internal structure training built to make those predictions possible.
 
-### View III — Realized capacity: nominal capacity is not realized capacity
+### View III — Realized capacity: nominal width is not usable representation capacity
 {: #view-iii-realized-capacity }
 
 The architecture–optimizer distinction becomes clearest if we separate two notions of capacity.
@@ -225,9 +257,7 @@ The architecture–optimizer distinction becomes clearest if we separate two not
 
 > **Realized capacity** is the capacity actually used by the trained model: which representation directions become active, how variance is distributed across eigenmodes, which modes grow with width, and which data regimes receive usable internal structure.
 
-Architecture gives the learning system things optimization cannot create after the fact: causal masking, equivariance, sparse routing, inference-time compute patterns, dimensional ceilings, residual topology, normalization placement, and parameter sharing. No optimizer can make a non-causal model causal, give a dense model sparse inference, or recover capacity that the architecture never admitted.
-
-But architecture has a crucial limitation: **it creates available capacity; it does not guarantee realized capacity**. Adding FFN width raises the ceiling on representable structure, but it does not force training to fill those new directions. Increasing depth opens computation paths, but it does not guarantee that signal will route through them. Adding heads, experts, or low-rank structure changes the available function class without selecting which eigenmodes accumulate variance.
+Architecture gives the learning system things optimization cannot create after the fact: causal masking, equivariance, sparse routing, inference-time compute patterns, dimensional ceilings, residual topology, normalization placement, and parameter sharing. But architecture has a crucial limitation: it creates available capacity; it does not guarantee that training will fill those degrees of freedom.
 
 A useful mental model is:
 
@@ -258,6 +288,8 @@ Here, $\mathcal{A}$ is the architecture, $\mathcal{O}$ is the optimizer/training
 This decomposition predicts that **the same architectural intervention can have different realized effects under different optimizers**. If $\rho_{\mathrm{realized}}$ is high, added width translates into usable representation. If it is low, added width raises the ceiling without filling it.
 
 Spectral geometry gives one practical way to measure this distinction. Given a representation covariance, its eigenspectrum tells us how variance is distributed across eigenmodes. Effective-rank measures summarize that distribution. The entropy-based formulation traces back to Roy and Vetterli, and the broader Rényi family gives a principled way to vary sensitivity to diffuse versus dominant eigenmodes ([Roy and Vetterli, 2007](https://www.eurasip.org/Proceedings/Eusipco/Eusipco2007/Papers/a5p-h05.pdf); [Rényi, 1961](https://projecteuclid.org/ebooks/berkeley-symposium-on-mathematical-statistics-and-probability/On-Measures-of-Entropy-and-Information/chapter/On-Measures-of-Entropy-and-Information/bsmsp/1200512181)).
+
+The following definitions make this distinction measurable.
 
 Let the eigenvalues of a representation covariance be $(\lambda_1, \ldots, \lambda_d)$, and normalize them into a variance distribution over eigenmodes:
 
@@ -290,31 +322,33 @@ I use the following convention throughout:
 
 This phase diagram separates cases that scalar loss can collapse together. A model can be compact and concentrated; diffuse but weak in dominant eigenmodes; or broad in diffuse capacity while also high in dominant-mode capacity. Capacity asymmetry asks whether high diffuse capacity is matched by variance in dominant eigenmodes.
 
-### View IV — Plasticity and continual learning: capacity must remain usable
-{: #view-iv-plasticity-and-continual-learning }
+### View IV — Hard and soft inductive bias: same architecture does not mean same reachable solution
+{: #view-iv-hard-and-soft-inductive-bias }
 
-Continual learning gives another version of the same lesson. Forgetting asks whether the model keeps the past; plasticity asks whether it can still learn the future.
+Inductive bias explains why realized capacity can differ under the same architecture. No-free-lunch and complexity-based views make the basic lesson unavoidable: learning systems need biases that privilege some solutions over others, because the data alone rarely specifies a unique model ([Goldblum et al., 2024](https://arxiv.org/abs/2304.05366)).
+
+Architecture provides a hard inductive bias: it restricts the support of possible computation. Causal masking, residual topology, normalization placement, attention structure, parameter sharing, sparse routing, and FFN width all decide what kinds of computation the model can express efficiently.
+
+Optimization provides a softer inductive bias. It does not usually change the formal hypothesis space, but it changes which solutions inside that space are reachable, stable, and likely under a given training budget. This aligns with the broader view that modern overparameterized learning often works by keeping a flexible hypothesis space while imposing soft preferences over data-consistent solutions ([Wilson, 2025](https://arxiv.org/abs/2503.02113)). In overparameterized models, many parameter settings can reach similar loss. The optimizer helps decide which one training actually finds.
+
+This distinction is especially important in rare-token regimes. Where data is dense, the likelihood strongly constrains the solution. Where data is sparse, many internal organizations remain compatible with the observations, and optimizer-induced bias has more room to decide which representation directions grow.
+
+From this perspective, the effective computational graph is not determined by the architecture alone. The formal Transformer graph defines the available paths, but the optimizer helps decide which heads, MLP directions, residual-stream features, and layer compositions actually carry signal. In the transformer-circuits view, a model is a composition of residual-stream paths and attention/MLP components; our result suggests that which paths become active can be conditional on the architecture–optimizer pair ([Elhage et al., 2021](https://transformer-circuits.pub/2021/framework/index.html)).
+
+### View V — Plasticity and continual learning: realized capacity must remain adaptable for future tasks
+{: #view-v-plasticity-and-continual-learning }
+
+Continual learning adds a forward-looking version of the same issue. Forgetting asks whether the model keeps the past; plasticity asks whether it can still learn the future.
 
 This matters for pretraining because many valuable future behaviors look like sparse, delayed, or underrepresented learning problems: domain specialization, rare-task acquisition, fine-tuning on small expert datasets, new tools, new formats, and long-tail facts. A model can have the nominal capacity to represent these behaviors and still fail to keep useful directions available for later adaptation.
 
 Wider networks can reduce catastrophic forgetting by giving tasks more room and reducing gradient interference ([Mirzadeh et al., 2022](https://arxiv.org/abs/2110.11526)), but future learnability is not determined by raw width alone. Under fixed parameter budgets, architectural work also suggests that width and depth can favor different sides of the stability–plasticity trade-off: wider networks tend to improve stability, while deeper networks can improve plasticity ([Lu et al., 2025](https://arxiv.org/abs/2506.03951)).
 
-Recent plasticity work makes the limitation more concrete. Plasticity loss can arise through dormant units, activation drift, feature-rank collapse, spectral collapse, norm growth, optimizer dynamics, and regularization choices ([Abbas et al., 2023](https://arxiv.org/abs/2303.07507); [Dohare et al., 2024](https://www.nature.com/articles/s41586-024-07711-7); [Lyle et al., 2024](https://arxiv.org/abs/2402.18762); [He et al., 2025](https://arxiv.org/abs/2509.22335)). In language models, Han et al. show that pretraining weight decay can improve downstream fine-tuning plasticity, even when the best pretraining validation loss would select a different model ([Han et al., 2026](https://arxiv.org/abs/2602.11137)).
+Recent plasticity work makes the limitation more concrete. Plasticity loss has been linked to dormant units, activation drift, feature-rank collapse, spectral collapse, norm growth, optimizer dynamics, and regularization choices ([Abbas et al., 2023](https://arxiv.org/abs/2303.07507); [Dohare et al., 2024](https://www.nature.com/articles/s41586-024-07711-7); [Lyle et al., 2024](https://arxiv.org/abs/2402.18762); [He et al., 2025](https://arxiv.org/abs/2509.22335)). In language models, Han et al. show that pretraining weight decay can improve downstream fine-tuning plasticity, even when the best pretraining validation loss would select a different model ([Han et al., 2026](https://arxiv.org/abs/2602.11137)).
 
 Spectral ranks do not prove plasticity by themselves. They measure how capacity is currently realized, while future learnability depends on whether realized or weakly used directions remain available for adaptation. But if two same-loss models allocate spectral capacity differently — especially across MID and TAIL token regimes — they may also differ in how much useful structure remains available for later specialization. Rare-task scaling work makes this connection concrete: larger models can learn rare and complex tasks partly by reducing interference and retaining rare-task features long enough for sparse signals to accumulate ([Huang et al., 2026](https://arxiv.org/abs/2605.29548)). Recent work also reframes plasticity as empowerment over future learning trajectories, which makes the same point in a different language: what training preserves can be as important as what it minimizes ([Abel et al., 2025](https://arxiv.org/abs/2505.10361)).
 
-The continual-learning lesson is not that architecture does not matter. It is that architecture creates potential capacity, while learning dynamics determine how much of that capacity becomes realized, usable, and adaptable.
-
-### View V — Hard and soft inductive bias: same architecture, different reachable solutions
-{: #view-v-hard-and-soft-inductive-bias }
-
-Another way to state the same gap is through inductive bias. Architecture provides a hard inductive bias: it restricts the support of possible computation. Causal masking, residual topology, normalization placement, attention structure, parameter sharing, sparse routing, and FFN width all decide what kinds of computation the model can express efficiently.
-
-Optimization provides a softer inductive bias. It does not usually change the formal hypothesis space, but it changes which solutions inside that space are reachable, stable, and likely under a given training budget. In overparameterized models, many parameter settings can reach similar loss. The optimizer helps decide which one training actually finds.
-
-This distinction is especially important in rare-token regimes. Where data is dense, the likelihood strongly constrains the solution. Where data is sparse, many internal organizations remain compatible with the observations, and optimizer-induced bias has more room to decide which representation directions grow.
-
-From this perspective, the effective computational graph is not determined by the architecture alone. The formal Transformer graph defines the available paths, but the optimizer helps decide which heads, MLP directions, residual-stream features, and layer compositions actually carry signal. A circuit found in an AdamW-trained model may therefore be a circuit of the architecture–optimizer pair, not a circuit of the architecture in isolation.
+The continual-learning lesson is not that architecture does not matter. It is that capacity must remain not only present, but usable for later learning. That depends on the interaction between architecture, data, optimizer, regularization, and training dynamics.
 
 ## 5. Why optimizers realize capacity
 {: #why-optimizers-realize-capacity }
@@ -513,6 +547,8 @@ If you find this post useful, please cite the associated paper.
 <h3>Inductive bias, interpretability, and plasticity</h3>
 
 <ol class="references-list" start="20">
+  <li>Goldblum, M., Finzi, M., Rowan, K., and Wilson, A. G. <em>The No Free Lunch Theorem, Kolmogorov Complexity, and the Role of Inductive Biases in Machine Learning</em>. ICML, 2024. <a href="https://arxiv.org/abs/2304.05366">arXiv</a></li>
+  <li>Wilson, A. G. <em>Deep Learning is Not So Mysterious or Different</em>. ICML, 2025. <a href="https://arxiv.org/abs/2503.02113">arXiv</a></li>
   <li>Elhage, N. et al. <em>A Mathematical Framework for Transformer Circuits</em>. Transformer Circuits, 2021. <a href="https://transformer-circuits.pub/2021/framework/index.html">article</a></li>
   <li>Mirzadeh, S. I., Chaudhry, A., Yin, D., Hu, H., Pascanu, R., Gorur, D., and Farajtabar, M. <em>Wide Neural Networks Forget Less Catastrophically</em>. ICML, 2022. <a href="https://arxiv.org/abs/2110.11526">arXiv</a></li>
   <li>Lu, A., Yuan, H., Feng, T., and Sun, Y. <em>Rethinking the Stability-Plasticity Trade-off in Continual Learning from an Architectural Perspective</em>. ICML, 2025. <a href="https://arxiv.org/abs/2506.03951">arXiv</a></li>
