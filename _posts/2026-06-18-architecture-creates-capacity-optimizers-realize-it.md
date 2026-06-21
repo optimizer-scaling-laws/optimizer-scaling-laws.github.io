@@ -41,6 +41,36 @@ tags:
 .tldr-box li:last-child {
   margin-bottom: 0;
 }
+
+.toc-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.85rem 1.05rem;
+  margin: 1.4rem 0 1.9rem 0;
+}
+.toc-box summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #0f172a;
+}
+.toc-box ol {
+  margin: 0.75rem 0 0 1.25rem;
+  padding-left: 0.75rem;
+}
+.toc-box ol ol {
+  margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+.toc-box li {
+  margin: 0.35rem 0;
+}
+.toc-box a {
+  text-decoration: none;
+}
+.toc-box a:hover {
+  text-decoration: underline;
+}
 </style>
 
 
@@ -67,25 +97,35 @@ Our experiments suggest that the answer depends strongly on the optimizer. The t
 
 The point is not that loss stops mattering. The point is that **optimization is not a neutral procedure that merely fills a fixed architecture. In overparameterized LLMs, optimization helps decide what capacity becomes real.**
 
-<nav class="toc-box" aria-label="Table of contents">
-  <div class="toc-title">On this page</div>
-  <ol>
-    <li><a href="#same-architecture-different-capacity-scaling">Same architecture, different capacity scaling</a></li>
-    <li><a href="#matched-loss-is-not-matched-geometry">Matched loss is not matched representation</a></li>
-    <li><a href="#rare-tokens-expose-optimizer-induced-capacity-allocation">Rare-token capacity allocation</a></li>
-    <li><a href="#five-views-of-the-same-gap">Five views of the same gap</a></li>
-    <li><a href="#why-optimizers-realize-capacity">Why optimizers realize capacity</a></li>
-    <li><a href="#the-design-object-is-the-architecture-optimizer-pair">Architecture–optimizer co-design</a></li>
-    <li><a href="#what-changes-in-pretraining-practice">What changes in pretraining practice?</a></li>
-    <li><a href="#conclusion-toward-capacity-aware-llm-design">Conclusion</a></li>
-    <li><a href="#what-this-does-not-claim">Caveats and open questions</a></li>
-  </ol>
-</nav>
-
 <figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure0_same_architecture_same_data_different_optimizer.png' | relative_url }}" alt="Same architecture, same data, different optimizer conceptual setup">
   <figcaption><strong>Figure 0.</strong> <em>Same architecture, same data, different optimizer.</em> The model family, data distribution, and training task are held fixed. Optimizer choice changes the path through parameter space, and those different training dynamics can lead to different internal spectral-capacity profiles, even when final loss is similar.</figcaption>
 </figure>
+
+<details class="toc-box">
+  <summary>On this page</summary>
+  <ol>
+    <li><a href="#same-architecture-different-capacity-scaling">Same architecture, different capacity scaling</a></li>
+    <li><a href="#matched-loss-is-not-matched-geometry">Matched loss is not matched representation</a></li>
+    <li><a href="#rare-tokens-expose-optimizer-induced-capacity-allocation">Rare-token capacity allocation</a></li>
+    <li>
+      <a href="#five-views-of-the-same-gap">Five views of the same gap</a>
+      <ol>
+        <li><a href="#view-i-upstream-downstream-gap">Upstream–downstream gap</a></li>
+        <li><a href="#view-ii-rate-distortion">Rate–distortion</a></li>
+        <li><a href="#view-iii-realized-capacity">Realized capacity</a></li>
+        <li><a href="#view-iv-hard-and-soft-inductive-bias">Hard and soft inductive bias</a></li>
+        <li><a href="#view-v-plasticity-and-continual-learning">Plasticity and continual learning</a></li>
+      </ol>
+    </li>
+    <li><a href="#why-optimizers-realize-capacity">Why optimizers realize capacity</a></li>
+    <li><a href="#the-design-object-is-the-architecture-optimizer-pair">Architecture–optimizer co-design</a></li>
+    <li><a href="#what-changes-in-pretraining-practice">What changes in pretraining practice?</a></li>
+    <li><a href="#conclusion-toward-capacity-aware-llm-design">Conclusion</a></li>
+    <li><a href="#what-this-does-not-claim">What this does not claim</a></li>
+    <li><a href="#open-questions">Open questions</a></li>
+  </ol>
+</details>
 
 ## 1. Same architecture, different capacity scaling
 {: #same-architecture-different-capacity-scaling }
@@ -108,7 +148,7 @@ For the first pass through the evidence, only three terms are needed.
 
 In the paper, we vary FFN width under the same model family and compare how spectral effective ranks grow. The optimizer changes the slope of that growth. The model does not merely train faster or slower; it converts the same architectural budget into a different internal capacity profile.
 
-Figure 1 gives the aggregate view. The important quantity is not just final rank value, but the **scaling exponent**: how much additional FFN width becomes additional realized spectral capacity. In the TAIL regime, AdamW has weak dominant-mode capacity scaling ($\beta_{\mathrm{hard}} \approx 0.44$), while Muon and NorMuon approach near-linear dominant-mode capacity scaling ($\beta_{\mathrm{hard}} \approx 1.0$). That is roughly a $2.3\times$ larger exponent under the same architecture and training data.
+Figure 1 gives the aggregate view. The important quantity is not just final rank value, but the **scaling exponent**: how much additional FFN width becomes additional realized spectral capacity. In the TAIL regime, AdamW has weak dominant-mode capacity scaling ($\beta_{\mathrm{hard}} \approx 0.44$), while Muon and NorMuon approach near-linear dominant-mode capacity scaling ($\beta_{\mathrm{hard}} \approx 1.0$). That is roughly a $2.3\times$ larger exponent under the same architecture and data.
 
 <figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure1_optimizer_capacity_scaling.png' | relative_url }}" alt="Aggregated optimizer-level realized-capacity scaling">
