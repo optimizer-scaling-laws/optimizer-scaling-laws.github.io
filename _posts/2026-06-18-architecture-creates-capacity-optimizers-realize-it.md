@@ -19,14 +19,51 @@ tags:
 > **Core thesis.** Architecture defines the degrees of freedom a model *could* use. Optimization helps determine which of those degrees of freedom become realized, *as variance-carrying directions*, during training.
 
 
+<style>
+.tldr-box {
+  background: #f8fafc;
+  border-left: 4px solid #334155;
+  padding: 1.1rem 1.25rem;
+  margin: 1.25rem 0 1.75rem 0;
+  border-radius: 8px;
+}
+
+.tldr-box p {
+  margin-top: 0;
+  margin-bottom: 0.85rem;
+}
+
+.tldr-box ul {
+  margin-bottom: 0;
+  padding-left: 1.25rem;
+}
+
+.tldr-box li {
+  margin-bottom: 0.75rem;
+}
+
+.tldr-box li:last-child {
+  margin-bottom: 0;
+}
+</style>
+
+
 ## TL;DR
 {: #tldr }
 
-We usually treat model capacity as something mostly determined by architecture: width, depth, parameter count, and data scale. But in our experiments, the same GPT-2 architecture trained on the same data with different optimizers realizes very different spectral scaling laws inside its FFN representations.
+<div class="tldr-box">
 
-The key finding is not just that optimizers affect loss. It is that two models can reach similar validation loss while organizing their internal representation space very differently, especially in rare-token regimes where data provides weaker constraints.
+<p><strong>Capacity is not just what the architecture makes possible; it is what training actually makes usable.</strong></p>
 
-This suggests a broader view: architecture defines the space of possible computation, but the optimizer helps determine which parts of that space become usable. Capacity is therefore not purely architectural. It is realized by the architecture–optimizer pair.
+<ul>
+  <li><strong>Finding.</strong> Holding architecture, training data, tokenizer, and FFN-width schedule fixed, optimizer choice changes the internal spectral capacity realized inside FFN representations.</li>
+
+  <li><strong>Matched loss is not matched representation.</strong> Across FFN-width configurations, models trained with the same architecture but different optimizers can reach similar validation loss while learning different internal representations. Longer AdamW training matches the validation loss of Dion-1/16, but does not recover the dominant-mode capacity scaling achieved by Dion-1/16.</li>
+
+  <li><strong>Implication.</strong> Architecture sets the representational degrees of freedom; optimization helps decide which become active, variance-carrying directions, and how they are allocated across token-frequency regimes. This matters most for rare tokens, where training data provides weaker constraints and optimizer-induced bias has more room to shape which directions grow. Capacity is therefore realized by the architecture–optimizer pair, not by architecture alone.</li>
+</ul>
+
+</div>
 
 That is the controlled fact behind this post. Scaling laws made us good at asking how loss changes with parameters, data, and compute. They left a quieter question under-measured: when we add capacity to a model, does training actually use it?
 
