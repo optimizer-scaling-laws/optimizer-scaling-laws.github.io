@@ -253,37 +253,41 @@ The aforementioned gap is also not closed by learning-rate tuning, the learning-
 
 
 ## 3. Rare tokens expose optimizer-induced capacity allocation
+
 {: #rare-tokens-expose-optimizer-induced-capacity-allocation }
 
-Natural language is long-tailed. A small number of HEAD tokens receive enormous gradient mass. The long tail receives sparse, noisy, intermittent supervision.
+Natural language is long-tailed. A small number of HEAD tokens receive dense, repeated supervision; TAIL tokens receive sparse, noisy, intermittent supervision.
 
-That changes the role of optimization. For HEAD tokens, the data strongly constrains what should be learned. Many reasonable optimizers can find similar solutions. For TAIL tokens, the evidence is weaker: many internal organizations remain compatible with sparse observations, and the optimizer's implicit bias has more room to shape which representation directions grow.
+That changes the role of optimization. For HEAD tokens, the data strongly constrains what should be learned, so many reasonable optimizers can find similar solutions. For TAIL tokens, the evidence is weaker: many representations remain compatible with sparse observations, leaving more room for optimizer-induced bias to shape which directions grow.
 
-In the Bayesian analogy: where data is dense, the likelihood dominates; where data is sparse, the prior matters more. The optimizer acts like a soft inductive bias over reachable solutions.
+In Bayesian terms, dense regimes are likelihood-dominated; sparse regimes are prior-sensitive. Here, the optimizer acts like a soft prior over which solutions training reaches.
+
+This leads to a prediction: optimizer-induced differences should be most visible where the data underdetermines the representation.
 
 <table>
 <thead><tr><th>Token regime</th><th>Data condition</th><th>Dominant bottleneck</th><th>Expected stronger lever</th></tr></thead>
 <tbody>
-<tr><td>HEAD</td><td>Dense, frequent, well-conditioned supervision</td><td>Architectural ceiling and compute pattern</td><td>Architecture</td></tr>
+<tr><td>HEAD</td><td>Dense, frequent, well-conditioned supervision</td><td>Compute and architectural ceiling</td><td>Architecture</td></tr>
 <tr><td>MID</td><td>Partially constrained, mixed signal quality</td><td>Capacity allocation across modes</td><td>Architecture–optimizer pair</td></tr>
-<tr><td>TAIL</td><td>Sparse, noisy, underdetermined supervision</td><td>Signal preservation and implicit prior</td><td>Optimizer</td></tr>
+<tr><td>TAIL</td><td>Sparse, noisy, underdetermined supervision</td><td>Signal preservation and implicit bias</td><td>Optimizer / training dynamics</td></tr>
 </tbody>
 </table>
 
-This suggests that optimizer-induced differences should be most visible in MID and TAIL regimes. It also explains why architecture-only changes can under-deliver for long-tail behavior: adding capacity raises the ceiling, but sparse data does not automatically fill it. The optimizer may need to preserve and amplify weak joint signals rather than fragment them.
+This is why architecture-only changes can under-deliver for long-tail behavior: adding capacity raises the ceiling, but sparse supervision does not automatically fill it. The optimizer may need to preserve and amplify weak signals rather than fragment them.
 
-Many frontier-relevant LLM behaviors plausibly depend on this sparse, high-value part of the distribution: low-resource languages, rare code and scientific vocabulary, long-tail factual recall, tool-use edge cases, and expert specialization in sparse MoE settings.
+This is also where the result becomes relevant for frontier-capability questions. If realized capacity affects how sparse regimes transfer, then low-resource languages, rare scientific and code vocabulary, long-tail factual recall, tool-use edge cases, and sparse expert specialization are exactly the kinds of regimes where this diagnostic should matter. That connection is a hypothesis to test, not something the spectral measurement alone proves.
 
-Figure 3 resolves the aggregate result from Figure 1 into HEAD, MID, and TAIL regimes. The left panel shows dominant-mode capacity scaling directly through $\beta_{\mathrm{hard}}$. In TAIL representations, AdamW and Dion-1/16 have much weaker dominant-mode capacity scaling, while Muon and NorMuon approach near-linear dominant-mode growth. The right panel shows the corresponding average/diffuse–dominant capacity asymmetry.
+Figure 3 tests the prediction by resolving the aggregate result from Figure 1 into HEAD, MID, and TAIL regimes. The left panel shows dominant-mode capacity scaling through $\beta_{\mathrm{hard}}$. In TAIL representations, AdamW and Dion-1/16 show much weaker dominant-mode capacity scaling, while Muon and NorMuon approach near-linear dominant-mode growth. This is worth separating from the matched-loss result above: Dion-1/16 is a strong control for showing that loss matching does not imply matched geometry, but in the TAIL regime it still behaves closer to AdamW than to Muon/NorMuon. The right panel shows the corresponding average/diffuse–dominant capacity asymmetry.
+
 
 <figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure4_capacity_scaling_asymmetry_token_regimes.png' | relative_url }}" alt="Frequency-conditioned realized-capacity scaling across token regimes">
-  <figcaption><strong>Figure 3.</strong> <em>Frequency-conditioned realized-capacity scaling.</em> Panel A shows dominant-mode capacity scaling exponents, $\beta_{\mathrm{hard}}$, across HEAD, MID, and TAIL token regimes. Panel B shows average/diffuse–dominant capacity asymmetry, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$. The regime-conditioned view reveals where the optimizer effect becomes most consequential: MID and especially TAIL regimes, where sparse supervision gives optimizer-induced bias more room to shape which eigenmodes accumulate variance.</figcaption>
+  <figcaption><strong>Figure 3.</strong> <em>Frequency-conditioned realized-capacity scaling.</em> Panel A shows dominant-mode capacity scaling exponents, $\beta_{\mathrm{hard}}$, across HEAD, MID, and TAIL token regimes. Panel B shows average/diffuse–dominant capacity asymmetry, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$. The regime-conditioned view reveals where the optimizer effect is strongest: MID and especially TAIL regimes, where sparse supervision leaves more room for optimizer-induced bias to shape which eigenmodes accumulate variance.</figcaption>
 </figure>
 
-The rare-token result is not a side observation. It is one of the main reasons this may matter for frontier LLMs. If average loss is dominated by frequent patterns, loss can hide whether rare regimes receive realized spectral capacity. Frequency-conditioned spectral telemetry can expose that hidden allocation.
+The rare-token result is one of the main reasons this matters for pretraining science. If average loss is dominated by frequent patterns, it can hide whether sparse regimes receive realized spectral capacity. Frequency-conditioned spectral telemetry exposes that hidden allocation.
 
-A capacity-aware training run should therefore ask not only whether average loss improved, but whether the long tail received measurable internal structure — and then test whether that structure predicts rare-regime behavior.
+A capacity-aware training run should therefore ask not only whether average loss improved, but whether the long tail received measurable internal structure, and whether that structure predicts rare-regime behavior.
 
 <p class="takeaway-inline"><strong>Takeaway.</strong> Rare-token regimes are where optimizer-induced bias has the most room to shape which weak signals become coherent representation directions.</p>
 
