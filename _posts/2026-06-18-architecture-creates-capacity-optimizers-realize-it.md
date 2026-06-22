@@ -155,14 +155,14 @@ h2#tldr {
 
 <div class="tldr-box">
 
-<p><strong>Capacity is not just what the architecture makes possible; it is what training realizes as internal structure.</strong></p>
+<p><strong>Capacity is not just what the architecture makes possible, it is what training converts into usable representation.</strong></p>
 
 <ul>
-  <li><strong>Finding.</strong> Holding architecture, training data, tokenizer, and FFN-width schedule fixed, optimizer choice changes the spectral capacity realized inside FFN representations.</li>
+  <li><strong>Finding.</strong> Holding architecture, training data, tokenizer, and FFN-width schedule fixed, optimizer choice changes the spectral capacity realized in the FFN representation geometry.</li>
 
-  <li><strong>Matched loss is not matched representation.</strong> The same architecture can reach similar validation loss under different optimizers while retaining different internal capacity trajectories. Longer AdamW training can match Dion-1/16 validation loss, but not Dion-1/16's dominant-mode capacity scaling.</li>
+  <li><strong>Matched loss is not matched representation.</strong> The same architecture can reach similar validation loss under different optimizers while learning different internal representation geometry. Longer AdamW training can match Dion (1/16) in validation loss, but not in dominant-mode capacity scaling.</li>
 
-  <li><strong>Implication.</strong> Architecture sets the representational degrees of freedom; optimization helps decide which degrees of freedom become active and variance-carrying, and how they are allocated across token-frequency regimes. In our measurements, this effect is most visible for rare tokens, where supervision is sparse and optimizer-induced bias has more room to shape the directions that grow.</li>
+  <li><strong>Implication.</strong> Architecture sets the available degrees of freedom; training dynamics help determine which ones become active, variance-carrying, and allocated across token-frequency regimes. The effect is clearest for rare tokens, where sparse supervision leaves more room for optimizer-induced bias.</li>
 </ul>
 
 </div>
