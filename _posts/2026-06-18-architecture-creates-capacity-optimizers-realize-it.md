@@ -162,14 +162,14 @@ h2#tldr {
 </ul>
 </div>
 
-A scope note: throughout this post, **realized capacity** means *realized spectral capacity* — variance-carrying internal directions measured through representation eigenspectra. It is not a complete behavioral measure of intelligence, transfer, or downstream capability. It is an internal telemetry signal that loss curves and parameter counts do not directly measure.
+A scope note: throughout this post, **realized capacity** means **realized spectral capacity**--variance-carrying internal directions measured through representation eigenspectra. It is not a complete behavioral measure of intelligence, transfer, or downstream capability. It is an internal telemetry signal that loss curves and parameter counts do not directly measure.
 
-This is the controlled fact behind the post. Classical scaling laws made us good at asking how loss changes with parameters, training data, and compute. They leave a quieter question under-measured: when we add architectural capacity, does training convert it into measurable internal structure? In our experiments, that conversion depends strongly on optimizer choice, especially in rare-token regimes where supervision is sparse.
+This post starts from a controlled fact and then asks what follows from it. Classical scaling laws taught us to ask how loss changes with parameters, training data, and compute. They leave a quieter question under-measured: when we add architectural capacity, does training convert it into measurable internal structure? In our experiments, that conversion depends strongly on optimizer choice, especially in rare-token regimes where supervision is sparse.
 
 
 <figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure0_same_architecture_same_data_different_optimizer.png' | relative_url }}" alt="Same architecture, same data, different optimizer conceptual setup">
-  <figcaption><strong>Figure 0.</strong> <em>Same architecture, same data, different optimizer.</em> The model family, data distribution, and training task are held fixed. Optimizer choice changes the path through parameter space, and those different training dynamics can lead to different internal spectral-capacity profiles, even when final loss is similar.</figcaption>
+  <figcaption><strong>Figure 0.</strong> <em>Same architecture, same training data, different optimizer.</em> With the model, and data held fixed, different optimizers induce different paths through parameter space--and those trajectories can yield different internal spectral-capacity profiles even when final loss is similar.</figcaption>
 </figure>
 
 <details class="toc-box">
@@ -196,38 +196,39 @@ This is the controlled fact behind the post. Classical scaling laws made us good
 </details>
 
 ## 1. Same architecture, different capacity scaling
+
 {: #same-architecture-different-capacity-scaling }
 
 The result behind this post is simple:
 
-> **When architecture, training data, tokenizer, and width schedule are fixed, changing the optimizer changes how realized spectral capacity scales.**
+> **When architecture, training data, tokenizer, and FFN-width schedule are fixed, changing the optimizer changes how realized spectral capacity scales.**
 
-For the first pass through the evidence, four quantities are needed.
+To interpret the first result, four quantities are useful.
 
 <div class="metric-box">
   <strong>Metrics used in this post.</strong>
   <ul>
-    <li><strong>Average/diffuse capacity</strong>: soft spectral rank; how broadly representation variance spreads across eigenmodes.</li>
-    <li><strong>Dominant-mode capacity</strong>: hard spectral rank; how many strong eigenmodes carry substantial variance.</li>
-    <li><strong>Capacity asymmetry</strong>: the gap between diffuse and dominant-mode capacity.</li>
-    <li><strong>Scaling exponent</strong>: how quickly realized capacity grows as FFN width increases.</li>
+    <li><strong>Average/diffuse capacity:</strong> soft spectral rank; how broadly representation variance spreads across eigenmodes.</li>
+    <li><strong>Dominant-mode capacity:</strong> hard spectral rank; how many strong eigenmodes carry substantial variance.</li>
+    <li><strong>Capacity asymmetry:</strong> the gap between diffuse and dominant-mode capacity.</li>
+    <li><strong>Scaling exponent:</strong> how quickly realized capacity grows as FFN width increases.</li>
   </ul>
 </div>
 
-In the paper, we vary FFN width under the same model family and compare how spectral effective ranks grow. The optimizer changes the slope of that growth. The model does not merely train faster or slower; it converts the same architectural budget into a different measured internal-capacity profile.
+In the paper, we vary FFN width under the same model family and compare how realized spectral capacity grows. The optimizer changes the slope of that growth. The model does not merely train faster or slower; it converts the same architectural budget into a different internal-capacity profile.
 
-Figure 1 gives the aggregate view. The important quantity is not just final rank value, but the **scaling exponent**: how much additional FFN width becomes additional realized spectral capacity. In the TAIL regime, AdamW has weak dominant-mode capacity scaling ($\beta_{\mathrm{hard}} \approx 0.44$), while Muon and NorMuon approach near-linear dominant-mode capacity scaling ($\beta_{\mathrm{hard}} \approx 1.0$). That is roughly a $2.3\times$ larger exponent under the same architecture and data.
+Figure 1 gives the aggregate view. The important quantity is not just the final rank value, but the **scaling exponent**: how much additional FFN width becomes additional realized spectral capacity. In the TAIL regime, across the FFN-width sweep used for this fit, AdamW shows weak dominant-mode capacity scaling ($\beta_{\mathrm{hard}} \approx 0.44$), while Muon and NorMuon approach near-linear dominant-mode scaling ($\beta_{\mathrm{hard}} \approx 1.0$). This is roughly a $2.3\times$ larger fitted exponent under the same architecture and data.
 
 <figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure1_optimizer_capacity_scaling.png' | relative_url }}" alt="Aggregated optimizer-level realized-capacity scaling">
-  <figcaption><strong>Figure 1.</strong> <em>Aggregated optimizer-level realized-capacity scaling.</em> Architecture, training data, and FFN-width schedule are fixed; only the optimizer changes. Panel A shows aggregated scaling exponents for average/diffuse capacity, $\beta_{\mathrm{soft}}$, and dominant-mode capacity, $\beta_{\mathrm{hard}}$. Panel B shows capacity asymmetry, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$. Muon and NorMuon show stronger dominant-mode capacity scaling and lower asymmetry than AdamW, indicating that more added width appears in dominant eigenmodes. Figure 3 later resolves where this effect is strongest across HEAD, MID, and TAIL regimes.</figcaption>
+  <figcaption><strong>Figure 1.</strong> <em>Aggregated optimizer-level realized-capacity scaling.</em> Architecture, training data, and FFN-width schedule are fixed; only the optimizer changes. Panel A reports aggregated scaling exponents for average/diffuse capacity, $\beta_{\mathrm{soft}}$, and dominant-mode capacity, $\beta_{\mathrm{hard}}$. Panel B shows capacity asymmetry, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$. Muon and NorMuon show stronger dominant-mode capacity scaling and lower asymmetry than AdamW, indicating that more added width appears in dominant eigenmodes. The frequency-conditioned view below resolves where this effect is strongest across HEAD, MID, and TAIL regimes.</figcaption>
 </figure>
 
 The full result tables, frequency-conditioned fits, and additional ablations are on the <a href="https://optimizer-scaling-laws.github.io/" target="_blank" rel="noopener noreferrer">project page</a>. This post is interpretive: it explains why these scaling differences matter for how we think about architecture, optimization, and realized capacity.
 
-A scale caveat is important. These are controlled GPT-2-scale studies, including 160M and 350M model families on FineWeb-Edu. They establish that optimizer choice can change internal capacity-scaling exponents under matched architecture and training data; they do not establish that the same optimizer ordering must persist unchanged at multi-billion-parameter scale. Concurrent optimizer-scaling work also suggests that preconditioned optimizers can change apparent scaling behavior, while their advantage may attenuate at larger LLM scale (<a href="https://arxiv.org/abs/2605.29387" target="_blank" rel="noopener noreferrer">Ramani and Jain, 2026</a>).
+A scale caveat is important. These are controlled GPT-2-scale studies, including 160M and 350M model families on FineWeb-Edu. They establish that optimizer choice can change internal capacity-scaling exponents under matched architecture and training data; they do not establish that the same optimizer ordering must persist unchanged at multi-billion-parameter scale.
 
-The next clean experiment is therefore a calibrated billion-scale sweep that keeps architecture, training data, tokenizer, width schedule, and compute accounting fixed while measuring whether average/diffuse capacity, dominant-mode capacity, and HEAD/MID/TAIL effects persist. The narrow claim here is already enough: optimizer choice can change the internal scaling law by which FFN width becomes realized spectral representation capacity.
+The next clean experiment is therefore a calibrated billion-scale sweep that keeps architecture, training data, tokenizer, FFN-width schedule, and compute accounting fixed while measuring whether average/diffuse capacity, dominant-mode capacity, and HEAD/MID/TAIL effects persist. The narrow claim here is already enough: optimizer choice can change the internal scaling law by which FFN width becomes realized spectral capacity.
 
 <p class="takeaway-inline"><strong>Takeaway.</strong> Optimizer choice changes not only training speed or final loss, but the measured scaling law by which added FFN width becomes realized spectral capacity.</p>
 
