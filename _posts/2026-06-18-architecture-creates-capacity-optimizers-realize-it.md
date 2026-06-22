@@ -564,13 +564,12 @@ If you find this post useful, please cite the associated paper.
 
 <div class="references">
 
-<h3>Scaling laws and Transformer architecture</h3>
+<h3>Scaling laws</h3>
 
 <ol class="references-list">
   <li>Kaplan, J., McCandlish, S., Henighan, T., Brown, T. B., Chess, B., Child, R., Gray, S., Radford, A., Wu, J., and Amodei, D. <em>Scaling Laws for Neural Language Models</em>. arXiv:2001.08361, 2020. <a href="https://arxiv.org/abs/2001.08361" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Hoffmann, J. et al. <em>Training Compute-Optimal Large Language Models</em>. NeurIPS, 2022. <a href="https://arxiv.org/abs/2203.15556" target="_blank" rel="noopener noreferrer">arXiv</a></li>
-  <li>Vaswani, A. et al. <em>Attention Is All You Need</em>. NeurIPS, 2017. <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener noreferrer">arXiv</a></li>
-</ol>
+  </ol>
 
 <h3>Upstream–downstream gap and training dynamics</h3>
 
