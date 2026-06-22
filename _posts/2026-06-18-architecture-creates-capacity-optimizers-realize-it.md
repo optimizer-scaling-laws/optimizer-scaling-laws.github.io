@@ -228,27 +228,29 @@ The full result tables, frequency-conditioned fits, and ablations are on the <a 
 
 A scale caveat is important. These are controlled GPT-2-scale studies, including 160M and 350M model families on FineWeb-Edu. They establish that optimizer choice can change internal capacity-scaling exponents under matched architecture and training data; they do not establish that the same optimizer ordering must persist unchanged at multi-billion-parameter scale. The next clean test is a calibrated billion-scale sweep that keeps architecture, training data, tokenizer, FFN-width schedule, and compute accounting fixed while measuring whether the same average/diffuse, dominant-mode, and HEAD/MID/TAIL effects persist.
 
-<p class="takeaway-inline"><strong>Takeaway.</strong> Optimizer choice changes not only training speed or final loss, but the measured scaling law by which added FFN width becomes realized spectral capacity.</p>
+<p class="takeaway-inline"><strong>Takeaway.</strong> Optimizer choice can change not only convergence speed or final loss, but the scaling law exponents by which added FFN width becomes realized spectral capacity.</p>
+
 
 ## 2. Matched loss is not matched representation
+
 {: #matched-loss-is-not-matched-geometry }
 
-A natural objection is that one optimizer may simply be training faster. The matched-loss control tests that shortcut.
+A natural objection is that one optimizer may simply be training faster. The matched-loss control tests that possibility.
 
-Extending AdamW training from 6K to 12K improves validation perplexity and brings it close to the low-rank Dion-1/16 control across the FFN-width sweep. But the realized-capacity trajectories do not match. AdamW-12K remains much weaker in dominant-mode capacity growth, while Dion-1/16 preserves steadily increasing dominant-mode and average/diffuse capacity.
+Extending AdamW training from 6K to 12K improves validation perplexity and brings it close to the Dion-1/16, across the FFN-width sweep. However, the realized-capacity do not match; AdamW-12K remains much weaker in dominant-mode capacity sccaling. 
 
-The sharper point is counterintuitive: in this matched-loss control, training AdamW longer improves loss while weakening the dominant-mode capacity scaling trend. The dominant-mode capacity exponent drops from about $0.29$ to about $0.03$. Wider AdamW models are not simply "catching up" internally as loss improves. On this diagnostic, the measured dominant-mode capacity scaling weakens.
+The scaling trends are counterintuitive: in this matched-loss control, training AdamW longer improves loss while weakening the dominant-mode scaling, and the exponent drops from about **$0.29$** to about **$0.03$**. Thus, wider models trained with AdamW are not simply “catching up” internally as loss improves. 
+
 
 <figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure2_matched_loss_capacity_comparison.png' | relative_url }}" alt="Matched loss but different realized capacity">
-  <figcaption><strong>Figure 2.</strong> <em>Matched loss, different realized capacity.</em> Extending AdamW training improves validation perplexity and brings it closer to the Dion-1/16 control, but the realized-capacity trajectories remain different. The dominant-mode capacity trajectory is especially diagnostic: closer loss does not imply matched internal geometry.</figcaption>
+  <figcaption><strong>Figure 2.</strong> <em>Matched loss, different realized capacity.</em> Extending AdamW training improves perplexity--closer to the Dion-1/16. However, realized-capacity remain substantially different. The hard-rank scaling trend is especially diagnostic: closer loss does not imply matched internal geometry.</figcaption>
 </figure>
 
-The full matched-loss comparison and accompanying fits are available on the <a href="https://optimizer-scaling-laws.github.io/" target="_blank" rel="noopener noreferrer">project page</a>. The gap is also not closed by learning-rate tuning; it survives a learning-rate sweep reported with the project results.
+The aforementioned gap is also not closed by learning-rate tuning, the learning-rate sweep and their spectral implication is discussed in the paper. Practically, comparing loss curves alone can make two runs look equivalent even when their internal capacity trajectories differ. Loss measures average output error, and it does not establish that the same representation directions, minima, or adaptation-relevant internal structure were produced.
 
-Practically, comparing loss curves alone can make two runs look equivalent even when their internal capacity trajectories differ. Loss measures output error; it does not establish that the same representation directions, minima, or adaptation-relevant internal structure were produced.
+<p class="takeaway-inline"><strong>Takeaway.</strong> Matched validation loss can still hide different width-to-capacity realization trajectories. Loss matching is necessary for a fair comparison, but it is not enough to establish matched internal geometry.</p>
 
-<p class="takeaway-inline"><strong>Takeaway.</strong> Matched validation loss can still hide different width-to-capacity trajectories. Loss matching is necessary for a fair comparison, but it is not enough to establish matched internal geometry.</p>
 
 ## 3. Rare tokens expose optimizer-induced capacity allocation
 {: #rare-tokens-expose-optimizer-induced-capacity-allocation }
