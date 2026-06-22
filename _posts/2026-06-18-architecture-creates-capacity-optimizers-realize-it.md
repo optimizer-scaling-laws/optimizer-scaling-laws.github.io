@@ -71,6 +71,54 @@ tags:
 .toc-box a:hover {
   text-decoration: underline;
 }
+
+.metric-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0 1.75rem 0;
+}
+.metric-box strong:first-child {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #0f172a;
+}
+.metric-box ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+.metric-box li {
+  margin-bottom: 0.35rem;
+}
+.metric-box li:last-child {
+  margin-bottom: 0;
+}
+
+.takeaway-inline {
+  background: #fef2f2;
+  border-left: 4px solid #c0392b;
+  padding: 0.75rem 1rem;
+  margin: 1.25rem 0;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.97rem;
+}
+.takeaway-inline strong {
+  color: #c0392b;
+}
+
+.references-list {
+  padding-left: 1.5rem;
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+.references-list li {
+  margin-bottom: 0.6rem;
+}
+.references-list li:last-child {
+  margin-bottom: 0;
+}
+
 </style>
 
 
