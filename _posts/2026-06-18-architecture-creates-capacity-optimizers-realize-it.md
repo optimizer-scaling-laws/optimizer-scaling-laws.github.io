@@ -569,7 +569,6 @@ If you find this post useful, please cite the associated paper.
 <ol class="references-list">
   <li>Kaplan, J., McCandlish, S., Henighan, T., Brown, T. B., Chess, B., Child, R., Gray, S., Radford, A., Wu, J., and Amodei, D. <em>Scaling Laws for Neural Language Models</em>. arXiv:2001.08361, 2020. <a href="https://arxiv.org/abs/2001.08361" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Hoffmann, J. et al. <em>Training Compute-Optimal Large Language Models</em>. NeurIPS, 2022. <a href="https://arxiv.org/abs/2203.15556" target="_blank" rel="noopener noreferrer">arXiv</a></li>
-  <li>Ramani, V., and Jain, S. V. <em>On the Optimizer Dependence of Neural Scaling Laws</em>. ICML HiLD Workshop, 2026. <a href="https://arxiv.org/abs/2605.29387" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Vaswani, A. et al. <em>Attention Is All You Need</em>. NeurIPS, 2017. <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener noreferrer">arXiv</a></li>
 </ol>
 
