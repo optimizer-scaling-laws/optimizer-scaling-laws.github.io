@@ -137,9 +137,7 @@ tags:
 
 </div>
 
-That is the controlled fact behind this post. Scaling laws made us good at asking how loss changes with parameters, data, and compute. They left a quieter question under-measured: when we add architectural capacity to a model, does training actually use it?
-
-Our experiments suggest that the answer depends strongly on the optimizer. The trained models realize different spectral scaling laws inside their FFN representations, especially in rare-token regimes where supervision is sparse and optimizer-induced bias has more room to decide which directions grow.
+That is the controlled fact behind this post. Classical scaling laws made us good at asking how loss changes with parameters, training data, and compute; they leave a quieter question under-measured: when we add architectural capacity, does training actually convert it into usable internal structure? In our experiments, that conversion depends strongly on optimizer choice, especially in rare-token regimes where supervision is sparse.
 
 
 <figure class="figure-wide">
@@ -226,7 +224,7 @@ The sharper point is counterintuitive: in this matched-loss control, training Ad
 
 The full matched-loss comparison and accompanying fits are available on the <a href="https://optimizer-scaling-laws.github.io/" target="_blank" rel="noopener noreferrer">project page</a>. The gap is also not closed by learning-rate tuning: it survives a learning-rate sweep reported with the project results.
 
-This is the practical warning. If we only compare loss curves, we may conclude that two training runs reached similar solutions. But if their internal capacity trajectories differ, they may not have built the same kind of model. Loss tells us something about output error. It does not tell us whether the model used the same internal directions, reached the same kind of minimum, or preserved the same capacity for future adaptation.
+Practically, comparing loss curves alone can make two runs look equivalent even when their internal capacity trajectories differ. Loss measures output error; it does not establish that the same representation directions, minima, or future-adaptation capacity were produced.
 
 <p class="takeaway-inline"><strong>Takeaway.</strong> Matched validation loss can still hide different width-to-capacity trajectories. Loss matching is necessary for a fair comparison, but it is not enough to establish matched internal geometry.</p>
 
@@ -487,11 +485,11 @@ The implication is not that optimizers matter more than architectures. Architect
 <table>
 <thead><tr><th>If the goal is...</th><th>Architecture contributes...</th><th>Optimization contributes...</th></tr></thead>
 <tbody>
-<tr><td>Structural guarantees</td><td>Masking, sparsity, routing, equivariance, cache and memory structure</td><td>Cannot create the guarantee, but can train effectively within it</td></tr>
-<tr><td>Efficient inference</td><td>FLOP pattern, activation sparsity, communication, and memory movement</td><td>Can improve the trained solution, but usually cannot change inference structure after training</td></tr>
-<tr><td>Long-tail capability</td><td>Representational room, routing paths, and capacity ceilings</td><td>Preserves weak signals and decides which rare-token directions become variance-carrying</td></tr>
-<tr><td>Stable deep training</td><td>Residual topology, normalization, parameterization, and depth/width balance</td><td>Conditioning, preconditioning, momentum, regularization, and reachability</td></tr>
-<tr><td>Capacity-aware scaling</td><td>More available degrees of freedom</td><td>A higher realized fraction of those degrees of freedom</td></tr>
+<tr><td>Structural guarantees</td><td>Masking, routing, equivariance, cache and memory constraints</td><td>Trains within these constraints; does not create them</td></tr>
+<tr><td>Efficient inference</td><td>FLOP, activation, communication, and memory pattern</td><td>Improves the learned solution; rarely changes the deployment graph</td></tr>
+<tr><td>Long-tail capability</td><td>Representational room and routing paths</td><td>Preserves weak signals and shapes rare-token directions</td></tr>
+<tr><td>Stable deep training</td><td>Residuals, normalization, and parameterization</td><td>Conditioning, momentum, regularization, and reachability</td></tr>
+<tr><td>Capacity-aware scaling</td><td>Available degrees of freedom</td><td>Realized fraction and allocation of those degrees of freedom</td></tr>
 </tbody>
 </table>
 
@@ -532,8 +530,6 @@ The five views above are not separate arguments. They point to the same gap: los
 The next generation of LLM design should therefore ask more than how many parameters we train, how many tokens we consume, or how low the loss goes. It should also ask what capacity becomes real, where in the data distribution it becomes usable, and whether it remains available for transfer and future learning.
 
 > **Capacity-aware LLM design means tracking not just what the model could represent, but what training actually made usable.**
-
-That is the larger agenda: connect external scaling laws to internal representation geometry, optimizer-induced bias, long-tail capability, transfer, plasticity, and future learnability.
 
 Architecture creates the space of possible computation. Optimization helps decide which parts of that space training makes active, stable, and usable.
 
