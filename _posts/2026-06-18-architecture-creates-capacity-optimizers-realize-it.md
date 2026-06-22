@@ -154,17 +154,12 @@ h2#tldr {
 {: #tldr }
 
 <div class="tldr-box">
-
-<p><strong>Capacity is not just what the architecture makes possible, it is what training converts into usable representation.</strong></p>
-
+<p><strong>Capacity is not just what the architecture makes possible; it is what training converts into usable representation.</strong></p>
 <ul>
-  <li><strong>Finding.</strong> Holding architecture, training data, tokenizer, and FFN-width schedule fixed, optimizer choice changes the spectral capacity realized in the FFN representation geometry.</li>
-
+  <li><strong>Finding.</strong> Holding architecture, training data, tokenizer, and FFN-width schedule fixed, optimizer choice changes the spectral capacity realized inside FFN representations.</li>
   <li><strong>Matched loss is not matched representation.</strong> The same architecture can reach similar validation loss under different optimizers while learning different internal representation geometry. Longer AdamW training can match Dion (1/16) in validation loss, but not in dominant-mode capacity scaling.</li>
-
-  <li><strong>Implication.</strong> Architecture sets the available degrees of freedom; training dynamics help determine which ones become active, variance-carrying, and allocated across token-frequency regimes. The effect is clearest for rare tokens, where sparse supervision leaves more room for optimizer-induced bias.</li>
+  <li><strong>Implication.</strong> Architecture sets the available degrees of freedom; training dynamics help determine which ones become active and variance-carrying, and how that capacity is allocated across token-frequency regimes. The effect is clearest for rare tokens, where sparse supervision leaves more room for optimizer-induced bias.</li>
 </ul>
-
 </div>
 
 A scope note: throughout this post, **realized capacity** means *realized spectral capacity* — variance-carrying internal directions measured through representation eigenspectra. It is not a complete behavioral measure of intelligence, transfer, or downstream capability. It is an internal telemetry signal that loss curves and parameter counts do not directly measure.
