@@ -164,7 +164,7 @@ h2#tldr {
 
 A scope note: throughout this post, **realized capacity** means **realized spectral capacity**--variance-carrying internal directions measured through representation eigenspectra. It is not a complete behavioral measure of intelligence, transfer, or downstream capability. It is an internal telemetry signal that loss curves and parameter counts do not directly measure.
 
-This post starts from a controlled fact and then asks what follows from it. Classical scaling laws taught us to ask how loss changes with parameters, training data, and compute. They leave a quieter question under-measured: when we add architectural capacity, does training convert it into measurable internal structure? In our experiments, that conversion depends strongly on optimizer choice, especially in rare-token regimes where supervision is sparse.
+This post starts from a controlled fact and then asks what follows from it. Classical scaling laws taught us to ask how loss changes with parameters, training data, and compute. They leave an important question un-answered: when we add architectural capacity, does training convert it into measurable internal structure? In our experiments, that conversion depends strongly on optimizer choice, especially in rare-token regimes where supervision is sparse.
 
 
 <figure class="figure-wide">
@@ -294,10 +294,9 @@ A capacity-aware training run should therefore ask not only whether average loss
 ## 4. Three views of the same gap
 {: #three-views-of-the-same-gap }
 
-The empirical result is not an isolated optimizer anecdote. It points to a broader gap among three objects that are often collapsed together: scalar objective value, nominal architecture, and learned internal representation.
+The empirical result is not an isolated optimizer anecdote. It points to a broader gap that shows up three ways: scalar objective value, nominal architecture, and learned internal representation are often blurred, but they are not the same object.
 
-Section 2 already made the paper-specific evidence concrete: matched validation loss can still hide different spectral-capacity trajectories. This section does not re-argue that result. It organizes what that result suggests for pretraining science.
-
+Section 2 made the paper-specific evidence concrete: matched validation loss can still hide different spectral-capacity trajectories. This section does not re-argue that result. It organizes what the result suggests for **pretraining science**.
 
 <table class="view-map">
 <thead>
@@ -309,24 +308,25 @@ Section 2 already made the paper-specific evidence concrete: matched validation 
 </thead>
 <tbody>
 <tr>
-<td>Scalar objectives under-identify internal structure</td>
-<td>Similar scalar success can hide different learned representations</td>
+<td>Scalar objectives hide internal structure</td>
+<td>Similar loss can hide different learned representations.</td>
 <td>Places the matched-loss result inside a broader failure mode of loss-only comparison.</td>
 </tr>
 <tr>
 <td>Nominal capacity is not realized capacity</td>
-<td>Width matters only if training converts it into active representation directions</td>
+<td>Width matters only if training converts it into variance-carrying representation directions.</td>
 <td>Names the missing internal axis: how much architectural capacity becomes realized spectral capacity.</td>
 </tr>
 <tr>
 <td>Reachable capacity is optimizer-conditional</td>
-<td>The same architecture does not imply the same reachable solution</td>
-<td>Explains why optimizer-induced bias can shape effective computation, rare-token allocation, and possibly later adaptability.</td>
+<td>The same architecture does not imply the same reachable solution.</td>
+<td>Explains why optimizer-induced bias can shape how capacity is allocated, with implications for effective computation graph and later adaptability/plasticity that the paper does not yet test.</td>
 </tr>
 </tbody>
 </table>
 
-The order is deliberate: scalar objectives can under-identify the model's internal state; realized capacity names the missing internal axis; and optimizer-induced bias can change which parts of the architecture become reachable under finite data and compute.
+The sequence builds from measurement to mechanism: scalar objectives can hide the model’s internal state, realized capacity names the missing internal axis, and optimizer-induced bias explains why the reachable solution can change under fixed architecture.
+
 
 ### View I — Scalar objectives under-identify internal structure
 {: #view-i-scalar-objectives-under-identify-internal-structure }
