@@ -333,6 +333,8 @@ Optimizer-induced spectral scaling gives this warning a concrete pretraining-sci
 </tbody>
 </table>
 
+The order is deliberate: the first two views start from familiar failures of scalar objectives, the third introduces realized capacity as the missing axis, and the last two explain why optimizer-induced bias matters for reachability and future adaptation.
+
 ### View I — Upstream–downstream gap: same loss is not the same useful representation
 {: #view-i-upstream-downstream-gap }
 
@@ -351,13 +353,9 @@ Our result is a spectral-capacity version of the same warning. If two optimizers
 ### View II — Rate–distortion: one objective can hide different internal structures
 {: #view-ii-rate-distortion }
 
-A useful analogy comes from rate–distortion thinking. Spectral rank is not literally rate: classical rate is a KL-style encoding cost for a latent variable relative to a marginal distribution, while spectral rank measures how variance is distributed across eigendirections.
+A useful analogy comes from rate–distortion thinking. Spectral rank is not literally rate: classical rate measures an encoding cost, while spectral rank measures how variance is distributed across eigendirections. The analogy is narrower but useful: a scalar objective can hide distinct internal representation states.
 
-The useful analogy is narrower: **a scalar objective can hide distinct internal representation states**.
-
-Alemi et al. made this concrete for VAEs: identical ELBO values can correspond to qualitatively different points in the rate–distortion plane (<a href="https://proceedings.mlr.press/v80/alemi18a.html" target="_blank" rel="noopener noreferrer">Alemi et al., 2018</a>). LLM pretraining has a similar failure mode. Validation loss can tell us that the model predicts well on average without telling us what representation it used to get there. Two models may have similar loss while allocating variance differently across eigenmodes, layers, or token-frequency regimes.
-
-Spectral capacity is one way to expose that hidden coordinate. It does not replace loss, just as rate–distortion plots do not replace the ELBO. It adds a second axis: not only how well the model predicts, but what internal structure training built to make those predictions possible.
+Alemi et al. made this concrete for VAEs, where identical ELBO values can correspond to different points in the rate–distortion plane (<a href="https://proceedings.mlr.press/v80/alemi18a.html" target="_blank" rel="noopener noreferrer">Alemi et al., 2018</a>). LLM pretraining has a similar failure mode: validation loss can tell us that the model predicts well on average without telling us what internal coordinates training used to get there. Spectral capacity adds that missing axis.
 
 ### View III — Realized capacity: nominal width is not usable representation capacity
 {: #view-iii-realized-capacity }
@@ -382,7 +380,7 @@ C_{\mathrm{available}}(\mathcal{A})
 $$
 </div>
 
-Here, $\mathcal{A}$ is the architecture, $\mathcal{O}$ is the optimizer/training algorithm, and $\mathcal{D}$ is the data. This is not a literal scalar law. It is a design principle: architecture sets available capacity; optimization and data determine how much of that capacity becomes active, coherent, and useful.
+Here, $\mathcal{A}$ is the architecture, $\mathcal{O}$ is the optimizer/training algorithm, and $\mathcal{D}$ is the training data. This is not a literal scalar law. It is a design principle: architecture sets available capacity; optimization and training data determine how much of that capacity becomes active, coherent, and useful.
 
 <table>
 <thead><tr><th>Observable</th><th>What it tells us</th><th>Mostly controlled by</th></tr></thead>
@@ -459,7 +457,7 @@ Recent plasticity work makes the limitation more concrete. Plasticity loss has b
 
 Spectral ranks do not prove plasticity by themselves. They measure how capacity is currently realized, while future learnability depends on whether realized or weakly used directions remain available for adaptation. But if two same-loss models allocate spectral capacity differently — especially across MID and TAIL token regimes — they may also differ in how much useful structure remains available for later specialization. Rare-task scaling work makes this connection concrete: larger models can learn rare and complex tasks partly by reducing interference and retaining rare-task features long enough for sparse signals to accumulate (<a href="https://arxiv.org/abs/2605.29548" target="_blank" rel="noopener noreferrer">Huang et al., 2026</a>). Recent work also reframes plasticity as empowerment over future learning trajectories, which makes the same point in a different language: what training preserves can be as important as what it minimizes (<a href="https://arxiv.org/abs/2505.10361" target="_blank" rel="noopener noreferrer">Abel et al., 2025</a>).
 
-The continual-learning lesson is not that architecture does not matter. It is that capacity must remain not only present, but usable for later learning. That depends on the interaction between architecture, data, optimizer, regularization, and training dynamics.
+The continual-learning lesson is not that architecture does not matter. It is that capacity must be not only realized during pretraining, but usable for later learning. That depends on the interaction between architecture, training data, optimizer, regularization, and training dynamics.
 
 ## 5. Why optimizers realize capacity
 {: #why-optimizers-realize-capacity }
