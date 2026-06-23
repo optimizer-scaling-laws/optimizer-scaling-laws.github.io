@@ -562,3 +562,25 @@ body {
     white-space: normal;
   }
 }
+
+/* ---------- Blog index card cleanup ---------- */
+/* Keep separators between multiple blog cards, but avoid an orphan line after the final/only post. */
+.posts-list li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+/* Make the explicit blog-card CTA look intentionally clickable. */
+.read-more {
+  display: inline-block;
+  margin-top: 0.65rem;
+  font-weight: 700;
+  color: #1f4e79;
+  text-decoration: none;
+}
+
+.read-more:hover {
+  color: #c0392b;
+  text-decoration: underline;
+}
