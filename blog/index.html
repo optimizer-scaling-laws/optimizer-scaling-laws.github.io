@@ -21,6 +21,11 @@ description: "Long-form essays on optimizer-induced spectral scaling laws."
             {% endfor %}
           </div>
         {% endif %}
+        <a href="{{ post.url | relative_url }}"
+           class="post-read-more"
+           style="display: inline-block; margin-top: 0.7rem; font-weight: 600; color: #1f4e79; text-decoration: none;">
+          Read the full essay &rarr;
+        </a>
       </li>
     {% endfor %}
   </ul>
