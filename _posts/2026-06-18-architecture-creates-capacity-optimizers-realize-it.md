@@ -570,7 +570,7 @@ If you find this post useful, please cite the associated paper.
 
 <h3>Upstream–downstream gap and training dynamics</h3>
 
-<ol class="references-list">
+<ol class="references-list" start="3">
   <li>Liu, H., Xie, S. M., Li, Z., and Ma, T. <em>Same Pre-training Loss, Better Downstream: Implicit Bias Matters for Language Models</em>. arXiv:2210.14199, 2022. <a href="https://arxiv.org/abs/2210.14199" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Wu, J., Lee, J. D., and Ge, R. <em>Connecting Pre-trained Language Models and Downstream Tasks via Properties of Representations</em>. NeurIPS, 2023. <a href="https://proceedings.neurips.cc/paper_files/paper/2023/hash/93712c59f6a81bd92040facf04c8b308-Abstract-Conference.html" target="_blank" rel="noopener noreferrer">NeurIPS</a></li>
   <li>Chen, H., Zhang, H., Li, X., Dong, Y., Shen, K., and Zhu, J. <em>Nexus: Same Pretraining Loss, Better Downstream Generalization via Common Minima</em>. arXiv:2604.09258, 2026. <a href="https://arxiv.org/abs/2604.09258" target="_blank" rel="noopener noreferrer">arXiv</a></li>
@@ -580,7 +580,7 @@ If you find this post useful, please cite the associated paper.
 
 <h3>Optimization and optimizer-induced bias</h3>
 
-<ol class="references-list">
+<ol class="references-list" start="8">
   <li>Loshchilov, I., and Hutter, F. <em>Decoupled Weight Decay Regularization</em>. ICLR, 2019. <a href="https://arxiv.org/abs/1711.05101" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Gupta, V., Koren, T., and Singer, Y. <em>Shampoo: Preconditioned Stochastic Tensor Optimization</em>. ICML, 2018. <a href="https://arxiv.org/abs/1802.09568" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Jordan, K. et al. <em>Muon: An Optimizer for Hidden Layers in Neural Networks</em>. Original public technical write-up, 2024. <a href="https://kellerjordan.github.io/posts/muon/" target="_blank" rel="noopener noreferrer">write-up</a></li>
@@ -591,7 +591,7 @@ If you find this post useful, please cite the associated paper.
 
 <h3>Spectral capacity and information-theoretic framing</h3>
 
-<ol class="references-list">
+<ol class="references-list" start="14">
   <li>Alemi, A. A., Poole, B., Fischer, I., Dillon, J. V., Saurous, R. A., and Murphy, K. <em>Fixing a Broken ELBO</em>. ICML, 2018. <a href="https://proceedings.mlr.press/v80/alemi18a.html" target="_blank" rel="noopener noreferrer">PMLR</a></li>
   <li>Rényi, A. <em>On Measures of Entropy and Information</em>. Proceedings of the Fourth Berkeley Symposium on Mathematical Statistics and Probability, 1961. <a href="https://projecteuclid.org/ebooks/berkeley-symposium-on-mathematical-statistics-and-probability/On-Measures-of-Entropy-and-Information/chapter/On-Measures-of-Entropy-and-Information/bsmsp/1200512181" target="_blank" rel="noopener noreferrer">Project Euclid</a></li>
   <li>Roy, O., and Vetterli, M. <em>The Effective Rank: A Measure of Effective Dimensionality</em>. EUSIPCO, 2007. <a href="https://www.eurasip.org/Proceedings/Eusipco/Eusipco2007/Papers/a5p-h05.pdf" target="_blank" rel="noopener noreferrer">PDF</a></li>
@@ -599,7 +599,7 @@ If you find this post useful, please cite the associated paper.
 
 <h3>Inductive bias, interpretability, and plasticity</h3>
 
-<ol class="references-list">
+<ol class="references-list" start="17">
   <li>Goldblum, M., Finzi, M., Rowan, K., and Wilson, A. G. <em>The No Free Lunch Theorem, Kolmogorov Complexity, and the Role of Inductive Biases in Machine Learning</em>. ICML, 2024. <a href="https://arxiv.org/abs/2304.05366" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Wilson, A. G. <em>Deep Learning is Not So Mysterious or Different</em>. ICML, 2025. <a href="https://arxiv.org/abs/2503.02113" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Elhage, N. et al. <em>A Mathematical Framework for Transformer Circuits</em>. Transformer Circuits, 2021. <a href="https://transformer-circuits.pub/2021/framework/index.html" target="_blank" rel="noopener noreferrer">article</a></li>
