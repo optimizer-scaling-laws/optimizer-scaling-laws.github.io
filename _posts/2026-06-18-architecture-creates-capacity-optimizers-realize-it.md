@@ -470,7 +470,7 @@ The practical consequence is simple: a scaling decision should specify both arch
 ## 7. What changes in pretraining practice?
 {: #what-changes-in-pretraining-practice}
 
-The practical message is not "replace loss." Loss remains the central external training signal. The point is to pair loss with internal telemetry that tells us what kind of solution training is building.
+The practical takeaway isn't that loss—or loss-based scaling analysis—should be replaced. Loss remains the central training objective and a low-variance signal for scaling laws. But loss alone doesn't tell us what kind of solution training is converging to, whether the model is using its parameter budget effectively, or whether we need stronger inductive biases from the architecture or optimizer. For that, we need internal telemetry.
 
 A capacity-aware pretraining report should answer five practical questions:
 
