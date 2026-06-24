@@ -244,7 +244,7 @@ Figure 1 gives the aggregate view. The key quantity is not only the final rank v
 
 The full result tables, frequency-conditioned fits, and ablations are on the <a href="https://optimizer-scaling-laws.github.io/" target="_blank" rel="noopener noreferrer">project page</a>. Here, I focus on what these scaling differences imply for architecture, optimization, and realized capacity.
 
-These are controlled GPT-2-scale studies, including 160M and 350M model families on FineWeb-Edu. They show that optimizer choice can change internal capacity-scaling exponents under matched architecture and training data; they do not show that the same optimizer ordering must persist unchanged at multi-billion-parameter scale. The next clean test is a calibrated billion-scale sweep that keeps architecture, training data, tokenizer, FFN-width schedule, and compute accounting fixed while measuring whether the same average/diffuse, dominant-mode, and HEAD/MID/TAIL effects persist.
+These are controlled GPT-2-scale studies, including 160M and 350M model families on FineWeb-Edu. They show that optimizer choice can change internal capacity-scaling exponents under matched architecture and training data; they do not show that the same optimizer ordering must persist unchanged at multi-billion-parameter scale. The next experiment is a calibrated billion-scale sweep that keeps architecture, training data, tokenizer, FFN-width schedule, and compute accounting fixed while measuring whether the same average/diffuse, dominant-mode, and HEAD/MID/TAIL effects persist.
 
 <p class="takeaway-inline"><strong>Takeaway.</strong> Optimizer choice can change not only convergence speed or final loss, but the scaling law exponents by which added FFN width becomes realized spectral capacity.</p>
 
@@ -364,9 +364,10 @@ The architecture–optimizer distinction becomes clearest if we separate two not
 
 > **Nominal capacity** is the capacity implied by the architecture: parameter count, width, depth, heads, experts, routing paths, memory layout, and FLOPs.
 
-> **Realized spectral capacity** is the capacity measured as active variance-carrying structure inside the trained model: which representation directions become active, how variance is distributed across eigenmodes, which modes grow with width, and which data regimes receive measurable internal structure.
+> **Realized spectral capacity** is the capacity measured as active variance-carrying structure inside the trained model: which representation directions become active, how variance is distributed across eigenmodes, which modes grow with width, and how capacity is allocated across token regimes (HEAD/MID/TAIL).
 
-Architecture gives the learning system things optimization cannot create after the fact: causal masking, equivariance, sparse routing, dimensional ceilings, and residual topology. But architecture creates available capacity; it does not guarantee that training will use those degrees of freedom.
+Architecture gives the learning system what no optimizer can add later: causal masking, routing structure, dimensional ceilings, residual topology, and symmetry constraints when present. But these define *available* capacity only; whether training realizes those degrees of freedom is a separate question.
+
 
 A useful mental model is:
 
