@@ -356,7 +356,7 @@ Section 2 made the paper-specific evidence concrete: matched validation loss can
 </tr>
 <tr>
 <td>Nominal capacity is not realized capacity</td>
-<td>Width matters only if training converts it into variance-carrying representation directions.</td>
+<td>Width matters only if training converts it into variance-carrying directions.</td>
 <td>Names the missing internal axis: how much architectural capacity becomes realized spectral capacity.</td>
 </tr>
 <tr>
