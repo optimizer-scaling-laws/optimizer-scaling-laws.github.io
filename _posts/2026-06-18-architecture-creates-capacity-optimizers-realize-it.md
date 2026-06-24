@@ -169,23 +169,13 @@ h2#tldr {
 
 </style>
 
-<div class="resource-links">
-  <a href="https://optimizer-scaling-laws.github.io/" target="_blank" rel="noopener noreferrer">Project</a>
-  <span>·</span>
-  <a href="https://optimizer-scaling-laws.github.io/blog/" target="_blank" rel="noopener noreferrer">Blog</a>
-  <span>·</span>
-  <a href="https://arxiv.org/abs/2605.21803" target="_blank" rel="noopener noreferrer">Paper</a>
-  <span>·</span>
-  <a href="https://github.com/optimizer-scaling-laws/spectral-scaling-laws" target="_blank" rel="noopener noreferrer">Code</a>
-</div>
-
 ## TL;DR
 {: #tldr}
 
 <div class="tldr-box">
 <p><strong>Capacity is not just what the architecture makes possible; it is what training converts into usable representation.</strong></p>
 <ul>
-  <li><strong>Finding.</strong> Holding architecture, training data, tokenizer, and FFN-width schedule fixed, optimizer choice changes the spectral capacity realized inside FFN representations.</li>
+  <li><strong>Finding.</strong> Holding architecture, training data, tokenizer, and FFN-width schedule fixed; optimizer choice changes the spectral capacity realized inside FFN representations.</li>
   <li><strong>Matched loss is not matched representation.</strong> The same architecture can reach similar validation loss under different optimizers while learning different internal representation geometry. Longer AdamW training can match Dion (1/16) in validation loss, but not in dominant-mode capacity scaling.</li>
   <li><strong>Implication.</strong> Architecture sets the available degrees of freedom; training dynamics help determine which ones become active and variance-carrying, and how that capacity is allocated across token-frequency regimes. The effect is clearest for rare tokens, where sparse supervision leaves more room for optimizer-induced bias.</li>
 </ul>
