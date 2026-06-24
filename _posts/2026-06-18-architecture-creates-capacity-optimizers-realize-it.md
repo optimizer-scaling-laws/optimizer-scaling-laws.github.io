@@ -209,7 +209,7 @@ To interpret the first result, four quantities are useful.
   <ul>
     <li><strong>Average/diffuse capacity:</strong> soft spectral rank; how broadly representation variance spreads across eigenmodes.</li>
     <li><strong>Dominant-mode capacity:</strong> hard spectral rank; how many strong eigenmodes carry substantial variance.</li>
-    <li><strong>Capacity asymmetry:</strong> the gap between diffuse and dominant-mode capacity.</li>
+    <li><strong>Capacity asymmetry:</strong> for a single model, the gap between its diffuse and dominant-mode capacity.</li>
     <li><strong>Scaling exponent:</strong> how quickly realized capacity grows as FFN width increases.</li>
   </ul>
 </div>
@@ -220,7 +220,7 @@ Figure 1 gives the aggregate view. The important quantity is not just the final 
 
 <figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure1_optimizer_capacity_scaling.png' | relative_url }}" alt="Aggregated optimizer-level realized-capacity scaling">
-  <figcaption><strong>Figure 1.</strong> <em>Aggregated optimizer-level realized-capacity scaling.</em> Architecture, training data, and FFN-width schedule are fixed; only the optimizer changes. Panel A reports aggregated scaling exponents for average/diffuse capacity, $\beta_{\mathrm{soft}}$, and dominant-mode capacity, $\beta_{\mathrm{hard}}$. Panel B shows capacity asymmetry, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$. Muon and NorMuon show stronger dominant-mode capacity scaling and lower asymmetry than AdamW, indicating that more added width appears in dominant eigenmodes.</figcaption>
+  <figcaption><strong>Figure 1.</strong> <em>Aggregated optimizer-level realized-capacity scaling.</em> Architecture, training data, and FFN-width schedule are fixed; only the optimizer changes. Panel A reports aggregated scaling exponents for average/diffuse capacity, $\beta_{\mathrm{soft}}$, and dominant-mode capacity, $\beta_{\mathrm{hard}}$. Panel B shows how capacity asymmetry scales with width, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$. Muon and NorMuon show stronger dominant-mode capacity scaling and a smaller $\Delta\beta$ than AdamW, indicating that more added width appears in dominant eigenmodes.</figcaption>
 </figure>
 
 The full result tables, frequency-conditioned fits, and ablations are on the <a href="https://optimizer-scaling-laws.github.io/" target="_blank" rel="noopener noreferrer">project page</a>. Here, I focus on what these scaling differences imply for architecture, optimization, and realized capacity.
@@ -274,12 +274,12 @@ This is why architecture-only changes can under-deliver for long-tail behavior: 
 
 This is also where the result becomes relevant for capability-oriented pretraining questions. If realized capacity affects how sparse regimes transfer, then low-resource languages, rare scientific and code vocabulary, long-tail factual recall, tool-use edge cases, and sparse expert specialization are natural regimes where this diagnostic matters. That connection is a hypothesis to test, not something the spectral measurement alone proves.
 
-Figure 3 tests the prediction by resolving the aggregate result from Figure 1 into HEAD, MID, and TAIL regimes. The left panel shows dominant-mode capacity scaling through $\beta_{\mathrm{hard}}$. In TAIL representations, AdamW and Dion-1/16 show much weaker dominant-mode capacity scaling, while Muon and NorMuon approach near-linear dominant-mode growth. This is worth separating from the matched-loss result above: Dion-1/16 is a strong control for showing that loss matching does not imply matched geometry, but in the TAIL regime it still behaves closer to AdamW than to Muon/NorMuon. The right panel shows the corresponding average/diffuse–dominant capacity asymmetry.
+Figure 3 tests the prediction by resolving the aggregate result from Figure 1 into HEAD, MID, and TAIL regimes. The left panel shows dominant-mode capacity scaling through $\beta_{\mathrm{hard}}$. In TAIL representations, AdamW and Dion-1/16 show much weaker dominant-mode capacity scaling, while Muon and NorMuon approach near-linear dominant-mode growth. This is worth separating from the matched-loss result above: Dion-1/16 is a strong control for showing that loss matching does not imply matched geometry, but in the TAIL regime it still behaves closer to AdamW than to Muon/NorMuon. The right panel shows how that asymmetry scales, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$.
 
 
 <figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure4_capacity_scaling_asymmetry_token_regimes.png' | relative_url }}" alt="Frequency-conditioned realized-capacity scaling across token regimes">
-  <figcaption><strong>Figure 3.</strong> <em>Frequency-conditioned realized-capacity scaling.</em> Panel A shows dominant-mode capacity scaling exponents, $\beta_{\mathrm{hard}}$, across HEAD, MID, and TAIL token regimes. Panel B shows average/diffuse–dominant capacity asymmetry, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$. The regime-conditioned view reveals where the optimizer effect is strongest: MID and especially TAIL regimes, where sparse supervision leaves more room for optimizer-induced bias to shape which eigenmodes accumulate variance.</figcaption>
+  <figcaption><strong>Figure 3.</strong> <em>Frequency-conditioned realized-capacity scaling.</em> Panel A shows dominant-mode capacity scaling exponents, $\beta_{\mathrm{hard}}$, across HEAD, MID, and TAIL token regimes. Panel B shows how capacity asymmetry scales with width, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$. The regime-conditioned view reveals where the optimizer effect is strongest: MID and especially TAIL regimes.</figcaption>
 </figure>
 
 The rare-token result is one of the main reasons this matters for pretraining science. If average loss is dominated by frequent patterns, it can hide whether sparse regimes receive realized spectral capacity. Frequency-conditioned spectral telemetry exposes that hidden allocation.
@@ -399,9 +399,9 @@ $$
 
 I use the following convention throughout:
 
-- **Average/diffuse capacity** is the soft spectral rank, $R_{\mathrm{soft}} = R_1$. It measures how broadly representation variance is distributed across eigenmodes.
-- **Dominant-mode capacity** is the hard spectral rank, $R_{\mathrm{hard}} = R_2$. It measures how many dominant eigenmodes carry substantial variance.
-- **Capacity asymmetry** is $\Delta = \log R_{\mathrm{soft}} - \log R_{\mathrm{hard}} = \log\!\left(R_{\mathrm{soft}} / R_{\mathrm{hard}}\right)$. It measures the multiplicative gap between diffuse and dominant-mode capacity.
+- **Average/diffuse capacity** is the soft spectral rank, $R_{\mathrm{soft}} = R_1$.
+- **Dominant-mode capacity** is the hard spectral rank, $R_{\mathrm{hard}} = R_2$.
+- **Capacity asymmetry** is $\Delta = \log R_{\mathrm{soft}} - \log R_{\mathrm{hard}} = \log\left(R_{\mathrm{soft}} / R_{\mathrm{hard}}\right)$, the multiplicative gap between diffuse and dominant-mode capacity in a single model. Under the power-law fits used here, $\log R_{\mathrm{soft}}$ and $\log R_{\mathrm{hard}}$ grow linearly in $\log$ FFN width with slopes $\beta_{\mathrm{soft}}$ and $\beta_{\mathrm{hard}}$, so the exponent gap the figures report, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$, is exactly the slope of $\Delta$ against $\log$ width — how the asymmetry scales as the model widens, not its value in any one model.
 
 <figure>
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure3_phase_diagram_for_realized_capacity.png' | relative_url }}" alt="Phase diagram for realized capacity">
