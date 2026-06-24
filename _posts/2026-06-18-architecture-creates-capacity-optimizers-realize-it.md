@@ -3,7 +3,7 @@ layout: post
 title: "Architecture Creates Capacity, Optimizers Realize It"
 subtitle: "Why LLM scaling laws should account for realized capacity, not just loss curves and parameter counts"
 author: "Nandan Kumar Jha"
-date: 2026-06-18
+date: 2026-06-22
 permalink: /blog/optimizer-induced-capacity/
 description: "Why LLM scaling should account for realized capacity: the same architecture and training data can produce different internal spectral capacity under different optimizers."
 reading_time: "~24 min read"
@@ -175,7 +175,7 @@ h2#tldr {
 <div class="tldr-box">
 <p><strong>Capacity is not just what the architecture makes possible; it is what training converts into usable representation.</strong></p>
 <ul>
-  <li><strong>Finding.</strong> Holding architecture, training data, tokenizer, and FFN-width schedule fixed; optimizer choice changes the spectral capacity realized inside FFN representations.</li>
+  <li><strong>Finding.</strong> Holding architecture, training data, tokenizer, and FFN-width schedule fixed, optimizer choice changes the spectral capacity realized inside FFN representations.</li>
   <li><strong>Matched loss is not matched representation.</strong> The same architecture can reach similar validation loss under different optimizers while learning different internal representation geometry. Longer AdamW training can match Dion (1/16) in validation loss, but not in dominant-mode capacity scaling.</li>
   <li><strong>Implication.</strong> Architecture sets the available degrees of freedom; training dynamics help determine which ones become active and variance-carrying, and how that capacity is allocated across token-frequency regimes. The effect is clearest for rare tokens, where sparse supervision leaves more room for optimizer-induced bias.</li>
 </ul>
@@ -244,7 +244,7 @@ Figure 1 gives the aggregate view. The key quantity is not only the final rank v
 
 The full result tables, frequency-conditioned fits, and ablations are on the <a href="https://optimizer-scaling-laws.github.io/" target="_blank" rel="noopener noreferrer">project page</a>. Here, I focus on what these scaling differences imply for architecture, optimization, and realized capacity.
 
-These are controlled GPT-2-scale studies, including 160M and 350M model families on FineWeb-Edu. They show that optimizer choice can change internal capacity-scaling exponents under matched architecture and training data; they do not show that the same optimizer ordering must persist unchanged at multi-billion-parameter scale. The next experiment is a calibrated billion-scale sweep that keeps architecture, training data, tokenizer, FFN-width schedule, and compute accounting fixed while measuring whether the same average/diffuse, dominant-mode, and HEAD/MID/TAIL effects persist.
+These are controlled GPT-2-scale studies, including 160M and 350M model families on FineWeb-Edu. They show that optimizer choice can change internal capacity-scaling exponents under matched architecture and training data; they do not show that the same optimizer ordering must persist unchanged at multi-billion-parameter scale. The next clean test is a calibrated billion-scale sweep that keeps architecture, training data, tokenizer, FFN-width schedule, and compute accounting fixed while measuring whether the same average/diffuse, dominant-mode, and HEAD/MID/TAIL effects persist.
 
 <p class="takeaway-inline"><strong>Takeaway.</strong> Optimizer choice can change not only convergence speed or final loss, but the scaling law exponents by which added FFN width becomes realized spectral capacity.</p>
 
@@ -272,24 +272,50 @@ This gap is also not closed by learning-rate tuning; the paper discusses the lea
 ## 3. Rare tokens expose optimizer-induced capacity allocation
 {: #rare-tokens-expose-optimizer-induced-capacity-allocation}
 
-Natural language is long-tailed. A small number of HEAD tokens receive dense, repeated supervision; TAIL tokens receive sparse, noisy, intermittent supervision.
+Natural language is long-tailed. A small number of HEAD tokens receive dense, repeated training signal; TAIL tokens receive sparse, noisy, intermittent signal.
 
-This changes the role of optimization. For HEAD tokens, data strongly constrains what should be learned, so many reasonable optimizers can find similar solutions. For TAIL tokens, the evidence is weaker: many representations remain compatible with sparse observations, leaving more room for optimizer-induced bias to shape which directions grow.
+This suggests a simple regime-dependent picture. When the training signal is dense, the data strongly constrains the solution, so different optimizers have less room to produce qualitatively different representations. When the signal is sparse or noisy, the solution is more underdetermined, leaving more room for optimizer-induced bias to decide which weak signals become coherent representation directions.
 
 In Bayesian terms, dense regimes are likelihood-dominated; sparse regimes are prior-sensitive. Here, the optimizer acts like a soft prior over which solutions training reaches.
 
-This leads to a prediction: optimizer-induced differences should be most visible where the data underdetermines the representation.
-
 <table>
-<thead><tr><th>Token regime</th><th>Data condition</th><th>Dominant bottleneck</th><th>Expected stronger lever</th></tr></thead>
+<thead>
+<tr>
+<th>Token regime</th>
+<th>Training signal</th>
+<th>Solution constraint</th>
+<th>Main capacity-shaping factor</th>
+<th>Evidence in this work</th>
+</tr>
+</thead>
 <tbody>
-<tr><td>HEAD</td><td>Dense, frequent, well-conditioned supervision</td><td>Compute and architectural ceiling</td><td>Architecture</td></tr>
-<tr><td>MID</td><td>Partially constrained, mixed signal quality</td><td>Capacity allocation across modes</td><td>Architecture–optimizer pair</td></tr>
-<tr><td>TAIL</td><td>Sparse, noisy, underdetermined supervision</td><td>Signal preservation and implicit bias</td><td>Optimizer / training dynamics</td></tr>
+<tr>
+<td>HEAD</td>
+<td>Dense, well-conditioned</td>
+<td>Strongly constrained by data</td>
+<td>Architecture; optimizer differences are compressed by dense signal</td>
+<td>Predicted / interpretive</td>
+</tr>
+<tr>
+<td>MID</td>
+<td>Partial, mixed quality</td>
+<td>Partly constrained</td>
+<td>Architecture–optimizer interaction</td>
+<td>Predicted + trend</td>
+</tr>
+<tr>
+<td>TAIL</td>
+<td>Sparse, noisy</td>
+<td>Underdetermined</td>
+<td>Optimizer-induced bias and training dynamics</td>
+<td>Measured through $\beta_{\mathrm{hard}}$</td>
+</tr>
 </tbody>
 </table>
 
-This is why architecture-only changes can under-deliver for long-tail behavior: adding capacity raises the ceiling, but sparse supervision does not automatically fill it. The optimizer may need to preserve and amplify weak signals rather than fragment them.
+The table organizes the evidence; it is not a claim that each regime is independently established. Frequency is a proxy for how strongly the data constrains a token's representation. The strongest direct result is the TAIL effect: dominant-mode capacity scaling differs sharply across optimizers where the training signal is sparsest. HEAD and MID are interpreted along the same axis: as the data constrains the solution less, optimizer-induced bias has more room to shape which directions realize capacity.
+
+This is why architecture-only changes can under-deliver for long-tail behavior: adding capacity raises the ceiling, but sparse training signal does not automatically fill it. The optimizer may need to preserve and amplify weak signals rather than fragment them.
 
 This is where the result becomes relevant for capability-oriented pretraining questions. If realized capacity affects how sparse regimes transfer, then low-resource languages, rare scientific and code vocabulary, long-tail factual recall, tool-use edge cases, and sparse expert specialization are natural places to test this diagnostic. Spectral measurement alone does not prove that connection.
 
@@ -364,10 +390,9 @@ The architecture–optimizer distinction becomes clearest if we separate two not
 
 > **Nominal capacity** is the capacity implied by the architecture: parameter count, width, depth, heads, experts, routing paths, memory layout, and FLOPs.
 
-> **Realized spectral capacity** is the capacity measured as active variance-carrying structure inside the trained model: which representation directions become active, how variance is distributed across eigenmodes, which modes grow with width, and how capacity is allocated across token regimes (HEAD/MID/TAIL).
+> **Realized spectral capacity** is the capacity measured as active variance-carrying structure inside the trained model: which representation directions become active, how variance is distributed across eigenmodes, which modes grow with width, and which data regimes receive measurable internal structure.
 
-Architecture gives the learning system what no optimizer can add later: causal masking, routing structure, dimensional ceilings, residual topology, and symmetry constraints when present. But these define *available* capacity only; whether training realizes those degrees of freedom is a separate question.
-
+Architecture gives the learning system things optimization cannot create after the fact: causal masking, equivariance, sparse routing, dimensional ceilings, and residual topology. But architecture creates available capacity; it does not guarantee that training will use those degrees of freedom.
 
 A useful mental model is:
 
