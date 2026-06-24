@@ -283,8 +283,8 @@ In Bayesian terms, dense regimes are likelihood-dominated; sparse regimes are pr
 <tr>
 <th>Token regime</th>
 <th>Training signal</th>
-<th>Solution constraint</th>
-<th>Main capacity-shaping factor</th>
+<th>Solution constraint by data</th>
+<th>Stronger influence</th>
 <th>Evidence in this work</th>
 </tr>
 </thead>
@@ -292,23 +292,23 @@ In Bayesian terms, dense regimes are likelihood-dominated; sparse regimes are pr
 <tr>
 <td>HEAD</td>
 <td>Dense, well-conditioned</td>
-<td>Strongly constrained by data</td>
-<td>Architecture; optimizer differences are compressed by dense signal</td>
-<td>Predicted / interpretive</td>
+<td>Strongly</td>
+<td>Architecture (optimizer differences are suppressed by dense signal)</td>
+<td>Interpretive</td>
 </tr>
 <tr>
 <td>MID</td>
-<td>Partial, mixed quality</td>
+<td>Partially</td>
 <td>Partly constrained</td>
-<td>Architecture–optimizer interaction</td>
-<td>Predicted + trend</td>
+<td>Architecture–optimizer pair</td>
+<td>Predicted by trend</td>
 </tr>
 <tr>
 <td>TAIL</td>
 <td>Sparse, noisy</td>
-<td>Underdetermined</td>
-<td>Optimizer-induced bias and training dynamics</td>
-<td>Measured through $\beta_{\mathrm{hard}}$</td>
+<td>Under-determined</td>
+<td>Optimizer-induced biases</td>
+<td>Measured ($\beta_{\mathrm{hard}}$)</td>
 </tr>
 </tbody>
 </table>
