@@ -18,6 +18,26 @@ tags:
 ---
 
 <style>
+
+.resource-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+  margin: 0.25rem 0 1.35rem 0;
+  font-size: 0.98rem;
+}
+.resource-links a {
+  text-decoration: none;
+  font-weight: 600;
+}
+.resource-links a:hover {
+  text-decoration: underline;
+}
+.resource-links span {
+  color: #94a3b8;
+}
+
 .tldr-box {
   background: #f8fafc;
   border-left: 4px solid #334155;
@@ -149,6 +169,15 @@ h2#tldr {
 
 </style>
 
+<div class="resource-links">
+  <a href="https://optimizer-scaling-laws.github.io/" target="_blank" rel="noopener noreferrer">Project</a>
+  <span>·</span>
+  <a href="https://optimizer-scaling-laws.github.io/blog/" target="_blank" rel="noopener noreferrer">Blog</a>
+  <span>·</span>
+  <a href="https://arxiv.org/abs/2605.21803" target="_blank" rel="noopener noreferrer">Paper</a>
+  <span>·</span>
+  <a href="https://github.com/optimizer-scaling-laws/spectral-scaling-laws" target="_blank" rel="noopener noreferrer">Code</a>
+</div>
 
 ## TL;DR
 {: #tldr}
