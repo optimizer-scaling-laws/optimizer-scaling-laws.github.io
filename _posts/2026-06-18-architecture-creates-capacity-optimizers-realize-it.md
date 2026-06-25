@@ -197,7 +197,7 @@ h2#tldr {
 <p><strong>Capacity is not just what the architecture makes possible; it is what training converts into usable representation.</strong></p>
 <ul>
   <li><strong>Finding.</strong> Holding architecture, training data, tokenizer, and FFN-width schedule fixed, optimizer choice changes the spectral capacity realized inside FFN representations.</li>
-  <li><strong>Matched loss is not matched representation.</strong> The same architecture can reach similar validation loss under different optimizers while learning different internal representation geometry. Longer AdamW training can match Dion (1/16) in validation loss, but not in dominant-mode capacity scaling.</li>
+  <li><strong>Matched loss is not matched representation.</strong> The same architecture can reach similar validation loss under different optimizers while learning different representation geometry. Longer AdamW training can match Dion (1/16) in validation loss, but not in dominant-mode capacity scaling.</li>
   <li><strong>Implication.</strong> Architecture sets the available degrees of freedom; training dynamics help determine which ones become active and variance-carrying, and how that capacity is allocated across token-frequency regimes. The effect is clearest for rare tokens, where sparse supervision leaves more room for optimizer-induced bias.</li>
 </ul>
 </div>
@@ -245,7 +245,7 @@ Four quantities help interpret the result.
 <div class="metric-box">
   <strong>Metrics used in this post.</strong>
   <ul>
-    <li><strong>Average/diffuse capacity:</strong> soft spectral rank; how broadly representation variance spreads across eigenmodes.</li>
+    <li><strong>Diffuse capacity:</strong> soft spectral rank; how broadly representation variance spreads across eigenmodes.</li>
     <li><strong>Dominant-mode capacity:</strong> hard spectral rank; how many strong eigenmodes carry substantial variance.</li>
     <li><strong>Capacity asymmetry:</strong> the gap between soft and hard rank — whether capacity is broadly distributed across many eigenmodes or concentrated in a few. Lower asymmetry means a more even spread, not necessarily a better one.</li>
     <li><strong>Scaling exponent:</strong> how quickly realized capacity grows as FFN width increases.</li>
@@ -258,12 +258,12 @@ Figure 1 gives the aggregate view. The key quantity is not only the final rank v
 
 <figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure1_optimizer_capacity_scaling.png' | relative_url }}" alt="Aggregated optimizer-level realized-capacity scaling">
-  <figcaption><strong>Figure 1.</strong> <em>Aggregated optimizer-level realized-capacity scaling.</em> Architecture, training data, and FFN-width schedule are fixed; only the optimizer changes. Panel A reports aggregated scaling exponents for average/diffuse capacity, $\beta_{\mathrm{soft}}$, and dominant-mode capacity, $\beta_{\mathrm{hard}}$. Panel B shows how capacity asymmetry scales with width, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$. Muon and NorMuon show stronger dominant-mode capacity scaling and a smaller $\Delta\beta$ than AdamW, indicating that more added width appears in dominant eigenmodes.</figcaption>
+  <figcaption><strong>Figure 1.</strong> <em>Aggregated optimizer-level realized-capacity scaling.</em> Architecture, training data, and FFN-width schedule are fixed; only the optimizer changes. Panel A reports aggregated scaling exponents for diffuse capacity, $\beta_{\mathrm{soft}}$, and dominant-mode capacity, $\beta_{\mathrm{hard}}$. Panel B shows how capacity asymmetry scales with width, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$. Muon and NorMuon show stronger dominant-mode capacity scaling and a smaller $\Delta\beta$ than AdamW, indicating that more added width appears in dominant eigenmodes.</figcaption>
 </figure>
 
 The full result tables, frequency-conditioned fits, and ablations are on the <a href="https://optimizer-scaling-laws.github.io/" target="_blank" rel="noopener noreferrer">project page</a>.
 
-These are GPT-2-scale studies, including 160M and 350M model families on FineWeb-Edu. They show that optimizer choice can change internal capacity-scaling exponents under matched architecture and training data; they do not show that the same optimizer ordering must persist unchanged at multi-billion-parameter scale. The next clean test is a calibrated billion-scale sweep that keeps architecture, training data, tokenizer, FFN-width schedule, and compute accounting fixed while measuring whether the same average/diffuse, dominant-mode, and HEAD/MID/TAIL effects persist.
+These are GPT-2-scale studies, including 160M and 350M model families on FineWeb-Edu. They show that optimizer choice can change internal capacity-scaling exponents under matched architecture and training data; they do not show that the same optimizer ordering must persist unchanged at multi-billion-parameter scale. The next clean test is a calibrated billion-scale sweep that keeps architecture, training data, tokenizer, FFN-width schedule, and compute accounting fixed while measuring whether the same diffuse, dominant-mode, and HEAD/MID/TAIL effects persist.
 
 <p class="takeaway-inline"><strong>Takeaway.</strong> Optimizer choice can change not only convergence speed or final loss, but the scaling law exponents by which added FFN width becomes realized spectral capacity.</p>
 
@@ -407,7 +407,7 @@ The architecture–optimizer distinction becomes clearest if we separate two not
 
 > **Realized spectral capacity** is the capacity measured as active variance-carrying structure inside the trained model: which representation directions become active, how variance is distributed across eigenmodes, which modes grow with width, and which data regimes receive measurable internal structure.
 
-Architecture gives the learning system things optimization cannot create after the fact: causal masking, equivariance, sparse routing, dimensional ceilings, and residual topology. But architecture creates available capacity; it does not guarantee that training will use those degrees of freedom.
+Architecture gives the learning system things optimization cannot create after the fact: causal masking, equivariance, sparse routing, dimensional ceilings, and residual topology. But architecture creates nominal capacity — the available degrees of freedom — and does not guarantee that training will use them.
 
 A useful mental model is:
 
@@ -415,22 +415,22 @@ A useful mental model is:
 $$
 C_{\mathrm{realized}}(\mathcal{A}, \mathcal{O}, \mathcal{D})
 \;\approx\;
-C_{\mathrm{available}}(\mathcal{A})
+C_{\mathrm{nominal}}(\mathcal{A})
 \;\times\;
 \rho_{\mathrm{realized}}(\mathcal{O}, \mathcal{D}; \mathcal{A}).
 $$
 </div>
 
-Here, $\mathcal{A}$ is the architecture, $\mathcal{O}$ is the optimizer/training algorithm, and $\mathcal{D}$ is the training data. This is not a literal scalar law; it is a design principle. Architecture sets available capacity. Optimization and training data influence how much of that capacity becomes coherent in representation space. Whether that structure is behaviorally useful must be tested separately.
+Here, $\mathcal{A}$ is the architecture, $\mathcal{O}$ is the optimizer/training algorithm, and $\mathcal{D}$ is the training data. This is not a literal scalar law; it is a design principle. Architecture sets nominal capacity. Optimization and training data influence how much of that capacity becomes coherent in representation space. Whether that structure is behaviorally useful must be tested separately.
 
 <table>
 <thead><tr><th>Observable</th><th>What it tells us</th><th>Strongly influenced by</th></tr></thead>
 <tbody>
 <tr><td>Parameter count, width, depth, heads</td><td>The nominal capacity ceiling</td><td>Architecture</td></tr>
 <tr><td>FLOPs and memory movement</td><td>The cost and shape of computation</td><td>Architecture</td></tr>
-<tr><td>Average/diffuse capacity</td><td>How broadly variance is distributed across eigenmodes</td><td>Training dynamics</td></tr>
+<tr><td>Diffuse capacity</td><td>How broadly variance is distributed across eigenmodes</td><td>Optimizer and training dynamics</td></tr>
 <tr><td>Dominant-mode capacity</td><td>How many dominant eigenmodes carry substantial variance</td><td>Architecture–optimizer pair</td></tr>
-<tr><td>Capacity asymmetry</td><td>Whether diffuse capacity is matched by dominant-mode capacity; not a quantity to maximize</td><td>Architecture–optimizer pair</td></tr>
+<tr><td>Capacity asymmetry</td><td>Whether diffuse capacity is matched by dominant-mode capacity</td><td>Architecture–optimizer pair</td></tr>
 <tr><td>Frequency-conditioned capacity</td><td>Which token regimes receive realized spectral capacity</td><td>Data distribution × optimizer</td></tr>
 </tbody>
 </table>
@@ -457,16 +457,16 @@ R_2(p) = \frac{1}{\sum_i p_i^2}.
 $$
 </div>
 
-I use the following convention:
+These are the two capacity measures from Section 1, now made precise: diffuse capacity is the soft spectral rank, $R_{\mathrm{soft}} = R_1$; dominant-mode capacity is the hard spectral rank, $R_{\mathrm{hard}} = R_2$. Capacity asymmetry is their log-ratio,
 
-- **Average/diffuse capacity** is the soft spectral rank, $R_{\mathrm{soft}} = R_1$.
-- **Dominant-mode capacity** is the hard spectral rank, $R_{\mathrm{hard}} = R_2$.
-- **Capacity asymmetry** measures the imbalance between these two quantities:
-  $$
-  \Delta = \log R_{\mathrm{soft}} - \log R_{\mathrm{hard}}
-  = \log\left(R_{\mathrm{soft}} / R_{\mathrm{hard}}\right).
-  $$
-  It is the multiplicative gap between diffuse and dominant-mode capacity in a single model, not a capacity type to maximize. Lower or non-growing asymmetry generally means dominant modes are keeping pace with diffuse spectral support; growing asymmetry means width is increasing diffuse capacity faster than dominant-mode capacity.
+$$
+\Delta = \log R_{\mathrm{soft}} - \log R_{\mathrm{hard}}
+= \log\left(R_{\mathrm{soft}} / R_{\mathrm{hard}}\right),
+$$
+
+the multiplicative gap between diffuse and dominant-mode capacity in a single model. As Section 1 noted, it is a balance diagnostic, not a target.
+
+Because $R_{\mathrm{soft}}$ and $R_{\mathrm{hard}}$ are Rényi effective ranks of orders 1 and 2, and Rényi rank is non-increasing in the order, $R_{\mathrm{hard}} \le R_{\mathrm{soft}}$ for every eigenspectrum — so $\Delta \ge 0$, and the hard rank can never exceed the soft rank. This makes the upper-left region of the phase map in Figure 4 genuinely forbidden, not merely unobserved, and the frontier $R_{\mathrm{hard}} = R_{\mathrm{soft}}$ a true boundary.
 
 Under the power-law fits used here, $\log R_{\mathrm{soft}}$ and $\log R_{\mathrm{hard}}$ grow linearly in $\log$ FFN width with slopes $\beta_{\mathrm{soft}}$ and $\beta_{\mathrm{hard}}$. Therefore, the exponent gap reported in the figures,
 $$
@@ -475,11 +475,11 @@ $$
 is the slope of $\Delta$ against $\log$ width. It measures how capacity asymmetry scales as the model widens, not the asymmetry value in any one model.
 
 <figure>
-  <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure3_phase_diagram_for_realized_capacity.png' | relative_url }}" alt="Phase diagram for realized capacity">
-  <figcaption><strong>Figure 4.</strong> <em>Conceptual phase diagram for realized capacity.</em> The horizontal axis tracks average/diffuse capacity, using normalized $\log R_{\mathrm{soft}}$; the vertical axis tracks dominant-mode capacity, using normalized $\log R_{\mathrm{hard}}$. The shaded forbidden region reflects the constraint $R_{\mathrm{hard}} \le R_{\mathrm{soft}}$. The low-asymmetry frontier marks the regime where diffuse variance and dominant eigenmode variance are closely matched.</figcaption>
+  <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure3_phase_diagram_for_realized_capacity.png' | relative_url }}" alt="Phase map for realized capacity">
+  <figcaption><strong>Figure 4.</strong> <em>Conceptual phase map for realized capacity.</em> The horizontal axis tracks diffuse capacity, using normalized $\log R_{\mathrm{soft}}$; the vertical axis tracks dominant-mode capacity, using normalized $\log R_{\mathrm{hard}}$. The shaded forbidden region reflects the forced ordering $R_{\mathrm{hard}} \le R_{\mathrm{soft}}$. The low-asymmetry frontier marks the regime where diffuse variance and dominant eigenmode variance are closely matched.</figcaption>
 </figure>
 
-This phase diagram separates cases that scalar loss can collapse together: compact and concentrated; diffuse but weak in dominant modes; or broad in diffuse capacity while also high in dominant-mode capacity. Capacity asymmetry asks whether diffuse capacity is matched by dominant eigenmode variance.
+This phase map separates cases that scalar loss can collapse together. Its four regions are realized-capacity profiles a single loss value cannot tell apart: collapsed, with little capacity of either kind; compact but coherent, moderate capacity at low asymmetry; broad and coherent, high capacity at low asymmetry; and diffuse but brittle, where diffuse capacity is high but few directions become robust dominant modes (high asymmetry). Capacity asymmetry — the vertical gap to the frontier — measures whether diffuse capacity is matched by dominant eigenmode variance, and it is what sets the brittle regime apart from the coherent ones.
 
 ### View III — Reachable capacity is optimizer-conditional
 {: #view-iii-reachable-capacity-is-optimizer-conditional}
@@ -536,7 +536,7 @@ The implication is not that optimizers matter more than architectures. Architect
 </tbody>
 </table>
 
-The practical consequence is simple: scaling decisions should specify both architecture and optimizer. Optimizer comparisons should report not only speed and loss, but also the internal capacity geometry they induce. This leads to a concrete pretraining question: what should we log to know whether added architectural capacity became realized internal structure?
+The practical consequence is simple: scaling decisions should specify both architecture and optimizer. Optimizer comparisons should report not only speed and loss, but also the quality of representation they induce. This leads to a concrete pretraining question: what should we log to know whether added architectural capacity became realized internal structure?
 
 ## 7. What changes in pretraining practice?
 {: #what-changes-in-pretraining-practice}
@@ -548,8 +548,8 @@ A capacity-aware pretraining report should answer five practical questions:
 <table>
 <thead><tr><th>Question</th><th>Diagnostic</th><th>Failure mode it catches</th></tr></thead>
 <tbody>
-<tr><td>Did same-loss models build the same representation?</td><td>Matched-loss optimizer comparisons</td><td>Similar perplexity hiding different internal geometry</td></tr>
-<tr><td>Does added width become realized capacity?</td><td>Average/diffuse and dominant-mode capacity scaling</td><td>Parameters increasing while dominant modes do not grow</td></tr>
+<tr><td>Did same-loss models build the same representation?</td><td>Matched-loss optimizer comparisons</td><td>Similar perplexity hiding different representation geometry</td></tr>
+<tr><td>Does added width become realized capacity?</td><td>Diffuse and dominant-mode capacity scaling</td><td>Parameters increasing while dominant modes do not grow</td></tr>
 <tr><td>Is capacity broad but weakly concentrated?</td><td>Capacity asymmetry</td><td>Diffuse capacity growing without matching dominant-mode structure</td></tr>
 <tr><td>Where in the data distribution does capacity appear?</td><td>Frequency-conditioned capacity across HEAD, MID, and TAIL regimes</td><td>Average loss improving while long-tail regimes remain under-realized</td></tr>
 <tr><td>Is the effect tied to a design pair?</td><td>Architecture–optimizer interaction sweeps</td><td>Attributing to architecture alone what depends on the optimizer</td></tr>
@@ -560,7 +560,7 @@ These diagnostics are telemetry signals, not extra philosophical commitments. Th
 
 Classical scaling laws predict loss from parameters, data, and compute (<a href="https://arxiv.org/abs/2001.08361" target="_blank" rel="noopener noreferrer">Kaplan et al., 2020</a>; <a href="https://arxiv.org/abs/2203.15556" target="_blank" rel="noopener noreferrer">Hoffmann et al., 2022</a>). That remains central. But loss-based scaling laws do not tell us whether added parameters became realized internal dimensions, whether capacity was allocated to rare regimes, or whether same-loss models reached the same representation geometry.
 
-A capacity-aware scaling law would complement loss scaling with internal variables: average/diffuse capacity, dominant-mode capacity, capacity asymmetry, and frequency-conditioned capacity as functions of width, depth, optimizer, and data. This fits naturally with recent position work arguing that AI systems should be studied as training processes, not only as static artifacts to analyze or patch after training (<a href="https://arxiv.org/abs/2606.06533" target="_blank" rel="noopener noreferrer">Biderman et al., 2026</a>).
+A capacity-aware scaling law would complement loss scaling with internal variables: diffuse capacity, dominant-mode capacity, capacity asymmetry, and frequency-conditioned capacity as functions of width, depth, optimizer, and data. This fits naturally with recent position work arguing that AI systems should be studied as training processes, not only as static artifacts to analyze or patch after training (<a href="https://arxiv.org/abs/2606.06533" target="_blank" rel="noopener noreferrer">Biderman et al., 2026</a>).
 
 
 ## 8. What this does not claim
@@ -662,13 +662,14 @@ If you find this post useful, please cite the associated paper.
 
 <ol class="references-list" start="14">
   <li>Alemi, A. A., Poole, B., Fischer, I., Dillon, J. V., Saurous, R. A., and Murphy, K. <em>Fixing a Broken ELBO</em>. ICML, 2018. <a href="https://proceedings.mlr.press/v80/alemi18a.html" target="_blank" rel="noopener noreferrer">PMLR</a></li>
+  <li>Gao, Y., and Chaudhari, P. <em>A Free-Energy Principle for Representation Learning</em>. ICML, 2020. <a href="https://proceedings.mlr.press/v119/gao20a.html" target="_blank" rel="noopener noreferrer">PMLR</a></li>
   <li>Rényi, A. <em>On Measures of Entropy and Information</em>. Proceedings of the Fourth Berkeley Symposium on Mathematical Statistics and Probability, 1961. <a href="https://projecteuclid.org/ebooks/berkeley-symposium-on-mathematical-statistics-and-probability/On-Measures-of-Entropy-and-Information/chapter/On-Measures-of-Entropy-and-Information/bsmsp/1200512181" target="_blank" rel="noopener noreferrer">Project Euclid</a></li>
   <li>Roy, O., and Vetterli, M. <em>The Effective Rank: A Measure of Effective Dimensionality</em>. EUSIPCO, 2007. <a href="https://www.eurasip.org/Proceedings/Eusipco/Eusipco2007/Papers/a5p-h05.pdf" target="_blank" rel="noopener noreferrer">PDF</a></li>
 </ol>
 
 <h3>Inductive bias, interpretability, and plasticity</h3>
 
-<ol class="references-list" start="17">
+<ol class="references-list" start="18">
   <li>Goldblum, M., Finzi, M., Rowan, K., and Wilson, A. G. <em>The No Free Lunch Theorem, Kolmogorov Complexity, and the Role of Inductive Biases in Machine Learning</em>. ICML, 2024. <a href="https://arxiv.org/abs/2304.05366" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Wilson, A. G. <em>Deep Learning is Not So Mysterious or Different</em>. ICML, 2025. <a href="https://arxiv.org/abs/2503.02113" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Elhage, N. et al. <em>A Mathematical Framework for Transformer Circuits</em>. Transformer Circuits, 2021. <a href="https://transformer-circuits.pub/2021/framework/index.html" target="_blank" rel="noopener noreferrer">article</a></li>
