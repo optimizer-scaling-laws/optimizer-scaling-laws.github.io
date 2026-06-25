@@ -280,12 +280,12 @@ The scaling trend is counterintuitive: longer AdamW training improves loss but w
 
 <figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure2_matched_loss_capacity_comparison.png' | relative_url }}" alt="Matched loss but different realized capacity">
-  <figcaption><strong>Figure 2.</strong> <em>Matched loss, different realized capacity.</em> Extending AdamW training improves perplexity — closer to Dion-1/16. However, the realized-capacity profiles remain substantially different. The hard-rank scaling trend is especially diagnostic: closer loss does not imply matched internal geometry.</figcaption>
+  <figcaption><strong>Figure 2.</strong> <em>Matched loss, different realized capacity.</em> Extending AdamW training improves perplexity — closer to Dion-1/16. However, the realized-capacity profiles remain substantially different. The hard-rank scaling trend is especially diagnostic: closer loss does not imply matched representation geometry.</figcaption>
 </figure>
 
-This gap is also not closed by learning-rate tuning; the paper discusses the learning-rate sweep and its spectral implications. Practically, loss curves can make two runs look equivalent even when their internal capacity trajectories differ. Loss measures average output error; it does not establish that training produced the same representation directions, minima, or adaptation-relevant internal structure.
+This gap is not an artifact of learning-rate tuning either: the paper's learning-rate sweep shows the same spectral gap persists. Practically, loss curves can make two runs look equivalent even when their internal capacity trajectories differ. Loss measures average output error; it does not establish that training produced the same representation directions, minima, or adaptation-relevant internal structure.
 
-<p class="takeaway-inline"><strong>Takeaway.</strong> Matched validation loss can still hide different width-to-capacity realization trajectories. Loss matching is necessary for a fair comparison, but it is not enough to establish matched internal geometry.</p>
+<p class="takeaway-inline"><strong>Takeaway.</strong> Matched validation loss can still hide different width-to-capacity realization trajectories. Loss matching is necessary for a fair comparison, but it is not enough to establish matched representation geometry.</p>
 
 
 ## 3. Rare tokens expose optimizer-induced capacity allocation
@@ -301,38 +301,34 @@ In Bayesian terms, dense regimes are likelihood-dominated; sparse regimes are pr
 <thead>
 <tr>
 <th>Token regime</th>
-<th>Training signal</th>
 <th>Solution constraint</th>
-<th>Main capacity-shaping factor</th>
-<th>Evidence in this work</th>
+<th>What the data shows ($\beta_{\mathrm{hard}}$)</th>
+<th>Where to focus the design lever</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>HEAD</td>
-<td>Dense, well-conditioned</td>
-<td>Strongly constrained by data</td>
-<td>Architecture; optimizer differences are compressed by dense signal</td>
-<td>Predicted / interpretive</td>
+<td>Tightly constrained by data</td>
+<td>Optimizer gap smallest ($\beta_{\mathrm{hard}}$ 0.26 → 0.59); architecture rivals it in hard-rank</td>
+<td>Architecture</td>
 </tr>
 <tr>
 <td>MID</td>
-<td>Partial, mixed quality</td>
-<td>Partly constrained</td>
-<td>Architecture–optimizer interaction</td>
-<td>Predicted + trend</td>
+<td>Loosely constrained</td>
+<td>Gap widens; Muon/NorMuon balance the spectrum ($\Delta \to 0$), AdamW holds $\Delta \approx +0.2$</td>
+<td>Architecture–optimizer pair</td>
 </tr>
 <tr>
 <td>TAIL</td>
-<td>Sparse, noisy</td>
 <td>Underdetermined</td>
-<td>Optimizer-induced bias and training dynamics</td>
-<td>Measured through $\beta_{\mathrm{hard}}$</td>
+<td>Optimizer sets dominant-mode scaling ($\beta_{\mathrm{hard}} \approx 0.44$ vs $\approx 1.0$)</td>
+<td>Optimizer / training dynamics</td>
 </tr>
 </tbody>
 </table>
 
-The table organizes the evidence; it is not a claim that each regime is independently established. Frequency is a proxy for how strongly the data constrains a token's representation. The strongest direct result is the TAIL effect: dominant-mode capacity scaling differs sharply across optimizers where the training signal is sparsest. HEAD and MID are interpreted along the same axis: as the data constrains the solution less, optimizer-induced bias has more room to shape which directions realize capacity.
+All three regimes are measured directly (Figure 3), so the table reads off data rather than extrapolating from one regime. Frequency is a proxy for how strongly the data constrains a token's representation. The optimizer effect is present everywhere but grows as that constraint weakens — smallest in HEAD, strongest in the sparse MID and TAIL regimes. The interpretive step is the design attribution in the last column: the architecture lever in HEAD rests specifically on the hard-rank result, not on HEAD broadly.
 
 This is why architecture-only changes can under-deliver for long-tail behavior: adding capacity raises the ceiling, but sparse training signal does not automatically fill it. The optimizer may need to preserve and amplify weak signals rather than fragment them.
 
@@ -346,7 +342,7 @@ Figure 3 resolves the aggregate result from Figure 1 into HEAD, MID, and TAIL re
   <figcaption><strong>Figure 3.</strong> <em>Frequency-conditioned realized-capacity scaling.</em> Panel A shows dominant-mode capacity scaling exponents, $\beta_{\mathrm{hard}}$, across HEAD, MID, and TAIL token regimes. Panel B shows how capacity asymmetry scales with width, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$. The regime-conditioned view reveals where the optimizer effect is strongest: MID and especially TAIL regimes.</figcaption>
 </figure>
 
-This matters for pretraining science because average loss is dominated by frequent patterns and can hide whether sparse regimes receive realized spectral capacity. Frequency-conditioned spectral telemetry exposes that hidden allocation.
+Average loss is dominated by frequent patterns, so it can hide whether sparse regimes receive realized spectral capacity; frequency-conditioned spectral telemetry exposes that hidden allocation.
 
 A capacity-aware training run should therefore ask not only whether average loss improved, but whether the long tail received measurable internal structure that predicts rare-regime behavior.
 
