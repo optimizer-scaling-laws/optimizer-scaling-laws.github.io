@@ -3,7 +3,7 @@ layout: post
 title: "Architecture Creates Capacity, Optimizers Realize It"
 subtitle: "Why LLM scaling laws should account for realized capacity, not just loss curves and parameter counts"
 author: "Nandan Kumar Jha"
-date: 2026-06-22
+date: 2026-06-18
 permalink: /blog/optimizer-induced-capacity/
 description: "Why LLM scaling should account for realized capacity: the same architecture and training data can produce different internal spectral capacity under different optimizers."
 reading_time: "~24 min read"
@@ -283,8 +283,8 @@ In Bayesian terms, dense regimes are likelihood-dominated; sparse regimes are pr
 <tr>
 <th>Token regime</th>
 <th>Training signal</th>
-<th>Solution constraint by data</th>
-<th>Stronger influence</th>
+<th>Solution constraint</th>
+<th>Main capacity-shaping factor</th>
 <th>Evidence in this work</th>
 </tr>
 </thead>
@@ -292,23 +292,23 @@ In Bayesian terms, dense regimes are likelihood-dominated; sparse regimes are pr
 <tr>
 <td>HEAD</td>
 <td>Dense, well-conditioned</td>
-<td>Strongly</td>
-<td>Architecture (optimizer differences are suppressed by dense signal)</td>
-<td>Interpretive</td>
+<td>Strongly constrained by data</td>
+<td>Architecture; optimizer differences are compressed by dense signal</td>
+<td>Predicted / interpretive</td>
 </tr>
 <tr>
 <td>MID</td>
-<td>Partially</td>
+<td>Partial, mixed quality</td>
 <td>Partly constrained</td>
-<td>Architecture–optimizer pair</td>
-<td>Predicted by trend</td>
+<td>Architecture–optimizer interaction</td>
+<td>Predicted + trend</td>
 </tr>
 <tr>
 <td>TAIL</td>
 <td>Sparse, noisy</td>
-<td>Under-determined</td>
-<td>Optimizer-induced biases</td>
-<td>Measured ($\beta_{\mathrm{hard}}$)</td>
+<td>Underdetermined</td>
+<td>Optimizer-induced bias and training dynamics</td>
+<td>Measured through $\beta_{\mathrm{hard}}$</td>
 </tr>
 </tbody>
 </table>
@@ -356,7 +356,7 @@ Section 2 made the paper-specific evidence concrete: matched validation loss can
 </tr>
 <tr>
 <td>Nominal capacity is not realized capacity</td>
-<td>Width matters only if training converts it into variance-carrying directions.</td>
+<td>Width matters only if training converts it into variance-carrying representation directions.</td>
 <td>Names the missing internal axis: how much architectural capacity becomes realized spectral capacity.</td>
 </tr>
 <tr>
@@ -473,7 +473,7 @@ Inductive bias explains why realized capacity can differ under the same architec
 
 Architecture provides a hard inductive bias: it restricts the support of possible computation through causal masking, residual topology, attention structure, parameter sharing, and routing. Optimization provides a softer bias: it usually leaves the formal hypothesis space unchanged, but changes which solutions are reachable, stable, and likely under a given training budget. This aligns with the broader view that modern overparameterized learning often keeps a flexible hypothesis space while imposing soft preferences over data-consistent solutions (<a href="https://arxiv.org/abs/2503.02113" target="_blank" rel="noopener noreferrer">Wilson, 2025</a>).
 
-This distinction matters especially in rare-token regimes, where data weakly constrains the solution and optimizer-induced bias has more room to shape which representation directions grow. It also suggests that the effective computational graph is not determined by architecture alone. The formal Transformer graph defines the available paths, but the optimizer can influence which heads, MLP directions, residual-stream features, and layer compositions carry signal. In the transformer-circuits view, a model is a composition of residual-stream paths and attention/MLP components; our result suggests that active paths are conditional on the architecture–optimizer pair (<a href="https://transformer-circuits.pub/2021/framework/index.html" target="_blank" rel="noopener noreferrer">Elhage et al., 2021</a>).
+This distinction matters especially in rare-token regimes, where data weakly constrains the solution and optimizer-induced bias has more room to shape which representation directions grow. It also suggests that the effective computational graph is not determined by architecture alone. The formal Transformer graph defines the available paths, but the optimizer can influence which heads, FFN directions, residual-stream features, and layer compositions carry signal. In the transformer-circuits view, a model is a composition of residual-stream paths and attention/FFN components; our result suggests that active paths are conditional on the architecture–optimizer pair (<a href="https://transformer-circuits.pub/2021/framework/index.html" target="_blank" rel="noopener noreferrer">Elhage et al., 2021</a>).
 
 #### Forward-looking implication: realized capacity may matter for plasticity
 {: #forward-looking-implication-realized-capacity-may-matter-for-plasticity}
