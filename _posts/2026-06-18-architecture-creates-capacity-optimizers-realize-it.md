@@ -351,9 +351,9 @@ A capacity-aware training run should therefore ask not only whether average loss
 ## 4. Three views of the same gap
 {: #three-views-of-the-same-gap}
 
-The empirical result is not an isolated optimizer anecdote. It points to a broader gap: scalar objective value, nominal architecture, and learned internal representation are often blurred, but they are not the same object.
+The result is not just an optimizer anecdote. It points to a broader gap: scalar objective value, nominal architecture, and learned internal representation are often blurred, but they are not the same object.
 
-Section 2 made the paper-specific evidence concrete: matched validation loss can hide different spectral-capacity trajectories. This section organizes what that result suggests for **pretraining science**.
+Section 2 made this concrete: matched validation loss can hide different spectral-capacity trajectories. The three views below generalize it for **pretraining science**.
 
 <table class="view-map">
 <thead>
@@ -377,7 +377,7 @@ Section 2 made the paper-specific evidence concrete: matched validation loss can
 <tr>
 <td>Reachable capacity is optimizer-conditional</td>
 <td>The same architecture does not imply the same reachable solution.</td>
-<td>Explains why optimizer-induced bias can shape capacity allocation, with implications for effective computation graphs and later plasticity that the paper does not yet test.</td>
+<td>Explains why optimizer-induced bias can shape capacity allocation, even under fixed architecture.</td>
 </tr>
 </tbody>
 </table>
@@ -388,11 +388,11 @@ The sequence moves from measurement to mechanism: scalar objectives can hide the
 ### View I — Scalar objectives are not internal structure
 {: #view-i-scalar-objectives-under-identify-internal-structure}
 
-Loss, gradient norms, and downstream evaluations are useful signals, but they are not complete descriptions of the trained model. The same scalar value can arise from different internal organizations: variance may spread across many directions, concentrate in a few dominant modes, or appear unevenly across token-frequency regimes. The matched-loss result above is one spectral-capacity instance of this broader under-identification problem.
+Loss, gradient norms, and downstream evaluations are useful signals, but they are not complete descriptions of the trained model. The same scalar value can arise from different internal structure: variance may spread across many directions, concentrate in a few dominant modes, or appear unevenly across token-frequency regimes. The matched-loss result above is one spectral-capacity instance of this broader under-identification problem.
 
-The upstream–downstream literature gives empirical precedent. The same pretraining loss can still produce different downstream transfer (<a href="https://arxiv.org/abs/2210.14199" target="_blank" rel="noopener noreferrer">Liu et al., 2022</a>), different geometry among task-specific minima (<a href="https://arxiv.org/abs/2604.09258" target="_blank" rel="noopener noreferrer">Chen et al., 2026</a>), and non-monotonic changes in learned representation geometry that scalar metrics miss (<a href="https://arxiv.org/abs/2509.23024" target="_blank" rel="noopener noreferrer">Li et al., 2025</a>). Theoretical work makes the same point: low pretraining loss alone need not guarantee that every downstream-relevant feature is recoverable from the representation (<a href="https://proceedings.neurips.cc/paper_files/paper/2023/hash/93712c59f6a81bd92040facf04c8b308-Abstract-Conference.html" target="_blank" rel="noopener noreferrer">Wu, Lee, and Ge, 2023</a>).
+The upstream–downstream literature gives empirical precedent. The same pretraining loss can still produce different downstream transfer (<a href="https://arxiv.org/abs/2210.14199" target="_blank" rel="noopener noreferrer">Liu et al., 2022</a>), different geometry among task-specific minima (<a href="https://arxiv.org/abs/2604.09258" target="_blank" rel="noopener noreferrer">Chen et al., 2026</a>), and non-monotonic changes in learned representation geometry that scalar metrics miss (<a href="https://arxiv.org/abs/2509.23024" target="_blank" rel="noopener noreferrer">Li et al., 2025</a>). Theoretical work makes the same point: low pretraining loss alone need not guarantee that every downstream-relevant feature is recoverable from the representation (<a href="https://proceedings.neurips.cc/paper_files/paper/2023/hash/93712c59f6a81bd92040facf04c8b308-Abstract-Conference.html" target="_blank" rel="noopener noreferrer">Wu, Lee, and Ge, 2023</a>). These works establish that the gap is real. This post makes it measurable and controllable: realized spectral capacity is the axis, the optimizer is the lever, and the views that follow develop each.
 
-Rate–distortion is a useful analogy, not a literal equivalence. Spectral rank is not rate; it measures how variance is distributed across eigendirections. But the warning is similar: one scalar objective can hide different internal codes. Alemi et al. show this for VAEs, where identical ELBO values can correspond to different points in the rate–distortion plane (<a href="https://proceedings.mlr.press/v80/alemi18a.html" target="_blank" rel="noopener noreferrer">Alemi et al., 2018</a>). In LLM pretraining, validation loss can likewise tell us that prediction error is low without telling us which internal coordinates training used.
+Rate–distortion theory gives the gap a precise formal structure, and the analogy is worth stating carefully. A scalar objective is a single coordinate on a surface of competing internal quantities. Alemi et al. show that the ELBO fixes one point on a rate–distortion curve, so a family of models can share an identical ELBO while sitting at different (rate, distortion) tradeoffs — and one architecture can be slid along that curve, from auto-encoding to auto-decoding, just by reweighting the objective (<a href="https://proceedings.mlr.press/v80/alemi18a.html" target="_blank" rel="noopener noreferrer">Alemi et al., 2018</a>). Gao and Chaudhari generalize this to a convex equilibrium surface relating rate, distortion, and loss, with an iso-classification process that holds the loss fixed while rate and distortion trade off; training objectives with different multipliers reach different points on the surface at the same loss (<a href="https://proceedings.mlr.press/v119/gao20a.html" target="_blank" rel="noopener noreferrer">Gao and Chaudhari, 2020</a>). Our setting has the same shape: validation loss is the scalar coordinate, realized spectral capacity is part of the internal allocation it leaves undetermined, and the optimizer is the knob — playing the role of $\beta$ or the Lagrange multipliers — that selects which point training reaches. The analogy is structural, not literal: spectral rank is not rate, and we impose no explicit rate–distortion objective. But the lesson carries: a low scalar says the objective was met, not which internal structure produced it.
 
 The question is therefore not only **how low did loss go?** but also:
 
