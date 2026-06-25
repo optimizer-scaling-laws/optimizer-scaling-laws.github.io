@@ -73,36 +73,15 @@ tags:
   color: #0f172a;
 }
 .toc-box ol {
-  list-style: none;
-  margin: 0.75rem 0 0 0.6rem;
-  padding-left: 0.6rem;
-}
-.toc-box > ol {
-  counter-reset: sec;
+  margin: 0.75rem 0 0 1.25rem;
+  padding-left: 0.75rem;
 }
 .toc-box ol ol {
-  counter-reset: sub;
-  margin: 0.35rem 0 0.35rem 1.1rem;
-  padding-left: 0;
+  margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
 }
 .toc-box li {
   margin: 0.35rem 0;
-}
-.toc-box > ol > li {
-  counter-increment: sec;
-}
-.toc-box ol ol > li {
-  counter-increment: sub;
-}
-.toc-box > ol > li::before {
-  content: counter(sec) ". ";
-  color: #64748b;
-  font-variant-numeric: tabular-nums;
-}
-.toc-box ol ol > li::before {
-  content: counter(sec) "." counter(sub) "\00a0\00a0";
-  color: #64748b;
-  font-variant-numeric: tabular-nums;
 }
 .toc-box a {
   text-decoration: none;
@@ -221,7 +200,7 @@ This post starts from a controlled fact and asks what follows from it. Classical
     <li>
       <a href="#three-views-of-the-same-gap">Three views of the same gap</a>
       <ol>
-        <li><a href="#view-i-scalar-objectives-under-identify-internal-structure">Scalar objectives are not internal structure</a></li>
+        <li><a href="#view-i-scalar-objectives-under-identify-internal-structure">Scalar objectives under-identify internal structure</a></li>
         <li><a href="#view-ii-nominal-capacity-is-not-realized-capacity">Nominal capacity is not realized capacity</a></li>
         <li><a href="#view-iii-reachable-capacity-is-optimizer-conditional">Reachable capacity is optimizer-conditional</a></li>
       </ol>
@@ -254,9 +233,9 @@ Four quantities help interpret the result.
   </ul>
 </div>
 
-We vary FFN width within the same model family and compare how realized spectral capacity grows. The optimizer changes the slope of that growth. The model does not merely train faster or slower; it converts the same architectural budget into a different internal-capacity profile.
+We vary FFN width within the same model family and compare how realized spectral capacity grows. The model does not merely train faster or slower; it converts the same architectural budget into a different internal-capacity profile.
 
-Figure 1 gives the aggregate view. The key quantity is not only the final rank value, but the **scaling exponent**: how much added FFN width becomes realized spectral capacity. In the TAIL regime, AdamW shows weak dominant-mode scaling across the width sweep ($\beta_{\mathrm{hard}} \approx 0.44$), while Muon and NorMuon approach near-linear scaling ($\beta_{\mathrm{hard}} \approx 1.0$). This is roughly a $2.3\times$ larger fitted exponent under the same architecture and data.
+Figure 1 gives the aggregate view. The key quantity is not only the final rank value, but the **scaling exponent**: how much added FFN width becomes realized spectral capacity. Aggregated across token-frequency regimes, AdamW shows the weakest dominant-mode scaling ($\beta_{\mathrm{hard}} \approx 0.29$), while Muon and NorMuon are markedly steeper ($\beta_{\mathrm{hard}} \approx 0.80$) — roughly a $2.8\times$ larger fitted exponent under the same architecture and data. The gap is sharpest in the rare-token regime, which Section 3 examines.
 
 <figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure1_optimizer_capacity_scaling.png' | relative_url }}" alt="Aggregated optimizer-level realized-capacity scaling">
@@ -340,7 +319,7 @@ This is why architecture-only changes can under-deliver for long-tail behavior: 
 
 This is where the result becomes relevant for capability-oriented pretraining questions. If realized capacity affects how sparse regimes transfer, then low-resource languages, rare scientific and code vocabulary, long-tail factual recall, tool-use edge cases, and sparse expert specialization are natural places to test this diagnostic. Spectral measurement alone does not prove that connection.
 
-Figure 3 resolves the aggregate result from Figure 1 into HEAD, MID, and TAIL regimes. The left panel shows dominant-mode scaling through $\beta_{\mathrm{hard}}$: in TAIL representations, AdamW and Dion-1/16 are much weaker, while Muon and NorMuon approach near-linear dominant-mode growth. Dion-1/16 remains useful as a matched-loss control, but in the TAIL regime it behaves closer to AdamW than to Muon/NorMuon. The right panel shows how asymmetry scales, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$.
+Figure 3 resolves the aggregate result from Figure 1 into HEAD, MID, and TAIL regimes. The left panel shows dominant-mode scaling through $\beta_{\mathrm{hard}}$: in TAIL representations, AdamW and Dion-1/16 are much weaker (AdamW $\beta_{\mathrm{hard}} \approx 0.44$), while Muon and NorMuon approach near-linear dominant-mode growth ($\beta_{\mathrm{hard}} \approx 1.0$) — roughly a $2.3\times$ larger fitted exponent. Dion-1/16 remains useful as a matched-loss control, but in the TAIL regime it behaves closer to AdamW than to Muon/NorMuon. The right panel shows how asymmetry scales, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$.
 
 
 <figure class="figure-wide">
@@ -371,7 +350,7 @@ Section 2 made the paper-specific evidence concrete: matched validation loss can
 </thead>
 <tbody>
 <tr>
-<td>Scalar objectives are not internal structure</td>
+<td>Scalar objectives hide internal structure</td>
 <td>Similar loss can hide different learned representations.</td>
 <td>Places the matched-loss result inside a broader failure mode of loss-only comparison.</td>
 </tr>
@@ -391,7 +370,7 @@ Section 2 made the paper-specific evidence concrete: matched validation loss can
 The sequence moves from measurement to mechanism: scalar objectives can hide the model’s internal state, realized capacity names the missing internal axis, and optimizer-induced bias explains why the reachable solution can change under fixed architecture.
 
 
-### View I — Scalar objectives are not internal structure
+### View I — Scalar objectives under-identify internal structure
 {: #view-i-scalar-objectives-under-identify-internal-structure}
 
 Loss, gradient norms, and downstream evaluations are useful signals, but they are not complete descriptions of the trained model. The same scalar value can arise from different internal organizations: variance may spread across many directions, concentrate in a few dominant modes, or appear unevenly across token-frequency regimes. The matched-loss control above is one spectral-capacity instance of this broader under-identification problem.
@@ -608,7 +587,7 @@ A model with similar loss but different spectral allocation may differ in its ab
 
 The core claim is simple: if two optimizers train the same architecture but produce different spectral-capacity scaling, optimizer choice has changed the model's realized capacity. The matched-loss comparison in Figure 2 strengthens the point: similar validation loss does not imply matched internal representation. Figure 3 shows where the measured difference is largest: MID and TAIL regimes, where optimizer-induced bias can shape capacity allocation across the data distribution.
 
-The three views above point to the same gap: scalar objectives are not internal structure, nominal capacity is not realized capacity, and reachable capacity is optimizer-conditional.
+The three views above point to the same gap: scalar objectives under-identify internal structure, nominal capacity is not realized capacity, and reachable capacity is optimizer-conditional.
 
 The next generation of LLM design should therefore ask more than how many parameters we train, how many tokens we consume, or how low the loss goes. It should also ask what capacity becomes realized, where it appears in the data distribution, and whether those realized directions predict transfer or future learning.
 
