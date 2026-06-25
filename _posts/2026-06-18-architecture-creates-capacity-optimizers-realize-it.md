@@ -200,7 +200,7 @@ This post starts from a controlled fact and asks what follows from it. Classical
     <li>
       <a href="#three-views-of-the-same-gap">Three views of the same gap</a>
       <ol>
-        <li><a href="#view-i-scalar-objectives-under-identify-internal-structure">Scalar objectives under-identify internal structure</a></li>
+        <li><a href="#view-i-scalar-objectives-under-identify-internal-structure">Scalar objectives are not internal structure</a></li>
         <li><a href="#view-ii-nominal-capacity-is-not-realized-capacity">Nominal capacity is not realized capacity</a></li>
         <li><a href="#view-iii-reachable-capacity-is-optimizer-conditional">Reachable capacity is optimizer-conditional</a></li>
       </ol>
@@ -350,7 +350,7 @@ Section 2 made the paper-specific evidence concrete: matched validation loss can
 </thead>
 <tbody>
 <tr>
-<td>Scalar objectives hide internal structure</td>
+<td>Scalar objectives are not internal structure</td>
 <td>Similar loss can hide different learned representations.</td>
 <td>Places the matched-loss result inside a broader failure mode of loss-only comparison.</td>
 </tr>
@@ -370,7 +370,7 @@ Section 2 made the paper-specific evidence concrete: matched validation loss can
 The sequence moves from measurement to mechanism: scalar objectives can hide the model’s internal state, realized capacity names the missing internal axis, and optimizer-induced bias explains why the reachable solution can change under fixed architecture.
 
 
-### View I — Scalar objectives under-identify internal structure
+### View I — Scalar objectives are not internal structure
 {: #view-i-scalar-objectives-under-identify-internal-structure}
 
 Loss, gradient norms, and downstream evaluations are useful signals, but they are not complete descriptions of the trained model. The same scalar value can arise from different internal organizations: variance may spread across many directions, concentrate in a few dominant modes, or appear unevenly across token-frequency regimes. The matched-loss control above is one spectral-capacity instance of this broader under-identification problem.
@@ -587,7 +587,7 @@ A model with similar loss but different spectral allocation may differ in its ab
 
 The core claim is simple: if two optimizers train the same architecture but produce different spectral-capacity scaling, optimizer choice has changed the model's realized capacity. The matched-loss comparison in Figure 2 strengthens the point: similar validation loss does not imply matched internal representation. Figure 3 shows where the measured difference is largest: MID and TAIL regimes, where optimizer-induced bias can shape capacity allocation across the data distribution.
 
-The three views above point to the same gap: scalar objectives under-identify internal structure, nominal capacity is not realized capacity, and reachable capacity is optimizer-conditional.
+The three views above point to the same gap: scalar objectives are not internal structure, nominal capacity is not realized capacity, and reachable capacity is optimizer-conditional.
 
 The next generation of LLM design should therefore ask more than how many parameters we train, how many tokens we consume, or how low the loss goes. It should also ask what capacity becomes realized, where it appears in the data distribution, and whether those realized directions predict transfer or future learning.
 
