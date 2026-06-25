@@ -73,15 +73,36 @@ tags:
   color: #0f172a;
 }
 .toc-box ol {
-  margin: 0.75rem 0 0 1.25rem;
-  padding-left: 0.75rem;
+  list-style: none;
+  margin: 0.75rem 0 0 0.6rem;
+  padding-left: 0.6rem;
+}
+.toc-box > ol {
+  counter-reset: sec;
 }
 .toc-box ol ol {
-  margin-top: 0.35rem;
-  margin-bottom: 0.35rem;
+  counter-reset: sub;
+  margin: 0.35rem 0 0.35rem 1.1rem;
+  padding-left: 0;
 }
 .toc-box li {
   margin: 0.35rem 0;
+}
+.toc-box > ol > li {
+  counter-increment: sec;
+}
+.toc-box ol ol > li {
+  counter-increment: sub;
+}
+.toc-box > ol > li::before {
+  content: counter(sec) ". ";
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+}
+.toc-box ol ol > li::before {
+  content: counter(sec) "." counter(sub) "\00a0\00a0";
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
 }
 .toc-box a {
   text-decoration: none;
