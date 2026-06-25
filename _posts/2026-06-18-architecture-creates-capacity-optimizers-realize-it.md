@@ -217,8 +217,6 @@ This post starts from a controlled fact and asks what follows from it. Classical
 ## 1. Same architecture, different capacity scaling
 {: #same-architecture-different-capacity-scaling}
 
-The result behind this post is simple:
-
 > **When architecture, training data, tokenizer, and FFN-width schedule are fixed, changing the optimizer changes how realized spectral capacity scales.**
 
 Four quantities help interpret the result.
@@ -228,7 +226,7 @@ Four quantities help interpret the result.
   <ul>
     <li><strong>Average/diffuse capacity:</strong> soft spectral rank; how broadly representation variance spreads across eigenmodes.</li>
     <li><strong>Dominant-mode capacity:</strong> hard spectral rank; how many strong eigenmodes carry substantial variance.</li>
-    <li><strong>Capacity asymmetry:</strong> a diagnostic of imbalance between diffuse capacity and dominant-mode capacity; it is not a quantity to maximize.</li>
+    <li><strong>Capacity asymmetry:</strong> the gap between soft and hard rank — whether capacity is broadly distributed across many eigenmodes or concentrated in a few. Lower asymmetry means a more even spread, not necessarily a better one.</li>
     <li><strong>Scaling exponent:</strong> how quickly realized capacity grows as FFN width increases.</li>
   </ul>
 </div>
@@ -242,7 +240,7 @@ Figure 1 gives the aggregate view. The key quantity is not only the final rank v
   <figcaption><strong>Figure 1.</strong> <em>Aggregated optimizer-level realized-capacity scaling.</em> Architecture, training data, and FFN-width schedule are fixed; only the optimizer changes. Panel A reports aggregated scaling exponents for average/diffuse capacity, $\beta_{\mathrm{soft}}$, and dominant-mode capacity, $\beta_{\mathrm{hard}}$. Panel B shows how capacity asymmetry scales with width, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$. Muon and NorMuon show stronger dominant-mode capacity scaling and a smaller $\Delta\beta$ than AdamW, indicating that more added width appears in dominant eigenmodes.</figcaption>
 </figure>
 
-The full result tables, frequency-conditioned fits, and ablations are on the <a href="https://optimizer-scaling-laws.github.io/" target="_blank" rel="noopener noreferrer">project page</a>. Here, I focus on what these scaling differences imply for architecture, optimization, and realized capacity.
+The full result tables, frequency-conditioned fits, and ablations are on the <a href="https://optimizer-scaling-laws.github.io/" target="_blank" rel="noopener noreferrer">project page</a>.
 
 These are controlled GPT-2-scale studies, including 160M and 350M model families on FineWeb-Edu. They show that optimizer choice can change internal capacity-scaling exponents under matched architecture and training data; they do not show that the same optimizer ordering must persist unchanged at multi-billion-parameter scale. The next clean test is a calibrated billion-scale sweep that keeps architecture, training data, tokenizer, FFN-width schedule, and compute accounting fixed while measuring whether the same average/diffuse, dominant-mode, and HEAD/MID/TAIL effects persist.
 
