@@ -254,16 +254,16 @@ Four quantities help interpret the result.
 
 We vary FFN width within the same model family and compare how realized spectral capacity grows. The model does not merely train faster or slower; it converts the same architectural budget into a different internal-capacity profile.
 
-Figure 1 gives the aggregate view. AdamW shows the weakest dominant-mode scaling ($\beta_{\mathrm{hard}} \approx 0.29$), while Muon and NorMuon achieve near-linear scaling ($\beta_{\mathrm{hard}} \approx 0.80$)---roughly a $2.8\times$ larger exponent under the same architecture and training data. This gap is more prominent in the rare-token regime, which Section 3 examines.
+Figure 1 gives the global view of realized capacity scaling. AdamW shows the weakest dominant-mode scaling ($\beta_{\mathrm{hard}} \approx 0.29$), while Muon and NorMuon achieve near-linear scaling ($\beta_{\mathrm{hard}} \approx 0.80$), roughly a $2.8\times$ larger exponent under the same architecture and training data. This gap is more prominent in the rare-token regime, which Section 3 examines.
 
 <figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure1_optimizer_capacity_scaling.png' | relative_url }}" alt="Aggregated optimizer-level realized-capacity scaling">
-  <figcaption><strong>Figure 1.</strong> <em>Aggregated optimizer-level realized-capacity scaling.</em> Architecture, training data, and FFN-width schedule are fixed; only the optimizer changes. Panel A reports aggregated scaling exponents for diffuse capacity, $\beta_{\mathrm{soft}}$, and dominant-mode capacity, $\beta_{\mathrm{hard}}$. Panel B shows how capacity asymmetry scales with width, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$. Muon and NorMuon show stronger dominant-mode capacity scaling and a smaller $\Delta\beta$ than AdamW, indicating that more added width appears in dominant eigenmodes.</figcaption>
+  <figcaption><strong>Figure 1.</strong> <em>Aggregated (pooled across the token-regimes) optimizer-induced spectral scaling.</em> Architecture, training data, and FFN-width schedule are fixed; only the optimizer changes. Panel A shows scaling exponents for diffuse capacity, $\beta_{\mathrm{soft}}$, and dominant-mode capacity, $\beta_{\mathrm{hard}}$. Panel B shows how capacity asymmetry scales with width, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$. Muon and NorMuon show stronger dominant-mode capacity scaling and a smaller $\Delta\beta$ than AdamW, indicating that added width converts into dominant-mode capacity.</figcaption>
 </figure>
 
 The full result tables, frequency-conditioned fits, and ablations are on the <a href="https://optimizer-scaling-laws.github.io/" target="_blank" rel="noopener noreferrer">project page</a>.
 
-These are GPT-2-scale studies, including 160M and 350M model families on FineWeb-Edu. They show that optimizer choice can change internal capacity-scaling exponents under matched architecture and training data; they do not show that the same optimizer ordering must persist unchanged at multi-billion-parameter scale. The next clean test is a calibrated billion-scale sweep that keeps architecture, training data, tokenizer, FFN-width schedule, and compute accounting fixed while measuring whether the same diffuse, dominant-mode, and HEAD/MID/TAIL effects persist.
+These are GPT-2-scale studies, including 160M and 350M model families on FineWeb-Edu. They show that optimizer choice can change realized spectral capacity-scaling under matched architecture and training data; they do not guarantee that the same optimizer ordering must persist at multi-billion-parameter scale. To ensure this, a calibrated billion-scale sweep that keeps architecture, training data, tokenizer, FFN-width schedule fixed, while measuring whether the same diffuse, dominant-mode, and HEAD/MID/TAIL effects persist.
 
 <p class="takeaway-inline"><strong>Takeaway.</strong> Optimizer choice can change not only convergence speed or final loss, but the scaling law exponents by which added FFN width becomes realized spectral capacity.</p>
 
@@ -273,9 +273,9 @@ These are GPT-2-scale studies, including 160M and 350M model families on FineWeb
 
 A natural objection is that one optimizer may merely train faster. The matched-loss comparison tests that possibility.
 
-Extending AdamW training from 6K to 12K improves validation perplexity and brings it close to Dion-1/16 across the FFN-width sweep. But the realized-capacity profiles do not match; AdamW-12K remains much weaker in dominant-mode capacity scaling.
+Extending AdamW training from 6K to 12K improves validation perplexity and brings it close to Dion-1/16 across the FFN-width sweep. But the realized-capacity profiles do not match, AdamW-12K remains much weaker in dominant-mode capacity scaling.
 
-The scaling trend is counterintuitive: longer AdamW training improves loss but weakens dominant-mode scaling, with the exponent dropping from about **$0.29$** to about **$0.03$**. Wider AdamW models are therefore not merely “catching up” internally as loss improves.
+The scaling trend is counterintuitive: longer AdamW training improves loss, however, weakens dominant-mode scaling---the hard-rank exponent drops from **$0.29$** to **$0.03$**. That is, under AdamW,  added width no longer becomes realized spectral capacity, particularly in wider models even when loss is continue to increase. 
 
 
 <figure class="figure-wide">
