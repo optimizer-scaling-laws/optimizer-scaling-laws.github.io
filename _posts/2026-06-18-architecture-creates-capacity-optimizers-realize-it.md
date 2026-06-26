@@ -475,7 +475,7 @@ $$
 is the slope of $\Delta$ against $\log$ width. It measures how capacity asymmetry scales as the model widens, not the asymmetry value in any one model.
 
 <figure>
-  <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure3_phase_diagram_for_realized_capacity.svg' | relative_url }}" alt="Phase map for realized capacity">
+  <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure3_phase_diagram_for_realized_capacity.png' | relative_url }}" alt="Phase map for realized capacity">
   <figcaption><strong>Figure 4.</strong> <em>Conceptual phase map for realized capacity.</em> The horizontal axis tracks diffuse capacity, using normalized $\log R_{\mathrm{soft}}$; the vertical axis tracks dominant-mode capacity, using normalized $\log R_{\mathrm{hard}}$. The shaded forbidden region reflects the forced ordering $R_{\mathrm{hard}} \le R_{\mathrm{soft}}$. The low-asymmetry frontier marks the regime where diffuse variance and dominant eigenmode variance are closely matched.</figcaption>
 </figure>
 
@@ -543,7 +543,7 @@ In practice, scaling decisions should specify both architecture and optimizer, a
 ## 7. What changes in pretraining practice?
 {: #what-changes-in-pretraining-practice}
 
-The practical takeaway is not that loss—or loss-based scaling analysis—should be replaced. Loss remains the central training objective and a low-variance signal for scaling laws. But loss alone does not tell us what kind of solution the model is converging toward, whether it is using its parameter budget effectively, or whether the architecture–optimizer pair provides the right inductive biases. For that, we need internal telemetry.
+Loss remains the central training objective and a low-variance signal for scaling laws; nothing here proposes replacing it. What loss alone does not reveal is the kind of solution the model is converging toward, whether it is using its parameter budget effectively, or whether the architecture–optimizer pair provides the right inductive biases. For that, we need internal telemetry.
 
 A capacity-aware pretraining report should answer five practical questions:
 
@@ -558,11 +558,9 @@ A capacity-aware pretraining report should answer five practical questions:
 </tbody>
 </table>
 
-These diagnostics are telemetry signals, not extra philosophical commitments. They make optimizer comparisons more informative: not only which optimizer reaches a target loss fastest, but which one converts the same architecture into realized spectral representation.
+These diagnostics are telemetry signals, not extra philosophical commitments. They make optimizer comparisons more informative: not only which optimizer reaches a target loss fastest, but how each one realizes the same architecture's capacity.
 
-Classical scaling laws predict loss from parameters, data, and compute (<a href="https://arxiv.org/abs/2001.08361" target="_blank" rel="noopener noreferrer">Kaplan et al., 2020</a>; <a href="https://arxiv.org/abs/2203.15556" target="_blank" rel="noopener noreferrer">Hoffmann et al., 2022</a>). That remains central. But loss-based scaling laws do not tell us whether added parameters became realized internal dimensions, whether capacity was allocated to rare regimes, or whether same-loss models reached the same representation geometry.
-
-A capacity-aware scaling law would complement loss scaling with internal variables: diffuse capacity, dominant-mode capacity, capacity asymmetry, and frequency-conditioned capacity as functions of width, depth, optimizer, and data. This fits naturally with recent position work arguing that AI systems should be studied as training processes, not only as static artifacts to analyze or patch after training (<a href="https://arxiv.org/abs/2606.06533" target="_blank" rel="noopener noreferrer">Biderman et al., 2026</a>).
+These signals also extend beyond a single run. Classical scaling laws predict loss from parameters, data, and compute (<a href="https://arxiv.org/abs/2001.08361" target="_blank" rel="noopener noreferrer">Kaplan et al., 2020</a>; <a href="https://arxiv.org/abs/2203.15556" target="_blank" rel="noopener noreferrer">Hoffmann et al., 2022</a>) and remain central; a capacity-aware scaling law would complement them with internal variables — diffuse capacity, dominant-mode capacity, capacity asymmetry, and frequency-conditioned capacity as functions of width, depth, optimizer, and data. This aligns with recent position work arguing that AI systems should be studied as training processes, not only as static artifacts to analyze or patch after training (<a href="https://arxiv.org/abs/2606.06533" target="_blank" rel="noopener noreferrer">Biderman et al., 2026</a>).
 
 
 ## 8. What this does not claim
