@@ -198,7 +198,7 @@ h2#tldr {
 <ul>
   <li><strong>Finding.</strong> Holding architecture, training data, tokenizer, and FFN-width schedule fixed, optimizer choice changes the spectral capacity realized inside FFN representations.</li>
   <li><strong>Matched loss is not matched representation.</strong> The same architecture can reach similar validation loss under different optimizers while learning different representation. Longer AdamW training can match Dion-1/16 in validation loss, but not in dominant-mode capacity scaling.</li>
-  <li><strong>Implication.</strong> Architecture determines the available degrees of freedom, training dynamics determine which of them become active (variance-carrying representation), and how that realized across token-frequency regimes. The effect is strongest for rare tokens, where sparse supervision leaves more room for optimizer-induced bias to shape the learned representation.</li>
+  <li><strong>Implication.</strong> Architecture determines the available degrees of freedom, training dynamics determine which of them become variance-carrying representation directions, and how they are allocated across token-frequency regimes. The effect is strongest for rare tokens, where sparse supervision leaves more room for optimizer-induced bias to shape the learned representation.</li>
 </ul>
 </div>
 
@@ -209,7 +209,7 @@ This post starts from a single finding and asks what follows from it. Classical 
 
 <figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure0_same_architecture_same_data_different_optimizer.png' | relative_url }}" alt="Same architecture, same data, different optimizer conceptual setup">
-  <figcaption><strong>Figure 0.</strong> <em>Same architecture, same training data, different optimizer.</em> With the model and data held fixed, different optimizers induce different paths through parameter space — and those trajectories can yield different internal spectral-capacity profiles even when final loss is similar.</figcaption>
+  <figcaption><strong>Figure 0.</strong> <em>Same architecture, same training data, different optimizer.</em> With the model and data held fixed, different optimizers induce different paths through parameter space, which results in different internal spectral-capacity profiles even when final loss is similar.</figcaption>
 </figure>
 
 <details class="toc-box">
@@ -245,9 +245,9 @@ Four quantities help interpret the result.
 <div class="metric-box">
   <strong>Metrics used in this post.</strong>
   <ul>
-    <li><strong>Diffuse capacity:</strong> soft spectral rank; how broadly representation variance spreads across eigenmodes.</li>
-    <li><strong>Dominant-mode capacity:</strong> hard spectral rank; how many strong eigenmodes carry substantial variance.</li>
-    <li><strong>Capacity asymmetry:</strong> the gap between soft and hard rank — whether capacity is broadly distributed across many eigenmodes or concentrated in a few. Lower asymmetry means a more even spread, not necessarily a better one.</li>
+    <li><strong>Diffuse capacity:</strong> soft spectral rank, how broadly representation variance spreads across eigenmodes.</li>
+    <li><strong>Dominant-mode capacity:</strong> hard spectral rank, how many eigenmodes carry substantial variance.</li>
+    <li><strong>Capacity asymmetry:</strong> the gap between soft and hard rank. It diagnoses whether capacity is broadly distributed across many eigenmodes or concentrated in a few dominant directions. Lower asymmetry means a more even spread.</li>
     <li><strong>Scaling exponent:</strong> how quickly realized capacity grows as FFN width increases.</li>
   </ul>
 </div>
