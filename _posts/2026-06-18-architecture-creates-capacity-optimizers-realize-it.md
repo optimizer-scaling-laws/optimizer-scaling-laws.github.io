@@ -551,7 +551,7 @@ A capacity-aware pretraining report should answer five practical questions:
 <thead><tr><th>Question</th><th>Diagnostic</th><th>Failure mode it catches</th></tr></thead>
 <tbody>
 <tr><td>Did same-loss models build the same representation?</td><td>Matched-loss optimizer comparisons</td><td>Similar perplexity hiding different representation geometry</td></tr>
-<tr><td>Does added width become realized capacity?</td><td>Diffuse and dominant-mode capacity scaling</td><td>Parameters increasing while dominant modes do not grow</td></tr>
+<tr><td>Does added FFN width convert into realized capacity?</td><td>Diffuse and dominant-mode capacity scaling</td><td>Parameters increasing while dominant modes do not grow</td></tr>
 <tr><td>Is capacity broad but weakly concentrated?</td><td>Capacity asymmetry</td><td>Diffuse capacity growing without matching dominant-mode structure</td></tr>
 <tr><td>Where in the data distribution does capacity appear?</td><td>Frequency-conditioned capacity across HEAD, MID, and TAIL regimes</td><td>Average loss improving while long-tail regimes remain under-realized</td></tr>
 <tr><td>Is the effect tied to a design pair?</td><td>Architecture–optimizer interaction sweeps</td><td>Attributing to architecture alone what depends on the optimizer</td></tr>
@@ -559,6 +559,8 @@ A capacity-aware pretraining report should answer five practical questions:
 </table>
 
 These diagnostics are telemetry signals, not extra philosophical commitments. They make optimizer comparisons more informative: not only which optimizer reaches a target loss fastest, but how each one realizes the same architecture's capacity.
+
+These signals are also inexpensive to log. Soft and hard ranks are computed from the eigenspectrum of a layer's FFN post-activation covariance, requiring only eigenvalues rather than stored eigenvectors. In our prior ICLR 2026 work, NerVE (<a href="https://arxiv.org/abs/2603.06922" target="_blank" rel="noopener noreferrer">Jha and Reagen, 2026</a>), logging them every 1,000 steps on GPT-2-scale runs added roughly 1% wall-clock overhead and tens of megabytes of GPU memory per layer. The telemetry is not uniformly robust, however: pre-activation spectra remain stable under token subsampling, while post-activation spectra are more sensitive — especially hard-rank estimates in the tail — because the nonlinearity and token sparsity make the mid-to-tail eigenspectrum easier to distort. This suggests a two-level strategy: pre-activation soft and hard ranks for cheap, frequent monitoring, and full-batch post-activation ranks when making claims about realized capacity.
 
 These signals also extend beyond a single run. Classical scaling laws predict loss from parameters, data, and compute (<a href="https://arxiv.org/abs/2001.08361" target="_blank" rel="noopener noreferrer">Kaplan et al., 2020</a>; <a href="https://arxiv.org/abs/2203.15556" target="_blank" rel="noopener noreferrer">Hoffmann et al., 2022</a>) and remain central; a capacity-aware scaling law would complement them with internal variables — diffuse capacity, dominant-mode capacity, capacity asymmetry, and frequency-conditioned capacity as functions of width, depth, optimizer, and data. This aligns with recent position work arguing that AI systems should be studied as training processes, not only as static artifacts to analyze or patch after training (<a href="https://arxiv.org/abs/2606.06533" target="_blank" rel="noopener noreferrer">Biderman et al., 2026</a>).
 
@@ -572,7 +574,7 @@ First, spectral rank is not a complete theory of intelligence, generalization, o
 
 Second, more realized spectral capacity is not automatically better. The useful question is where capacity appears, whether it is stable, and whether it predicts behavior, robustness, transfer, or future learnability.
 
-Third, co-design is not optimizer maximalism. Architecture remains indispensable: optimizers cannot create structural guarantees, reduce inference cost by construction, or represent functions excluded by the architecture. The point is that architecture sets available degrees of freedom, while optimization helps determine which of them training realizes.
+Third, co-design is not optimizer maximalism. Architecture remains indispensable: optimizers cannot create the guarantees architecture provides by construction, reduce inference cost structurally, or represent functions excluded by the architecture. The point is that architecture sets available degrees of freedom, while optimization helps determine which of them training realizes.
 
 Fourth, the scale question remains open. The present evidence establishes an optimizer-induced capacity-scaling effect at GPT-2 160M/350M scale. Stronger frontier-scale claims require larger models, longer training, more architectures, downstream probes, continued-learning tests, interpretability comparisons, and direct studies of rare-regime behavior.
 
@@ -685,6 +687,7 @@ If you find this post useful, please cite the associated paper.
   <li>Hernandez-Garcia, J. F., Figliolia, T., and Millidge, B. <em>Can Scale Save Us From Plasticity Loss in Large Language Models?</em> arXiv:2606.24752, 2026. <a href="https://arxiv.org/abs/2606.24752" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Zheng, G., Yang, E., Wang, X., Chen, Y., He, F., Zheng, Q., Wang, P., and Shen, L. <em>Plasticity Activation via Polar Operator: A Plug-in Method for Balancing Stability and Plasticity</em>. ICML, 2026. <a href="https://openreview.net/forum?id=b7P2WegaBY" target="_blank" rel="noopener noreferrer">OpenReview</a></li>
   <li>Koeppe, N., Vecchietti, L. F., Han, D., Li, D., and Lee, S. W. <em>Mitigating Plasticity Loss through Architectural Design in Continual Learning</em>. ICML, 2026. <a href="https://openreview.net/forum?id=pAhGjPOlwy" target="_blank" rel="noopener noreferrer">OpenReview</a></li>
+  <li>Jha, N. K., and Reagen, B. <em>NerVE: Nonlinear Eigenspectrum Dynamics in LLM Feed-Forward Networks</em>. ICLR, 2026. <a href="https://arxiv.org/abs/2603.06922" target="_blank" rel="noopener noreferrer">arXiv</a></li>
 </ol>
 
 </div>
