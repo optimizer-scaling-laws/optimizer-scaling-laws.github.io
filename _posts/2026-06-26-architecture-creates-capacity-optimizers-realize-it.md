@@ -254,7 +254,7 @@ Four quantities help interpret the result.
 
 We vary FFN width within the same model family and compare how realized spectral capacity grows. The model does not merely train faster or slower; it converts the same architectural budget into a different internal-capacity profile.
 
-Figure 1 gives the aggregate view. The central quantity is not only the final rank value, but the **scaling exponent**: how much added FFN width becomes realized spectral capacity. Aggregated across token-frequency regimes, AdamW shows the weakest dominant-mode scaling ($\beta_{\mathrm{hard}} \approx 0.29$), while Muon and NorMuon are markedly steeper ($\beta_{\mathrm{hard}} \approx 0.80$) — roughly a $2.8\times$ larger fitted exponent under the same architecture and data. The gap is sharpest in the rare-token regime, which Section 3 examines.
+Figure 1 gives the aggregate view. AdamW shows the weakest dominant-mode scaling ($\beta_{\mathrm{hard}} \approx 0.29$), while Muon and NorMuon achieve near-linear scaling ($\beta_{\mathrm{hard}} \approx 0.80$)---roughly a $2.8\times$ larger exponent under the same architecture and training data. This gap is more prominent in the rare-token regime, which Section 3 examines.
 
 <figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure1_optimizer_capacity_scaling.png' | relative_url }}" alt="Aggregated optimizer-level realized-capacity scaling">
