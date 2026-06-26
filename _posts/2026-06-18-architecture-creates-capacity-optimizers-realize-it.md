@@ -560,43 +560,43 @@ A capacity-aware pretraining report should answer five practical questions:
 
 These diagnostics are telemetry signals, not extra philosophical commitments. They make optimizer comparisons more informative: not only which optimizer reaches a target loss fastest, but how each one realizes the same architecture's capacity.
 
-These signals are also inexpensive to log. Soft and hard ranks are computed from the eigenspectrum of a layer's FFN post-activation covariance, requiring only eigenvalues rather than stored eigenvectors. In our prior ICLR 2026 work, NerVE (<a href="https://arxiv.org/abs/2603.06922" target="_blank" rel="noopener noreferrer">Jha and Reagen, 2026</a>), logging them every 1,000 steps on GPT-2-scale runs added roughly 1% wall-clock overhead and tens of megabytes of GPU memory per layer. The telemetry is not uniformly robust, however: pre-activation spectra remain stable under token subsampling, while post-activation spectra are more sensitive — especially hard-rank estimates in the tail — because the nonlinearity and token sparsity make the mid-to-tail eigenspectrum easier to distort. This suggests a two-level strategy: pre-activation soft and hard ranks for cheap, frequent monitoring, and full-batch post-activation ranks when making claims about realized capacity.
+The same measures extend beyond a single training run. Classical scaling laws predict loss from parameters, data, and compute (<a href="https://arxiv.org/abs/2001.08361" target="_blank" rel="noopener noreferrer">Kaplan et al., 2020</a>; <a href="https://arxiv.org/abs/2203.15556" target="_blank" rel="noopener noreferrer">Hoffmann et al., 2022</a>) and remain central; a capacity-aware scaling law would complement them with internal variables — diffuse capacity, dominant-mode capacity, capacity asymmetry, and frequency-conditioned capacity as functions of width, depth, optimizer, and data. This aligns with recent position work arguing that AI systems should be studied as training processes, not only as static artifacts to analyze or patch after training (<a href="https://arxiv.org/abs/2606.06533" target="_blank" rel="noopener noreferrer">Biderman et al., 2026</a>).
 
-These signals also extend beyond a single run. Classical scaling laws predict loss from parameters, data, and compute (<a href="https://arxiv.org/abs/2001.08361" target="_blank" rel="noopener noreferrer">Kaplan et al., 2020</a>; <a href="https://arxiv.org/abs/2203.15556" target="_blank" rel="noopener noreferrer">Hoffmann et al., 2022</a>) and remain central; a capacity-aware scaling law would complement them with internal variables — diffuse capacity, dominant-mode capacity, capacity asymmetry, and frequency-conditioned capacity as functions of width, depth, optimizer, and data. This aligns with recent position work arguing that AI systems should be studied as training processes, not only as static artifacts to analyze or patch after training (<a href="https://arxiv.org/abs/2606.06533" target="_blank" rel="noopener noreferrer">Biderman et al., 2026</a>).
+Logging this telemetry is inexpensive. Soft and hard ranks are computed from the eigenspectrum of a layer's FFN post-activation covariance, requiring only eigenvalues rather than stored eigenvectors. In our prior ICLR 2026 work, NerVE (<a href="https://arxiv.org/abs/2603.06922" target="_blank" rel="noopener noreferrer">Jha and Reagen, 2026</a>), logging them every 1,000 steps on GPT-2-scale runs added roughly 1% wall-clock overhead and tens of megabytes of GPU memory per layer. The telemetry is not uniformly robust, however: pre-activation spectra remain stable under token subsampling, while post-activation spectra are more sensitive — especially hard-rank estimates in the tail — because the nonlinearity and token sparsity make the mid-to-tail eigenspectrum easier to distort. This suggests a two-level strategy: pre-activation soft and hard ranks for cheap, frequent monitoring, and full-batch post-activation ranks when making claims about realized capacity.
 
 
 ## 8. What this does not claim
 {: #what-this-does-not-claim}
 
-It is easy to overstate this argument, so the boundaries matter.
+The claim here is narrow: holding architecture, data, and tokenizer fixed, optimizer choice changes realized spectral capacity. The boundaries below mark what it does not establish.
 
 First, spectral rank is not a complete theory of intelligence, generalization, or downstream ability. It is a telemetry signal that should be interpreted alongside loss, evaluations, robustness, calibration, interpretability, and task-specific metrics.
 
 Second, more realized spectral capacity is not automatically better. The useful question is where capacity appears, whether it is stable, and whether it predicts behavior, robustness, transfer, or future learnability.
 
-Third, co-design is not optimizer maximalism. Architecture remains indispensable: optimizers cannot create the guarantees architecture provides by construction, reduce inference cost structurally, or represent functions excluded by the architecture. The point is that architecture sets available degrees of freedom, while optimization helps determine which of them training realizes.
+Third, co-design is not optimizer maximalism. Architecture remains indispensable: optimizers cannot create the guarantees architecture provides by construction, reduce inference cost structurally, or represent functions excluded by the architecture.
 
 Fourth, the scale question remains open. The present evidence establishes an optimizer-induced capacity-scaling effect at GPT-2 160M/350M scale. Stronger frontier-scale claims require larger models, longer training, more architectures, downstream probes, continued-learning tests, interpretability comparisons, and direct studies of rare-regime behavior.
 
 ## 9. Open questions
 {: #open-questions}
 
-This framing leads to concrete pretraining-science questions.
+If realized capacity is measurable and optimizer-conditional, the open questions become concrete: what it predicts, what it reveals about internal computation, how architecture and optimization interact, and how to act on it in design.
 
 **1. Which spectral differences predict downstream behavior?**
 If two models have similar loss but different realized capacity, which spectral axes predict transfer, robustness, rare-token reliability, or domain adaptation?
 
-**2. Are effective computational graphs optimizer-conditional?**
+**2. Does realized capacity predict plasticity and future learnability?**
+A model with similar loss but different spectral allocation may differ in its ability to keep learning. Capacity telemetry may therefore help diagnose loss of plasticity, representational collapse, or exhaustion of useful directions during continued training.
+
+**3. Are effective computational graphs optimizer-conditional?**
 If the optimizer changes which routes through the model carry meaningful signal, then circuits discovered in one trained model may not be stable across optimizers, even with the same architecture (<a href="https://transformer-circuits.pub/2021/framework/index.html" target="_blank" rel="noopener noreferrer">Elhage et al., 2021</a>).
 
-**3. How should we search over architecture–optimizer pairs?**
+**4. How do architecture and optimizer modulate each other?**
+Each can alter the effect of the other. Removing RoPE, for instance, shifts perplexity by an amount that varies across optimizers; and the FFN nonlinearity reshapes the spectrum in an optimizer-dependent way, so the optimizer that enters the nonlinearity with the most capacity is not always the one that leaves with it. Whether these interactions are systematic — predictable from the architecture–optimizer pair rather than either component alone — is largely unstudied.
+
+**5. How should we search over architecture–optimizer pairs?**
 Neural architecture search typically fixes the optimizer. Optimizer evaluation typically fixes the architecture. The co-design view suggests that this may miss regions where neither component looks optimal alone, but the pair is strong.
-
-**4. Can realized-capacity telemetry improve scaling laws?**
-A capacity-aware scaling law would track how internal representation structure scales with width, depth, optimizer, and training data — and whether added parameters become realized degrees of freedom.
-
-**5. Does realized capacity predict plasticity and future learnability?**
-A model with similar loss but different spectral allocation may differ in its ability to keep learning. Capacity telemetry may therefore help diagnose loss of plasticity, representational collapse, or exhaustion of useful directions during continued training.
 
 
 ## 10. Conclusion: toward capacity-aware LLM design
