@@ -198,13 +198,13 @@ h2#tldr {
 <ul>
   <li><strong>Finding.</strong> Holding architecture, training data, tokenizer, and FFN-width schedule fixed, optimizer choice changes the spectral capacity realized inside FFN representations.</li>
   <li><strong>Matched loss is not matched representation.</strong> The same architecture can reach similar validation loss under different optimizers while learning different representation. Longer AdamW training can match Dion-1/16 in validation loss, but not in dominant-mode capacity scaling.</li>
-  <li><strong>Implication.</strong> Architecture sets the available degrees of freedom; training dynamics help determine which ones become active and variance-carrying, and how that capacity is allocated across token-frequency regimes. The effect is clearest for rare tokens, where sparse supervision leaves more room for optimizer-induced bias to shape the learned representation.</li>
+  <li><strong>Implication.</strong> Architecture determines the available degrees of freedom, training dynamics determine which of them become active (variance-carrying representation), and how that realized across token-frequency regimes. The effect is strongest for rare tokens, where sparse supervision leaves more room for optimizer-induced bias to shape the learned representation.</li>
 </ul>
 </div>
 
-Throughout this post, **realized capacity** means **realized spectral capacity**: variance-carrying internal directions measured through representation eigenspectra. It is not a complete measure of intelligence, transfer, or downstream capability; it is an internal telemetry signal that loss curves and parameter counts do not directly capture.
+Throughout this post, **realized capacity** means **realized spectral capacity**: variance-carrying eigenmodes in FFN eigenspectrum representation. Note that, it is not a complete measure of intelligence, transfer, or downstream capability; it is an internal telemetry signal that loss curves and parameter counts do not directly capture.
 
-This post starts from a single finding and asks what follows from it. Classical scaling laws taught us to ask how loss changes with parameters, training data, and compute. They leave another question open: when we add architectural capacity, does training convert it into measurable internal structure? In our experiments, that conversion depends strongly on optimizer choice, especially in rare-token regimes where supervision is sparse.
+This post starts from a single finding and asks what follows from it. Classical scaling laws taught us to ask how loss changes with parameters, training data, and compute. They leave another question open: when we add architectural capacity, does training convert it into useful internal structure? In our experiments, that conversion depends strongly on optimizer choice, especially in rare-token regimes where supervision is sparse.
 
 
 <figure class="figure-wide">
