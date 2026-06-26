@@ -3,10 +3,10 @@ layout: post
 title: "Architecture Creates Capacity, Optimizers Realize It"
 subtitle: "Why LLM scaling laws should account for realized capacity, not just loss curves and parameter counts"
 author: "Nandan Kumar Jha"
-date: 2026-06-18
+date: 2026-06-26
 permalink: /blog/optimizer-induced-capacity/
 description: "Why LLM scaling should account for realized capacity: the same architecture and training data can produce different internal spectral capacity under different optimizers."
-reading_time: "~24 min read"
+reading_time: "~26 min read"
 image: /assets/blog/architecture-optimizer-codesign/figure0_same_architecture_same_data_different_optimizer.png
 tags:
   - scaling-laws
