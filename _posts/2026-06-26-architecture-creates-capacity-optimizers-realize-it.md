@@ -280,10 +280,10 @@ The scaling trend is counterintuitive: longer AdamW training improves loss, howe
 
 <figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure2_matched_loss_capacity_comparison.png' | relative_url }}" alt="Matched loss but different realized capacity">
-  <figcaption><strong>Figure 2.</strong> <em>Matched loss, different realized capacity.</em> Extending AdamW training improves perplexity — closer to Dion-1/16. However, the realized-capacity profiles remain substantially different. The hard-rank scaling trend is especially diagnostic: closer loss does not imply matched representation geometry.</figcaption>
+  <figcaption><strong>Figure 2.</strong> <em>Matched loss, different realized capacity.</em> Extending AdamW training improves perplexity — closer to Dion-1/16. However, the realized-capacity profiles remain substantially different, particularly the hard-rank scaling trend.</figcaption>
 </figure>
 
-This gap is not an artifact of learning-rate tuning either: the paper's learning-rate sweep shows the same spectral gap persists. Practically, loss curves can make two runs look equivalent even when their internal capacity trajectories differ. Loss measures average output error; it does not establish that training produced the same representation directions, minima, or adaptation-relevant internal structure.
+This gap is not an artifact of learning-rate tuning. Our learning-rate sweep shows that the spectral gap persists across learning rates. Practically, two training runs can look similar by loss while realizing very different internal capacity. Loss measures average output error; it does not establish that training produced the same representation directions, solution geometry, or adaptation-relevant internal structure.
 
 <p class="takeaway-inline"><strong>Takeaway.</strong> Matched validation loss can still mask different width-to-capacity realization trajectories. Loss matching is necessary for a fair comparison, but it is not enough to establish matched representation geometry.</p>
 
