@@ -474,7 +474,7 @@ $$
 $$
 is the slope of $\Delta$ against $\log$ width. It measures how capacity asymmetry scales as the model widens, not the asymmetry value in any one model.
 
-<figure>
+<figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure3_phase_diagram_for_realized_capacity.png' | relative_url }}" alt="Phase map for realized capacity">
   <figcaption><strong>Figure 4.</strong> <em>Conceptual phase map for realized capacity.</em> The horizontal axis tracks diffuse capacity, using normalized $\log R_{\mathrm{soft}}$; the vertical axis tracks dominant-mode capacity, using normalized $\log R_{\mathrm{hard}}$. The shaded forbidden region reflects the forced ordering $R_{\mathrm{hard}} \le R_{\mathrm{soft}}$. The low-asymmetry frontier marks the regime where diffuse variance and dominant eigenmode variance are closely matched.</figcaption>
 </figure>

@@ -584,3 +584,33 @@ body {
   color: #c0392b;
   text-decoration: underline;
 }
+
+
+/* ============================================================
+   Reading column — narrow prose, wide figures
+   ------------------------------------------------------------
+   The page (body) stays ~960–1020px so figures can be wide.
+   Prose, header, footer, tables, and callout boxes are capped
+   to a comfortable reading measure; only figure.figure-wide
+   keeps the full content width.
+
+   KNOBS:
+   - text line length  -> --reading-width (try 680px tighter, 760px looser)
+   - figure width      -> body { max-width } above
+   - if lines feel long -> bump .post-content font-size to 1.1rem
+   ============================================================ */
+:root { --reading-width: 720px; }
+
+.post-header,
+.post-footer,
+.post-content > :not(figure.figure-wide) {
+  max-width: var(--reading-width);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Wide figures break out to the full content width (set by body max-width). */
+.post-content > figure.figure-wide {
+  width: 100%;
+  max-width: 100%;
+}
