@@ -344,9 +344,7 @@ Figure 3 resolves the aggregate result from Figure 1 into HEAD, MID, and TAIL re
   <figcaption><strong>Figure 3.</strong> <em>Frequency-conditioned realized-capacity scaling.</em> Panel A shows dominant-mode capacity scaling exponents, $\beta_{\mathrm{hard}}$, across HEAD, MID, and TAIL token regimes. Panel B shows how capacity asymmetry scales with width, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$. The regime-conditioned view reveals where the optimizer effect is strongest: MID and especially TAIL regimes.</figcaption>
 </figure>
 
-Average loss is dominated by frequent patterns, so it can obscure whether sparse regimes receive realized spectral capacity; frequency-conditioned spectral telemetry exposes that latent allocation.
-
-A capacity-aware training run should therefore ask not only whether average loss improved, but whether the long tail received measurable internal structure that predicts rare-regime behavior.
+Since loss is an aggregate metric, it can be dominated by frequent tokens and obscure whether rare tokens receive realized spectral capacity. A capacity-aware training run should therefore ask not only whether average loss improved, but whether the long tail received measurable internal structure that predicts rare-regime behavior.
 
 <p class="takeaway-inline"><strong>Takeaway.</strong> Rare-token regimes are where optimizer-induced bias most strongly shapes which weak signals become coherent representation directions.</p>
 
