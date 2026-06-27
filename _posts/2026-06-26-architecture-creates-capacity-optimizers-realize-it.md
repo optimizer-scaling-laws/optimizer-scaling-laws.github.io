@@ -293,9 +293,10 @@ This gap is not an artifact of learning-rate tuning. Our learning-rate sweep sho
 
 Natural language is long-tailed. A small number of HEAD tokens receive dense, repeated training signal; TAIL tokens receive sparse, noisy, intermittent signal.
 
-This suggests a straightforward regime-dependent account. Dense supervision leaves different optimizers less room to produce qualitatively different representations. Sparse supervision gives optimizer-induced bias more degrees of freedom in determining which weak signals become coherent representation directions.
+This suggests a straightforward regime-dependent interpretation. For HEAD tokens, dense supervision leaves optimizers less room to produce qualitatively different representations. For TAIL tokens, sparse supervision gives optimizer-induced bias more degrees of freedom in determining which weak signals become variance-carrying representation directions.
 
-In Bayesian terms, dense regimes are likelihood-dominated; sparse regimes are prior-sensitive. Here, the optimizer acts like a soft prior over which solutions training reaches.
+In Bayesian terms, dense regimes are likelihood-dominated, while sparse regimes are more prior-sensitive. In this analogy, the optimizer contributes an implicit bias over which solutions training is likely to reach.
+
 
 <table>
 <thead>
