@@ -324,17 +324,17 @@ In Bayesian terms, dense regimes are likelihood-dominated, while sparse regimes 
 <td>TAIL</td>
 <td>Weak</td>
 <td>Optimizer choice dominates hard-rank scaling ($\beta_{\mathrm{hard}} \approx 0.44$ vs $\approx 1.0$)</td>
-<td>Optimizer / training dynamics</td>
+<td>Optimizer and training dynamics</td>
 </tr>
 </tbody>
 </table>
 
 
-All three regimes are measured directly (Figure 3), so the table reads off data rather than extrapolating from one regime. Frequency is a proxy for how strongly the data constrains a token's representation. The optimizer effect is present everywhere but grows as that constraint weakens — smallest in HEAD, strongest in the sparse MID and TAIL regimes. The last column should be read narrowly: HEAD is not “architecture-only”; rather, in the hard-rank measurements here, architectural changes are most competitive in the HEAD regime.
+All three regimes are measured directly in Figure 3, so the table summarizes observed spectral behavior rather than extrapolating from a single regime. Token frequency is a proxy for how strongly the data constrains a token’s representation. The optimizer effect is present across the distribution, but grows as that constraint weakens — smallest in HEAD, larger in MID, and strongest in TAIL. The last column should be read narrowly: HEAD is not “architecture-only”; rather, in these hard-rank measurements, architectural changes are most competitive in the HEAD regime.
 
-This is why architecture-only changes can under-deliver for long-tail behavior: adding capacity raises the ceiling, but sparse training signal does not automatically fill it. The optimizer may need to preserve and amplify weak signals rather than fragment them.
+This is why architecture-only changes can under-deliver for long-tail behavior: adding capacity raises the nominal ceiling, but sparse training signal does not automatically convert that capacity into variance-carrying directions. The optimizer may need to preserve and amplify weak signals rather than let them vanish or fragment.
 
-This is where the result becomes relevant for capability-oriented pretraining questions. If realized capacity affects how sparse regimes transfer, then low-resource languages, rare scientific and code vocabulary, long-tail factual recall, tool-use edge cases, and sparse expert specialization are natural places to test this diagnostic. Spectral measurement alone does not prove that connection.
+This makes the result relevant to capability-oriented pretraining questions. If realized capacity affects transfer in sparse regimes, then low-resource languages, rare scientific and code vocabulary, long-tail factual recall, tool-use edge cases, and sparse expert specialization are natural places to test this diagnostic. Spectral measurement alone does not prove that behavioral connection.
 
 Figure 3 resolves the aggregate result from Figure 1 into HEAD, MID, and TAIL regimes. The left panel shows dominant-mode scaling through $\beta_{\mathrm{hard}}$: in TAIL representations, AdamW and Dion-1/16 are much weaker (AdamW $\beta_{\mathrm{hard}} \approx 0.44$), while Muon and NorMuon approach near-linear dominant-mode growth ($\beta_{\mathrm{hard}} \approx 1.0$) — roughly a $2.3\times$ larger fitted exponent. Dion-1/16 remains useful as a matched-loss control, but in the TAIL regime it behaves closer to AdamW than to Muon/NorMuon. The right panel shows how asymmetry scales, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$.
 
