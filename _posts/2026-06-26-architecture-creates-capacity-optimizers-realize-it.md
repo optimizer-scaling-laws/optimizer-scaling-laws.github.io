@@ -346,7 +346,7 @@ Figure 3 resolves the aggregate result from Figure 1 into HEAD, MID, and TAIL re
 
 Since loss is an aggregate metric, it can be dominated by frequent tokens and obscure whether rare tokens receive realized spectral capacity. A capacity-aware training run should therefore ask not only whether average loss improved, but whether the long tail received measurable internal structure that predicts rare-regime behavior.
 
-<p class="takeaway-inline"><strong>Takeaway.</strong> Rare-token regimes are where optimizer-induced bias most strongly shapes which weak signals become coherent representation directions.</p>
+<p class="takeaway-inline"><strong>Takeaway.</strong> Rare-token regimes are where optimizer-induced bias most strongly shapes which weak signals become variance-carrying representation directions.</p>
 
 ## 4. Three views of the same gap
 {: #three-views-of-the-same-gap}
