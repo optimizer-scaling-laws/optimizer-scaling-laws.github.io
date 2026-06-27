@@ -302,32 +302,33 @@ In Bayesian terms, dense regimes are likelihood-dominated, while sparse regimes 
 <thead>
 <tr>
 <th>Token regime</th>
-<th>Solution constraint</th>
-<th>What the data shows ($\beta_{\mathrm{hard}}$)</th>
-<th>Where to focus design effort</th>
+<th>How constrained by data?</th>
+<th>Key spectral observations</th>
+<th>Design focus</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>HEAD</td>
-<td>Tightly constrained by data</td>
-<td>Optimizer gap smallest ($\beta_{\mathrm{hard}}$ 0.26 → 0.59); architecture rivals it in hard-rank</td>
-<td>Architecture</td>
+<td>Strong</td>
+<td>Optimizer gap is smallest; architecture is most competitive in hard-rank scaling</td>
+<td>Architecture-sensitive</td>
 </tr>
 <tr>
 <td>MID</td>
-<td>Loosely constrained</td>
-<td>Gap widens; Muon/NorMuon balance the spectrum ($\Delta \to 0$), AdamW holds $\Delta \approx +0.2$</td>
-<td>Architecture–optimizer pair</td>
+<td>Partial</td>
+<td>Optimizer gap widens; Muon/NorMuon reduce soft–hard asymmetry relative to AdamW</td>
+<td>Architecture–optimizer co-design</td>
 </tr>
 <tr>
 <td>TAIL</td>
-<td>Underdetermined</td>
-<td>Optimizer sets dominant-mode scaling ($\beta_{\mathrm{hard}} \approx 0.44$ vs $\approx 1.0$)</td>
+<td>Weak</td>
+<td>Optimizer choice dominates hard-rank scaling ($\beta_{\mathrm{hard}} \approx 0.44$ vs $\approx 1.0$)</td>
 <td>Optimizer / training dynamics</td>
 </tr>
 </tbody>
 </table>
+
 
 All three regimes are measured directly (Figure 3), so the table reads off data rather than extrapolating from one regime. Frequency is a proxy for how strongly the data constrains a token's representation. The optimizer effect is present everywhere but grows as that constraint weakens — smallest in HEAD, strongest in the sparse MID and TAIL regimes. The last column should be read narrowly: HEAD is not “architecture-only”; rather, in the hard-rank measurements here, architectural changes are most competitive in the HEAD regime.
 
