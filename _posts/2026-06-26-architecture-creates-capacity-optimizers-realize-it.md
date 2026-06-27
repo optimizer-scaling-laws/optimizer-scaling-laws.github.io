@@ -197,7 +197,7 @@ h2#tldr {
 <p><strong>Capacity is not only what the architecture makes possible, it is what training converts into variance-carrying representation.</strong></p>
 <ul>
   <li><strong>Finding.</strong> Holding architecture, training data, tokenizer, and FFN-width schedule fixed, optimizer choice changes the spectral capacity realized inside FFN representations.</li>
-  <li><strong>Matched loss is not matched representation.</strong> The same architecture can reach similar validation loss under different optimizers while learning different representation. Longer AdamW training can match Dion-1/16 in validation loss, but not in realized capacity scaling.</li>
+  <li><strong>Matched loss is not matched representation.</strong> The same architecture can reach similar validation loss under different optimizers while learning different representation. Longer AdamW training can match Dion-1/16 in validation loss, but not in capacity scaling.</li>
   <li><strong>Implication.</strong> Architecture determines the available degrees of freedom, training dynamics determine which of them become active, variance-carrying representation directions, and how they are allocated across token-frequency regimes. The effect is strongest for rare tokens, where sparse supervision leaves more room for optimizer-induced bias to shape the learned representation.</li>
 </ul>
 </div>
@@ -223,7 +223,7 @@ This post starts from a single finding and asks what follows from it. Classical 
       <ol>
         <li><a href="#view-i-scalar-objectives-under-identify-internal-structure">Scalar objectives are not internal structure</a></li>
         <li><a href="#view-ii-nominal-capacity-is-not-realized-capacity">Nominal capacity is not realized capacity</a></li>
-        <li><a href="#view-iii-reachable-capacity-is-optimizer-conditional">Reachable capacity is optimizer-conditional</a></li>
+        <li><a href="#view-iii-reachable-solution-is-optimizer-conditional">Reachable solution is optimizer-conditional</a></li>
       </ol>
     </li>
     <li><a href="#why-optimizer-choice-changes-capacity-not-just-speed">Why optimizer choice changes capacity, not just speed</a></li>
