@@ -458,7 +458,8 @@ Because $R_{\mathrm{soft}}$ and $R_{\mathrm{hard}}$ are Rényi effective ranks o
   <figcaption><strong>Figure 4.</strong> <em>Conceptual phase map for realized capacity.</em> The horizontal axis tracks diffuse capacity, using normalized $\log R_{\mathrm{soft}}$; the vertical axis tracks dominant-mode capacity, using normalized $\log R_{\mathrm{hard}}$. The shaded forbidden region reflects the forced ordering $R_{\mathrm{hard}} \le R_{\mathrm{soft}}$. The low-asymmetry frontier marks the regime where diffuse variance and dominant eigenmode variance are closely matched.</figcaption>
 </figure>
 
-This phase map separates cases that scalar loss can collapse together. Its four regions are realized-capacity profiles a single loss value cannot tell apart: collapsed (low capacity); compact (moderate capacity, low asymmetry); broad (high capacity, low asymmetry); and brittle (high asymmetry). Capacity asymmetry — the vertical gap to the frontier — measures whether diffuse capacity is matched by dominant eigenmode variance, and it is what sets brittle apart from compact and broad.
+This phase map separates realized-capacity profiles that a single loss value can conflate: collapsed, with low capacity; compact, with moderate capacity and low asymmetry; broad, with high capacity and low asymmetry; and brittle, with high asymmetry. Capacity asymmetry measures whether broad spectral spread is matched by substantial variance in dominant eigenmodes. This is what separates brittle profiles from compact and broad ones.
+
 
 ### View III — Reachable capacity is optimizer-conditional
 {: #view-iii-reachable-capacity-is-optimizer-conditional}
