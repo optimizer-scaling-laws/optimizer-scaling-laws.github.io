@@ -409,9 +409,9 @@ The architecture–optimizer distinction becomes clearest if we separate two not
 
 > **Nominal capacity** is the capacity implied by the architecture: parameter count, width, depth, heads, experts, routing paths, memory layout, and FLOPs.
 
-> **Realized spectral capacity** is the capacity measured as active variance-carrying structure inside the trained model: which representation directions become active, how variance is distributed across eigenmodes, which modes grow with width, and which data regimes receive measurable internal structure.
+> **Realized spectral capacity** is the capacity measured as active variance-carrying structure inside the trained model: which representation directions become active, how variance is distributed across eigenmodes, which modes grow with width.
 
-Architecture gives the learning system things optimization cannot create after the fact: causal masking, equivariance, sparse routing, dimensional ceilings, and residual topology. But architecture creates nominal capacity — the available degrees of freedom — and does not guarantee that training will use them.
+Architecture gives the learning system things optimization cannot create: causal masking, equivariance, sparse routing, dimensional ceilings, and residual topology. But architecture creates nominal capacity — the available degrees of freedom — and does not guarantee that training will use all of them.
 
 A useful mental model is:
 
@@ -425,7 +425,7 @@ C_{\mathrm{nominal}}(\mathcal{A})
 $$
 </div>
 
-Here, $\mathcal{A}$ is the architecture, $\mathcal{O}$ is the optimizer/training algorithm, and $\mathcal{D}$ is the training data. This is not a literal scalar law; it is a design principle. Architecture sets nominal capacity. Optimization and training data influence how much of that capacity becomes coherent in representation space. Whether that structure is behaviorally useful must be tested separately.
+Here, $\mathcal{A}$ is the architecture, $\mathcal{O}$ is the optimizer/training algorithm, and $\mathcal{D}$ is the training data. This is not a literal scalar law; it is a design principle. Architecture sets nominal capacity. Optimization and training data influence how much of that capacity realized in representation space. Whether that structure is behaviorally useful must be tested separately.
 
 <table>
 <thead><tr><th>Observable</th><th>What it indicates</th><th>Strongly influenced by</th></tr></thead>
