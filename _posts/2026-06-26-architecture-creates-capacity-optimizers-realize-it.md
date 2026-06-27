@@ -456,15 +456,9 @@ $$
 = \log\left(R_{\mathrm{soft}} / R_{\mathrm{hard}}\right),
 $$
 
-the multiplicative gap between diffuse and dominant-mode capacity in a single model. As Section 1 noted, it is a balance diagnostic, not a target.
+the multiplicative gap between diffuse and dominant-mode capacity in a single model. 
 
-Because $R_{\mathrm{soft}}$ and $R_{\mathrm{hard}}$ are Rényi effective ranks of orders 1 and 2, and Rényi rank is non-increasing in the order, $R_{\mathrm{hard}} \le R_{\mathrm{soft}}$ for every eigenspectrum — so $\Delta \ge 0$, and the hard rank can never exceed the soft rank. This makes the upper-left region of the phase map in Figure 4 necessarily forbidden, not merely unobserved, and the frontier $R_{\mathrm{hard}} = R_{\mathrm{soft}}$ a true boundary.
-
-Under the power-law fits used here, $\log R_{\mathrm{soft}}$ and $\log R_{\mathrm{hard}}$ grow linearly in $\log$ FFN width with slopes $\beta_{\mathrm{soft}}$ and $\beta_{\mathrm{hard}}$. Therefore, the exponent gap reported in the figures,
-$$
-\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}},
-$$
-is the slope of $\Delta$ against $\log$ width. It measures how capacity asymmetry scales as the model widens, not the asymmetry value in any one model.
+Because $R_{\mathrm{soft}}$ and $R_{\mathrm{hard}}$ are Rényi effective ranks of orders 1 and 2, and Rényi rank is non-increasing in the order, the hard rank can never exceed the soft rank. This makes the upper-left region of the phase map in Figure 4 necessarily forbidden, not merely unobserved, and the frontier $R_{\mathrm{hard}} = R_{\mathrm{soft}}$ a true boundary. The exponent gap reported in the figures, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$, measures how capacity asymmetry scales as the FFN widens.  
 
 <figure class="figure-wide">
   <img src="{{ '/assets/blog/architecture-optimizer-codesign/figure3_phase_diagram_for_realized_capacity.png' | relative_url }}" alt="Phase map for realized capacity">
