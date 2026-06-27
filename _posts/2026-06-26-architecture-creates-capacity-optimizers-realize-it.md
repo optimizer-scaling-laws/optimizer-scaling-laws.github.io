@@ -520,24 +520,10 @@ Views I–III showed that optimizer choice changes realized capacity, but they d
 </tbody>
 </table>
 
-The claim is not that one optimizer mechanism is universally better. It is that each optimizer defines a different training geometry. These choices do not change the formal architecture, but they change the trajectory through parameter space: which basins are reachable, which update directions are amplified, which weak signals survive, and which representation eigendirections become variance-carrying structure. This makes matched loss an insufficient description of what the model has learned internally. Optimizer choice therefore belongs inside the capacity-scaling object, not merely in the training recipe.
+The claim is not that one optimizer mechanism is universally better. It is that each optimizer defines a different training geometry. These choices do not change the formal architecture, but they change the trajectory through parameter space: which solutions are reachable, which update directions are amplified, which weak signals survive, and which representation eigendirections become variance-carrying structure. This makes matched loss an *incomplete* description of what the model has learned internally. Optimizer choice therefore belongs inside the capacity-scaling object, not merely in the training recipe.
 
-## 6. The design object is the architecture–optimizer pair
-{: #the-design-object-is-the-architecture-optimizer-pair}
+In practice, scaling decisions should specify both architecture and optimizer, and optimizer comparisons should report not only speed and loss but also the quality of the representation they induce. This raises a pretraining question: what should we log to know whether added architectural capacity became realized internal structure?
 
-Architecture and optimization are complementary, not competing: they solve different parts of one design problem. The division this post measures for capacity — architecture sets the available degrees of freedom, the optimizer sets the realized fraction and its allocation — recurs across other design goals as well:
-
-<table>
-<thead><tr><th>If the goal is...</th><th>Architecture contributes...</th><th>Optimization contributes...</th></tr></thead>
-<tbody>
-<tr><td>Guarantees by construction</td><td>Masking, routing, and equivariance</td><td>Trains within these constraints; does not create them</td></tr>
-<tr><td>Long-tail capability</td><td>Representational capacity and routing paths</td><td>Can preserve weak signals and shape rare-token directions</td></tr>
-<tr><td>Stable deep training</td><td>Residuals, normalization, and parameterization</td><td>Conditioning, momentum, regularization, and reachability</td></tr>
-<tr><td>Capacity-aware scaling</td><td>Available degrees of freedom</td><td>Realized fraction and allocation of those degrees of freedom</td></tr>
-</tbody>
-</table>
-
-In practice, scaling decisions should specify both architecture and optimizer, and optimizer comparisons should report not only speed and loss but also the quality of the representation they induce. This raises a concrete pretraining question: what should we log to know whether added architectural capacity became realized internal structure?
 
 ## 7. What changes in pretraining practice?
 {: #what-changes-in-pretraining-practice}
