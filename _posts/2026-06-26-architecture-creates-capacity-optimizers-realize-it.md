@@ -524,7 +524,7 @@ The claim is not that one optimizer mechanism is universally better. It is that 
 In practice, scaling decisions should specify both architecture and optimizer, and optimizer comparisons should report not only speed and loss but also the quality of the representation they induce. This raises a pretraining question: what should we log to know whether added architectural capacity became realized internal structure?
 
 
-## 7. What changes in pretraining practice?
+## 6. What changes in pretraining practice?
 {: #what-changes-in-pretraining-practice}
 
 Loss remains the central training objective and a low-variance signal for scaling laws; nothing here proposes replacing it. What loss alone does not reveal is the kind of solution the model is converging toward, whether it is using its parameter budget effectively, or whether the architecture–optimizer pair provides the right inductive biases. For that, we need internal telemetry.
@@ -549,7 +549,7 @@ The same measures extend beyond a single training run. Classical scaling laws pr
 Logging this telemetry is inexpensive. Soft and hard ranks are computed from the eigenspectrum of a layer's FFN post-activation covariance, requiring only eigenvalues rather than stored eigenvectors. In our prior ICLR 2026 work, NerVE (<a href="https://arxiv.org/abs/2603.06922" target="_blank" rel="noopener noreferrer">Jha and Reagen, 2026</a>), logging them every 1,000 steps on GPT-2-scale runs added roughly 1% wall-clock overhead and tens of megabytes of GPU memory per layer. The telemetry is not uniformly robust, however: pre-activation spectra remain stable under token subsampling, while post-activation spectra are more sensitive — especially hard-rank estimates in the tail — because the nonlinearity and token sparsity make the mid-to-tail eigenspectrum easier to distort. This suggests a two-level strategy: pre-activation soft and hard ranks for low-cost, frequent monitoring, and full-batch post-activation ranks when making claims about realized capacity.
 
 
-## 8. What this does not claim
+## 7. What this does not claim
 {: #what-this-does-not-claim}
 
 The claim here is narrow: holding architecture, data, and tokenizer fixed, optimizer choice changes realized spectral capacity. The boundaries below mark what it does not establish.
@@ -562,7 +562,7 @@ Third, co-design is not optimizer maximalism. Architecture remains indispensable
 
 Fourth, the scale question remains open. The present evidence establishes an optimizer-induced capacity-scaling effect at GPT-2 160M/350M scale. Stronger frontier-scale claims require larger models, longer training, more architectures, downstream probes, continued-learning tests, interpretability comparisons, and direct studies of rare-regime behavior.
 
-## 9. Open questions
+## 8. Open questions
 {: #open-questions}
 
 If realized capacity is measurable and optimizer-conditional, the open questions become concrete: what it predicts, what it reveals about internal computation, how architecture and optimization interact, and how to act on it in design.
@@ -583,7 +583,7 @@ The effect of an architectural change can depend on the optimizer. Removing RoPE
 Neural architecture search typically fixes the optimizer. Optimizer evaluation typically fixes the architecture. The co-design view suggests that this may miss regions where neither component looks optimal alone, but the pair is strong.
 
 
-## 10. Conclusion: toward capacity-aware LLM design
+## 9. Conclusion: toward capacity-aware LLM design
 {: #conclusion-toward-capacity-aware-llm-design}
 
 The core claim is direct: if two optimizers train the same architecture but produce different spectral-capacity scaling, optimizer choice has changed the model's realized capacity. The matched-loss comparison in Figure 2 strengthens the point: similar validation loss does not imply matched representation geometry. Figure 3 shows where the measured difference is largest: MID and TAIL regimes, where optimizer-induced bias can shape capacity allocation across the data distribution.
