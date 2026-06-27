@@ -427,18 +427,6 @@ $$
 
 Here, $\mathcal{A}$ is the architecture, $\mathcal{O}$ is the optimizer/training algorithm, and $\mathcal{D}$ is the training data. This is not a literal scalar law; it is a design principle. Architecture sets nominal capacity. Optimization and training data influence how much of that capacity realized in representation space. Whether that structure is behaviorally useful must be tested separately.
 
-<table>
-<thead><tr><th>Observable</th><th>What it indicates</th><th>Strongly influenced by</th></tr></thead>
-<tbody>
-<tr><td>Parameter count, width, depth, heads</td><td>The nominal capacity ceiling</td><td>Architecture</td></tr>
-<tr><td>FLOPs and memory movement</td><td>The cost and shape of computation</td><td>Architecture</td></tr>
-<tr><td>Diffuse capacity</td><td>How broadly variance is distributed across eigenmodes</td><td>Optimizer and training dynamics</td></tr>
-<tr><td>Dominant-mode capacity</td><td>How many dominant eigenmodes carry substantial variance</td><td>Architecture–optimizer pair</td></tr>
-<tr><td>Capacity asymmetry</td><td>Whether diffuse capacity is matched by dominant-mode capacity</td><td>Architecture–optimizer pair</td></tr>
-<tr><td>Frequency-conditioned capacity</td><td>Which token regimes receive realized spectral capacity</td><td>Data distribution × optimizer</td></tr>
-</tbody>
-</table>
-
 The same architectural intervention can therefore have different realized effects under different optimizers. If $\rho_{\mathrm{realized}}$ is high, added width translates into measured representation capacity. If it is low, added width raises the ceiling without filling it.
 
 Spectral geometry makes the distinction measurable. Given a representation covariance, its eigenspectrum characterizes how variance is distributed across eigenmodes. Effective-rank measures summarize that distribution; the entropy-based formulation traces back to Roy and Vetterli, and the Rényi family varies sensitivity to diffuse versus dominant eigenmodes (<a href="https://www.eurasip.org/Proceedings/Eusipco/Eusipco2007/Papers/a5p-h05.pdf" target="_blank" rel="noopener noreferrer">Roy and Vetterli, 2007</a>; <a href="https://projecteuclid.org/ebooks/berkeley-symposium-on-mathematical-statistics-and-probability/On-Measures-of-Entropy-and-Information/chapter/On-Measures-of-Entropy-and-Information/bsmsp/1200512181" target="_blank" rel="noopener noreferrer">Rényi, 1961</a>).
