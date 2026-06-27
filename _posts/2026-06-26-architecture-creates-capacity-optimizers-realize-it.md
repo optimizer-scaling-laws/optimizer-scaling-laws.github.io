@@ -557,7 +557,7 @@ The claim here is narrow: holding architecture, data, and tokenizer fixed, optim
 
 First, spectral rank is not a complete theory of intelligence, generalization, or downstream ability. It is a telemetry signal that should be interpreted alongside loss, evaluations, robustness, calibration, interpretability, and task-specific metrics.
 
-Second, more realized spectral capacity is not automatically better. The useful question is where capacity appears, whether it is stable, and whether it predicts behavior, robustness, transfer, or future learnability.
+Second, more realized spectral capacity is not automatically better. The important question is where capacity appears, whether it is stable, and whether it predicts behavior, robustness, transfer, or future learnability.
 
 Third, co-design is not optimizer maximalism. Architecture remains indispensable: optimizers cannot create the guarantees architecture provides by construction, reduce inference cost structurally, or represent functions excluded by the architecture.
 
