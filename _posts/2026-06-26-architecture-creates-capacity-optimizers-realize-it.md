@@ -482,7 +482,7 @@ If a model’s future ability to learn depends on how many representation direct
 At LLM scale, similar symptoms appear as dormant FFN units and attention heads that either collapse into over-concentrated patterns or become nearly uniform as the model’s ability to learn from new data declines. Although mechanisms differ across these studies, but the recurring pattern is the same; learning can lose usable degrees of freedom before loss makes that failure obvious. 
 
 
-**Two complementary biases on one quantity.** Realized capacity is the number of usable representation directions; architecture and the optimizer act on it from opposite sides.
+**Two complementary biases on one quantity.** Realized capacity tracks the representation directions that become active and variance-carrying. Architecture supplies the structural constraints; optimization supplies the dynamical bias that determines which of those directions are actually realized during training.
 
 <table>
 <thead><tr><th></th><th>Architecture — structural bias</th><th>Optimizer — dynamical bias</th></tr></thead>
