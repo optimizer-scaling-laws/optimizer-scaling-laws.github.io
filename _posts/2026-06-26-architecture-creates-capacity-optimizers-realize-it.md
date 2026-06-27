@@ -527,27 +527,28 @@ In practice, scaling decisions should specify both architecture and optimizer, a
 ## 6. What changes in pretraining practice?
 {: #what-changes-in-pretraining-practice}
 
-Loss remains the central training objective and a low-variance signal for scaling laws; nothing here proposes replacing it. What loss alone does not reveal is the kind of solution the model is converging toward, whether it is using its parameter budget effectively, or whether the architecture–optimizer pair provides the right inductive biases. For that, we need internal telemetry.
+Loss remains the central training objective and a low-variance signal for scaling laws; nothing here proposes replacing it. What loss alone does not reveal is the kind of solution the model is converging toward: whether it is using its parameter budget effectively, where capacity appears across the data distribution, or whether a given architecture–optimizer pair induces the desired representation geometry. For that, we need internal telemetry.
 
 A capacity-aware pretraining report should answer five practical questions:
 
 <table>
-<thead><tr><th>Question</th><th>Diagnostic</th><th>Failure mode it catches</th></tr></thead>
+<thead><tr><th>Question</th><th>Diagnostic</th><th>What it catches</th></tr></thead>
 <tbody>
 <tr><td>Did same-loss models build the same representation?</td><td>Matched-loss optimizer comparisons</td><td>Similar perplexity masking different representation geometry</td></tr>
-<tr><td>Does added FFN width convert into realized capacity?</td><td>Diffuse and dominant-mode capacity scaling</td><td>Parameters increasing while dominant modes do not grow</td></tr>
-<tr><td>Is capacity broad but weakly concentrated?</td><td>Capacity asymmetry</td><td>Diffuse capacity growing without matching dominant-mode structure</td></tr>
+<tr><td>Does added FFN width become realized capacity?</td><td>Diffuse and dominant-mode capacity scaling</td><td>Wider models whose dominant modes do not grow</td></tr>
+<tr><td>Is capacity broadly spread but weakly concentrated?</td><td>Capacity asymmetry</td><td>Diffuse capacity growing without matched dominant-mode structure</td></tr>
 <tr><td>Where in the data distribution does capacity appear?</td><td>Frequency-conditioned capacity across HEAD, MID, and TAIL regimes</td><td>Average loss improving while long-tail regimes remain under-realized</td></tr>
 <tr><td>Is the effect tied to a design pair?</td><td>Architecture–optimizer interaction sweeps</td><td>Attributing to architecture alone what depends on the optimizer</td></tr>
 </tbody>
 </table>
 
-These diagnostics are telemetry signals, not extra philosophical commitments. They make optimizer comparisons more informative: not only which optimizer reaches a target loss fastest, but how each one realizes the same architecture's capacity.
+These diagnostics are lightweight telemetry signals. They make optimizer comparisons more informative: not only which optimizer reaches a target loss fastest, but how each one realizes the same architecture's capacity.
 
-The same measures extend beyond a single training run. Classical scaling laws predict loss from parameters, data, and compute (<a href="https://arxiv.org/abs/2001.08361" target="_blank" rel="noopener noreferrer">Kaplan et al., 2020</a>; <a href="https://arxiv.org/abs/2203.15556" target="_blank" rel="noopener noreferrer">Hoffmann et al., 2022</a>) and remain central; a capacity-aware scaling law would complement them with internal variables — diffuse capacity, dominant-mode capacity, capacity asymmetry, and frequency-conditioned capacity as functions of width, depth, optimizer, and data. This aligns with recent position work arguing that AI systems should be studied as training processes, not only as static artifacts to analyze or patch after training (<a href="https://arxiv.org/abs/2606.06533" target="_blank" rel="noopener noreferrer">Biderman et al., 2026</a>).
+The same measurements extend beyond a single training run. Classical scaling laws predict loss from parameters, data, and compute (<a href="https://arxiv.org/abs/2001.08361" target="_blank" rel="noopener noreferrer">Kaplan et al., 2020</a>; <a href="https://arxiv.org/abs/2203.15556" target="_blank" rel="noopener noreferrer">Hoffmann et al., 2022</a>) and remain central. A capacity-aware scaling law would complement them with internal variables — diffuse capacity, dominant-mode capacity, capacity asymmetry, and frequency-conditioned capacity — as functions of width, depth, optimizer, and data. This also aligns with recent arguments that AI systems should be studied as training processes, not only as static artifacts analyzed after training (<a href="https://arxiv.org/abs/2606.06533" target="_blank" rel="noopener noreferrer">Biderman et al., 2026</a>).
 
-Logging this telemetry is inexpensive. Soft and hard ranks are computed from the eigenspectrum of a layer's FFN post-activation covariance, requiring only eigenvalues rather than stored eigenvectors. In our prior ICLR 2026 work, NerVE (<a href="https://arxiv.org/abs/2603.06922" target="_blank" rel="noopener noreferrer">Jha and Reagen, 2026</a>), logging them every 1,000 steps on GPT-2-scale runs added roughly 1% wall-clock overhead and tens of megabytes of GPU memory per layer. The telemetry is not uniformly robust, however: pre-activation spectra remain stable under token subsampling, while post-activation spectra are more sensitive — especially hard-rank estimates in the tail — because the nonlinearity and token sparsity make the mid-to-tail eigenspectrum easier to distort. This suggests a two-level strategy: pre-activation soft and hard ranks for low-cost, frequent monitoring, and full-batch post-activation ranks when making claims about realized capacity.
+Logging this telemetry is inexpensive. Soft and hard ranks are computed from the eigenspectrum of a layer's FFN post-activation covariance, requiring eigenvalues but not stored eigenvectors. In our prior ICLR 2026 work, NerVE (<a href="https://arxiv.org/abs/2603.06922" target="_blank" rel="noopener noreferrer">Jha and Reagen, 2026</a>), logging these quantities every 1,000 steps on GPT-2-scale runs added roughly 1% wall-clock overhead and tens of megabytes of GPU memory per layer.
 
+The logging strategy should distinguish monitoring from final measurement. Pre-activation spectra are stable under token subsampling and are useful for low-cost, frequent monitoring. Post-activation spectra are more sensitive — especially hard-rank estimates in the tail — because the nonlinearity and token sparsity make the mid-to-tail eigenspectrum easier to distort. A practical strategy is therefore two-level: use pre-activation soft and hard ranks for frequent telemetry, and use full-batch post-activation ranks when making claims about realized capacity.
 
 ## 7. What this does not claim
 {: #what-this-does-not-claim}
