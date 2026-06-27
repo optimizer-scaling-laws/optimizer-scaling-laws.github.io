@@ -227,7 +227,6 @@ This post starts from a single finding and asks what follows from it. Classical 
       </ol>
     </li>
     <li><a href="#why-optimizer-choice-changes-capacity-not-just-speed">Why optimizer choice changes capacity, not just speed</a></li>
-    <li><a href="#the-design-object-is-the-architecture-optimizer-pair">Architecture–optimizer co-design</a></li>
     <li><a href="#what-changes-in-pretraining-practice">What changes in pretraining practice?</a></li>
     <li><a href="#what-this-does-not-claim">What this does not claim</a></li>
     <li><a href="#open-questions">Open questions</a></li>
