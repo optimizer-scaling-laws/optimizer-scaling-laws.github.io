@@ -197,8 +197,8 @@ h2#tldr {
 <p><strong>Capacity is not only what the architecture makes possible, it is what training converts into variance-carrying representation.</strong></p>
 <ul>
   <li><strong>Finding.</strong> Holding architecture, training data, tokenizer, and FFN-width schedule fixed, optimizer choice changes the spectral capacity realized inside FFN representations.</li>
-  <li><strong>Matched loss is not matched representation.</strong> The same architecture can reach similar validation loss under different optimizers while learning different representation. Longer AdamW training can match Dion-1/16 in validation loss, but not in dominant-mode capacity scaling.</li>
-  <li><strong>Implication.</strong> Architecture determines the available degrees of freedom, training dynamics determine which of them become variance-carrying representation directions, and how they are allocated across token-frequency regimes. The effect is strongest for rare tokens, where sparse supervision leaves more room for optimizer-induced bias to shape the learned representation.</li>
+  <li><strong>Matched loss is not matched representation.</strong> The same architecture can reach similar validation loss under different optimizers while learning different representation. Longer AdamW training can match Dion-1/16 in validation loss, but not in realized capacity scaling.</li>
+  <li><strong>Implication.</strong> Architecture determines the available degrees of freedom, training dynamics determine which of them become active, variance-carrying representation directions, and how they are allocated across token-frequency regimes. The effect is strongest for rare tokens, where sparse supervision leaves more room for optimizer-induced bias to shape the learned representation.</li>
 </ul>
 </div>
 
