@@ -449,14 +449,7 @@ R_2(p) = \frac{1}{\sum_i p_i^2}.
 $$
 </div>
 
-These are the two capacity measures from Section 1, now made precise: diffuse capacity is the soft spectral rank, $R_{\mathrm{soft}} = R_1$; dominant-mode capacity is the hard spectral rank, $R_{\mathrm{hard}} = R_2$. Capacity asymmetry is their log-ratio,
-
-$$
-\Delta = \log R_{\mathrm{soft}} - \log R_{\mathrm{hard}}
-= \log\left(R_{\mathrm{soft}} / R_{\mathrm{hard}}\right),
-$$
-
-the multiplicative gap between diffuse and dominant-mode capacity in a single model. 
+These are the two capacity measures from Section 1, now made precise: diffuse capacity is the soft spectral rank, $R_{\mathrm{soft}} = R_1$; dominant-mode capacity is the hard spectral rank, $R_{\mathrm{hard}} = R_2$. Capacity asymmetry is their log-ratio, $\log\left(R_{\mathrm{soft}} / R_{\mathrm{hard}}\right)$, the multiplicative gap between diffuse and dominant-mode capacity in a single model. 
 
 Because $R_{\mathrm{soft}}$ and $R_{\mathrm{hard}}$ are Rényi effective ranks of orders 1 and 2, and Rényi rank is non-increasing in the order, the hard rank can never exceed the soft rank. This makes the upper-left region of the phase map in Figure 4 necessarily forbidden, not merely unobserved, and the frontier $R_{\mathrm{hard}} = R_{\mathrm{soft}}$ a true boundary. The exponent gap reported in the figures, $\Delta\beta = \beta_{\mathrm{soft}} - \beta_{\mathrm{hard}}$, measures how capacity asymmetry scales as the FFN widens.  
 
