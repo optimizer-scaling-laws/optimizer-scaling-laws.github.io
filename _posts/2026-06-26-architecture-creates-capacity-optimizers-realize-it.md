@@ -375,7 +375,7 @@ Section 2 made this concrete: matched validation loss can mask different spectra
 <td>Names the missing internal axis: how much architectural capacity becomes realized spectral capacity.</td>
 </tr>
 <tr>
-<td>Reachable capacity is optimizer-conditional</td>
+<td>Reachable solution is optimizer-conditional</td>
 <td>The same architecture does not imply the same reachable solution.</td>
 <td>Explains why optimizer-induced bias can shape capacity allocation, even under fixed architecture.</td>
 </tr>
