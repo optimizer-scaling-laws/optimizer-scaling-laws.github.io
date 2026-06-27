@@ -273,7 +273,7 @@ These are GPT-2-scale studies, including 160M and 350M model families on FineWeb
 
 A natural objection is that one optimizer may merely train faster. The matched-loss comparison tests that possibility.
 
-Extending AdamW training from 6K to 12K improves validation perplexity and brings it close to Dion-1/16 across the FFN-width sweep. But the realized-capacity profiles do not match, AdamW-12K remains much weaker in dominant-mode capacity scaling.
+Extending AdamW training from 6K to 12K training steps improves validation perplexity and brings it close to Dion-1/16 across the FFN-width sweep. But the realized-capacity scaling does not match; AdamW-12K remains much weaker in dominant-mode capacity scaling.
 
 The scaling trend is counterintuitive: longer AdamW training improves loss, however, weakens dominant-mode scaling---the hard-rank exponent drops from **0.29** to **0.03**. That is, the added FFN width no longer converts into spectral capacity, particularly in wider models, even when loss continues to improve.
 
