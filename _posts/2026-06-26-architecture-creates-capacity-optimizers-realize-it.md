@@ -559,7 +559,7 @@ First, spectral rank is not a complete theory of intelligence, generalization, o
 
 Second, higher realized spectral capacity is not automatically better in every setting. The important question is not simply whether capacity increases, but where that capacity appears, whether it is stable, and whether it predicts behavior, transfer, or future learnability.
 
-Third, optimizer–architecture co-design does not imply that the optimizer replaces architecture. Architecture remains a fundamental constraint: optimizers cannot create guarantees what the architecture does not support, or remove inference costs imposed by the computation graph. It also cannot represent functions excluded by the model class.
+Third, optimizer–architecture co-design does not imply that the optimizer replaces architecture. Architecture remains a fundamental constraint: optimizers cannot create what the architecture does not support, or remove inference costs imposed by the computation graph. It also cannot represent functions outside the model hypothesis class.
 
 Fourth, the scale question remains open. The evidence here shows that optimizer choice changes realized spectral capacity at the GPT-2 160M/350M scale. Stronger claims require larger models, longer training runs, broader architectural families, downstream performanc analysis, continual-learning tests, and direct studies of rare-regime behavior.
 
@@ -567,7 +567,8 @@ Fourth, the scale question remains open. The evidence here shows that optimizer 
 ## 8. Open questions
 {: #open-questions}
 
-If realized capacity is measurable and optimizer-conditional, the open questions become concrete: what it predicts, what it reveals about internal computation, how architecture and optimization interact, and how to act on it in design.
+If realized capacity is measurable and optimizer-conditional, the open research questions become concrete: what it predicts and reveals about internal computation, how architecture and optimization interact, and and how these measurements should complement loss-based scaling laws in guiding model design.
+
 
 **1. Which spectral differences predict downstream behavior?**
 If two models have similar loss but different realized capacity, which spectral axes predict transfer, robustness, rare-token reliability, or domain adaptation?
@@ -579,24 +580,23 @@ A model with similar loss but different spectral allocation may differ in its ab
 If the optimizer changes which routes through the model carry meaningful signal, then circuits discovered in one trained model may not be stable across optimizers, even with the same architecture (<a href="https://transformer-circuits.pub/2021/framework/index.html" target="_blank" rel="noopener noreferrer">Elhage et al., 2021</a>).
 
 **4. How do architecture and optimizer modulate each other?**
-The effect of an architectural change can depend on the optimizer. Removing RoPE, for instance, shifts perplexity by different amounts across optimizers. Likewise, the FFN nonlinearity can reshape spectra in an optimizer-dependent way: the optimizer that enters the nonlinearity with the most capacity is not always the one that leaves with it. Whether these interactions are systematic — predictable from the architecture–optimizer pair rather than either component alone — remains largely unstudied.
+Architectural interventions do not act in isolation; their effects is modulated by the optimizer. Removing RoPE, for example, changes perplexity by different amounts across optimizers. A similar interaction appears inside the FFN: the nonlinearity can reorder realized-capacity differences across optimizers, so the optimizer with the highest pre-activation capacity is not necessarily the one with the highest post-activation capacity. The open question is whether such interactions can be predicted from the architecture–optimizer pair.
 
 **5. How should we search over architecture–optimizer pairs?**
-Neural architecture search typically fixes the optimizer. Optimizer evaluation typically fixes the architecture. The co-design view suggests that this may miss regions where neither component looks optimal alone, but the pair is strong.
+Neural architecture search typically fixes the optimizer. Optimizer evaluation typically fixes the architecture. The co-design view suggests that this may miss regions where neither component looks optimal alone, rather their correct pair offers stronger performance.
 
 
 ## 9. Conclusion: toward capacity-aware LLM design
 {: #conclusion-toward-capacity-aware-llm-design}
 
-The core claim is direct: if two optimizers train the same architecture but produce different spectral-capacity scaling, optimizer choice has changed the model's realized capacity. The matched-loss comparison in Figure 2 strengthens the point: similar validation loss does not imply matched representation geometry. Figure 3 shows where the measured difference is largest: MID and TAIL regimes, where optimizer-induced bias can shape capacity allocation across the data distribution.
+The key finding is: if two optimizers train the same architecture but produce different spectral-capacity scaling, optimizer choice has changed the model's realized capacity. The matched-loss comparison in Figure 2 strengthens this point: similar validation loss does not imply matched representation geometry. Further, Figure 3 shows where the measured difference is largest: MID and TAIL regimes, where optimizer-induced bias can shape capacity allocation across the data distribution.
 
 The three views above point to the same gap: scalar objectives are not internal structure, nominal capacity is not realized capacity, and reachable capacity is optimizer-conditional.
 
-The next generation of LLM design should therefore ask more than how many parameters we train, how many tokens we consume, or how low the loss goes. It should also ask what capacity becomes realized and where it appears in the data distribution.
+The next generation of model design should therefore ask more than how many parameters we train, how many tokens we consume, or how low the loss goes. It should also ask what capacity becomes realized and where it appears in the data distribution.
 
 > **Capacity-aware LLM design means tracking not only what the model could represent, but what training actually realized — and then testing which realized directions support behavior, transfer, and future learning.**
 
-Architecture creates the space of possible computation. Optimization helps decide which parts of that space training makes active, stable, and measurable as internal structure.
 
 ## Citation
 {: #citation}
