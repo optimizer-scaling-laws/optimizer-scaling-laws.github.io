@@ -262,7 +262,7 @@ Figure 1 gives the global view of realized capacity scaling. AdamW shows the wea
 
 The full result tables, frequency-conditioned fits, and ablations are on the <a href="https://optimizer-scaling-laws.github.io/" target="_blank" rel="noopener noreferrer">project page</a>.
 
-These are GPT-2-scale studies, including 160M and 350M model families on FineWeb-Edu. They show that optimizer choice can change realized spectral capacity-scaling under matched architecture and training data; they do not guarantee that the same optimizer ordering must persist at multi-billion-parameter scale. To ensure this, a calibrated billion-scale sweep that keeps architecture, training data, tokenizer, FFN-width schedule fixed, while measuring whether the same diffuse, dominant-mode, and HEAD/MID/TAIL effects persist.
+These are GPT-2-scale studies, including 160M and 350M model families on FineWeb-Edu. They show that optimizer choice can change realized spectral capacity-scaling under matched architecture and training data; they do not guarantee that the same optimizer ordering must persist at multi-billion-parameter scale. Establishing this would require a calibrated billion-scale sweep that holds architecture, training data, tokenizer, and FFN-width schedule fixed while measuring whether the same diffuse, dominant-mode, and HEAD/MID/TAIL effects persist.
 
 <p class="takeaway-inline"><strong>Takeaway.</strong> Optimizer choice can change not only convergence speed or final loss, but the scaling law exponents by which added FFN width becomes realized spectral capacity.</p>
 
@@ -478,7 +478,7 @@ The reason the conjecture matters is that loss can decouple from adaptability, j
 
 If a model’s future ability to learn depends on how many representation directions remain active, then realized capacity becomes a natural plasticity diagnostic. A consistent observation made in the plasticity literature is the loss of active directions; dormant units, falling effective feature rank, or degenerating curvature spectra across reinforcement learning, vision, and language (<a href="https://arxiv.org/abs/2303.07507" target="_blank" rel="noopener noreferrer">Abbas et al., 2023</a>; <a href="https://www.nature.com/articles/s41586-024-07711-7" target="_blank" rel="noopener noreferrer">Dohare et al., 2024</a>; <a href="https://arxiv.org/abs/2402.18762" target="_blank" rel="noopener noreferrer">Lyle et al., 2024</a>; <a href="https://arxiv.org/abs/2509.22335" target="_blank" rel="noopener noreferrer">He et al., 2025</a>). 
 
-At LLM scale, similar symptoms appear as dormant FFN units and attention heads that either collapse into over-concentrated patterns or become nearly uniform as the model’s ability to learn from new data declines. Although mechanisms differ across these studies, but the recurring pattern is the same; learning can lose usable degrees of freedom before loss makes that failure obvious. 
+At LLM scale, similar symptoms appear as dormant FFN units and attention heads that either collapse into over-concentrated patterns or become nearly uniform as the model’s ability to learn from new data declines. Although mechanisms differ across these studies, the recurring pattern is the same; learning can lose usable degrees of freedom before loss makes that failure obvious. 
 
 
 **Two complementary biases on one quantity.** Realized capacity tracks the representation directions that become active and variance-carrying. Architecture supplies the structural constraints; optimization supplies the dynamical bias that determines which of those directions are actually realized during training.
@@ -561,13 +561,13 @@ Second, higher realized spectral capacity is not automatically better in every s
 
 Third, optimizer–architecture co-design does not imply that the optimizer replaces architecture. Architecture remains a fundamental constraint: optimizers cannot create what the architecture does not support, or remove inference costs imposed by the computation graph. It also cannot represent functions outside the model hypothesis class.
 
-Fourth, the scale question remains open. The evidence here shows that optimizer choice changes realized spectral capacity at the GPT-2 160M/350M scale. Stronger claims require larger models, longer training runs, broader architectural families, downstream performanc analysis, continual-learning tests, and direct studies of rare-regime behavior.
+Fourth, the scale question remains open. The evidence here shows that optimizer choice changes realized spectral capacity at the GPT-2 160M/350M scale. Stronger claims require larger models, longer training runs, broader architectural families, downstream performance analysis, continual-learning tests, and direct studies of rare-regime behavior.
 
 
 ## 8. Open questions
 {: #open-questions}
 
-If realized capacity is measurable and optimizer-conditional, the open research questions become concrete: what it predicts and reveals about internal computation, how architecture and optimization interact, and and how these measurements should complement loss-based scaling laws in guiding model design.
+If realized capacity is measurable and optimizer-conditional, the open research questions become concrete: what it predicts and reveals about internal computation, how architecture and optimization interact, and how these measurements should complement loss-based scaling laws in guiding model design.
 
 
 **1. Which spectral differences predict downstream behavior?**
@@ -580,10 +580,10 @@ A model with similar loss but different spectral allocation may differ in its ab
 If the optimizer changes which routes through the model carry meaningful signal, then circuits discovered in one trained model may not be stable across optimizers, even with the same architecture (<a href="https://transformer-circuits.pub/2021/framework/index.html" target="_blank" rel="noopener noreferrer">Elhage et al., 2021</a>).
 
 **4. How do architecture and optimizer modulate each other?**
-Architectural interventions do not act in isolation; their effects is modulated by the optimizer. Removing RoPE, for example, changes perplexity by different amounts across optimizers. A similar interaction appears inside the FFN: the nonlinearity can reorder realized-capacity differences across optimizers, so the optimizer with the highest pre-activation capacity is not necessarily the one with the highest post-activation capacity. The open question is whether such interactions can be predicted from the architecture–optimizer pair.
+Architectural interventions do not act in isolation; their effects are modulated by the optimizer. Removing RoPE, for example, changes perplexity by different amounts across optimizers. A similar interaction appears inside the FFN: the nonlinearity can reorder realized-capacity differences across optimizers, so the optimizer with the highest pre-activation capacity is not necessarily the one with the highest post-activation capacity. The open question is whether such interactions can be predicted from the architecture–optimizer pair.
 
 **5. How should we search over architecture–optimizer pairs?**
-Neural architecture search typically fixes the optimizer. Optimizer evaluation typically fixes the architecture. The co-design view suggests that this may miss regions where neither component looks optimal alone, rather their correct pair offers stronger performance.
+Neural architecture search typically fixes the optimizer. Optimizer evaluation typically fixes the architecture. The co-design view suggests that this may miss regions where neither component looks optimal alone, yet their correct pairing offers stronger performance.
 
 
 ## 9. Conclusion: toward capacity-aware LLM design
