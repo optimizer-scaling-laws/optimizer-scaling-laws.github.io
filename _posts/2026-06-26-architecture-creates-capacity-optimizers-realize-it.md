@@ -6,7 +6,7 @@ author: "Nandan Kumar Jha"
 date: 2026-06-26
 permalink: /blog/optimizer-induced-capacity/
 description: "Why LLM scaling should account for realized capacity: the same architecture and training data can produce different internal spectral capacity under different optimizers."
-reading_time: "~26 min read"
+reading_time: "~24 min read"
 image: /assets/blog/architecture-optimizer-codesign/figure0_same_architecture_same_data_different_optimizer.png
 tags:
   - scaling-laws
@@ -221,7 +221,7 @@ This post starts from a single finding and asks what follows from it. Classical 
     <li>
       <a href="#three-views-of-the-same-gap">Three views of the same gap</a>
       <ol>
-        <li><a href="#view-i-scalar-objectives-under-identify-internal-structure">Scalar objectives are not internal structure</a></li>
+        <li><a href="#view-i-scalar-objectives-are-not-internal-structure">Scalar objectives are not internal structure</a></li>
         <li><a href="#view-ii-nominal-capacity-is-not-realized-capacity">Nominal capacity is not realized capacity</a></li>
         <li><a href="#view-iii-reachable-solution-is-optimizer-conditional">Reachable solution is optimizer-conditional</a></li>
       </ol>
@@ -290,11 +290,11 @@ This gap is not an artifact of learning-rate tuning. Our learning-rate sweep sho
 ## 3. Rare tokens expose optimizer-induced capacity allocation
 {: #rare-tokens-expose-optimizer-induced-capacity-allocation}
 
-Natural language is long-tailed. A small number of HEAD tokens receive dense, repeated training signal; TAIL tokens receive sparse, noisy, intermittent signal.
+Natural language is long-tailed, and language models are known to struggle disproportionately on its rare tokens (<a href="https://arxiv.org/abs/2211.08411" target="_blank" rel="noopener noreferrer">Kandpal et al., 2023</a>). A small number of HEAD tokens receive dense, repeated training signal; TAIL tokens receive sparse, noisy, intermittent signal. 
 
-This suggests a straightforward regime-dependent interpretation. For HEAD tokens, dense supervision leaves optimizers less room to produce qualitatively different representations. For TAIL tokens, sparse supervision gives optimizer-induced bias more degrees of freedom in determining which weak signals become variance-carrying representation directions.
+This suggests a straightforward regime-dependent interpretation. For HEAD tokens, dense supervision leaves optimizers less room to produce qualitatively different representations. For TAIL tokens, sparse supervision gives optimizer-induced bias more degrees of freedom in determining which weak signals become variance-carrying representation directions. 
 
-In Bayesian terms, dense regimes are likelihood-dominated, while sparse regimes are more prior-sensitive. In this analogy, the optimizer contributes an implicit bias over which solutions training is likely to reach.
+In Bayesian terms, dense regimes are likelihood-dominated, while sparse regimes are more prior-sensitive. In this analogy, the optimizer contributes an implicit bias over which solutions training is likely to reach. This makes the TAIL a particularly important place to look for optimizer-induced differences in capacity allocation.
 
 
 <table>
@@ -385,7 +385,7 @@ The sequence moves from measurement to mechanism: scalar objectives can obscure 
 
 
 ### View I — Scalar objectives are not internal structure
-{: #view-i-scalar-objectives-under-identify-internal-structure}
+{: #view-i-scalar-objectives-are-not-internal-structure}
 
 Loss, gradient norms, and downstream evaluations are useful signals, but no single scalar metric fully describes a trained model’s learned representation or solution geometry. The same value can arise from different internal structures: variance may spread across many directions, concentrate in a few dominant modes, or appear unevenly across token-frequency regimes. The matched-loss result above is one spectral-capacity instance of this broader under-identification problem.
 
@@ -546,22 +546,23 @@ These diagnostics are lightweight telemetry signals. They make optimizer compari
 
 The same measurements extend beyond a single training run. Classical scaling laws predict loss from parameters, data, and compute (<a href="https://arxiv.org/abs/2001.08361" target="_blank" rel="noopener noreferrer">Kaplan et al., 2020</a>; <a href="https://arxiv.org/abs/2203.15556" target="_blank" rel="noopener noreferrer">Hoffmann et al., 2022</a>) and remain central. A capacity-aware scaling law would complement them with internal variables — diffuse capacity, dominant-mode capacity, capacity asymmetry, and frequency-conditioned capacity — as functions of width, depth, optimizer, and data. This also aligns with recent arguments that AI systems should be studied as training processes, not only as static artifacts analyzed after training (<a href="https://arxiv.org/abs/2606.06533" target="_blank" rel="noopener noreferrer">Biderman et al., 2026</a>).
 
-Logging this telemetry is inexpensive. Soft and hard ranks are computed from the eigenspectrum of a layer's FFN post-activation covariance, requiring eigenvalues but not stored eigenvectors. In our prior <a href="https://arxiv.org/abs/2603.06922" target="_blank" rel="noopener noreferrer">ICLR 2026</a> work, logging these quantities every 1,000 steps on GPT-2-scale runs added roughly 1% wall-clock overhead and tens of megabytes of GPU memory per layer.
+Logging this telemetry is inexpensive. Soft and hard ranks are computed from the eigenspectrum of a layer's FFN post-activation covariance, requiring eigenvalues but not stored eigenvectors. In our prior <a href="https://arxiv.org/abs/2603.06922" target="_blank" rel="noopener noreferrer">ICLR 2026</a> work, logging these quantities every 1,000 steps on GPT-2-scale runs added roughly 1% wall-clock overhead and tens of megabytes of GPU memory.
 
 The logging strategy should distinguish monitoring from final measurement. Pre-activation spectra are stable under token subsampling and are useful for low-cost, frequent monitoring. Post-activation spectra are more sensitive, especially hard-rank estimates in the tail, because the nonlinearity and token sparsity make the mid-to-tail eigenspectrum easier to distort. A practical strategy is therefore two-level; use pre-activation soft and hard ranks for frequent telemetry, and use full-batch post-activation ranks when making claims about realized capacity.
 
 ## 7. What this does not claim
 {: #what-this-does-not-claim}
 
-The claim here is narrow: holding architecture, data, and tokenizer fixed, optimizer choice changes realized spectral capacity. The boundaries below mark what it does not establish.
+The claim here is specific and empirical: when architecture, training data, and tokenizer are held fixed, optimizer choice can change realized spectral capacity. The following points clarify what this result does not establish.
 
-First, spectral rank is not a complete theory of intelligence, generalization, or downstream ability. It is a telemetry signal that should be interpreted alongside loss, evaluations, robustness, calibration, interpretability, and task-specific metrics.
+First, spectral rank is not a complete theory of intelligence, generalization, or downstream ability. It is a principled measure of representational structure and should be read alongside held-out loss, task-level performance, controlled ablations, and other problem-specific measures.
 
-Second, more realized spectral capacity is not automatically better. The important question is where capacity appears, whether it is stable, and whether it predicts behavior, robustness, transfer, or future learnability.
+Second, higher realized spectral capacity is not automatically better in every setting. The important question is not simply whether capacity increases, but where that capacity appears, whether it is stable, and whether it predicts behavior, transfer, or future learnability.
 
-Third, co-design is not optimizer maximalism. Architecture remains indispensable: optimizers cannot create the guarantees architecture provides by construction, reduce inference cost structurally, or represent functions excluded by the architecture.
+Third, optimizer–architecture co-design does not imply that the optimizer replaces architecture. Architecture remains a fundamental constraint: optimizers cannot create guarantees what the architecture does not support, or remove inference costs imposed by the computation graph. It also cannot represent functions excluded by the model class.
 
-Fourth, the scale question remains open. The present evidence establishes an optimizer-induced capacity-scaling effect at GPT-2 160M/350M scale. Stronger frontier-scale claims require larger models, longer training, more architectures, downstream probes, continued-learning tests, interpretability comparisons, and direct studies of rare-regime behavior.
+Fourth, the scale question remains open. The evidence here shows that optimizer choice changes realized spectral capacity at the GPT-2 160M/350M scale. Stronger claims require larger models, longer training runs, broader architectural families, downstream performanc analysis, continual-learning tests, and direct studies of rare-regime behavior.
+
 
 ## 8. Open questions
 {: #open-questions}
@@ -632,11 +633,12 @@ If you find this post useful, please cite the associated paper.
   <li>Chen, H., Zhang, H., Li, X., Dong, Y., Shen, K., and Zhu, J. <em>Nexus: Same Pretraining Loss, Better Downstream Generalization via Common Minima</em>. arXiv:2604.09258, 2026. <a href="https://arxiv.org/abs/2604.09258" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Li, M. Z., Agrawal, K. K., Ghosh, A., Teru, K. K., Santoro, A., Lajoie, G., and Richards, B. A. <em>Tracing the Representation Geometry of Language Models from Pretraining to Post-training</em>. arXiv:2509.23024, 2025a. <a href="https://arxiv.org/abs/2509.23024" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Biderman, S., Khan, M. A., Mireshghallah, N., Arnett, C., Barez, F., and Saphra, N. <em>Position: Don't Just "Fix it in Post": A Science of AI Must Study Training Dynamics</em>. arXiv:2606.06533, 2026. <a href="https://arxiv.org/abs/2606.06533" target="_blank" rel="noopener noreferrer">arXiv</a></li>
+  <li>Kandpal, N., Deng, H., Roberts, A., Wallace, E., and Raffel, C. <em>Large Language Models Struggle to Learn Long-Tail Knowledge</em>. ICML, 2023. <a href="https://arxiv.org/abs/2211.08411" target="_blank" rel="noopener noreferrer">arXiv</a></li>
 </ol>
 
 <h3>Optimization and optimizer-induced bias</h3>
 
-<ol class="references-list" start="8">
+<ol class="references-list" start="9">
   <li>Loshchilov, I., and Hutter, F. <em>Decoupled Weight Decay Regularization</em>. ICLR, 2019. <a href="https://arxiv.org/abs/1711.05101" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Gupta, V., Koren, T., and Singer, Y. <em>Shampoo: Preconditioned Stochastic Tensor Optimization</em>. ICML, 2018. <a href="https://arxiv.org/abs/1802.09568" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Jordan, K. et al. <em>Muon: An Optimizer for Hidden Layers in Neural Networks</em>. Original public technical write-up, 2024. <a href="https://kellerjordan.github.io/posts/muon/" target="_blank" rel="noopener noreferrer">write-up</a></li>
@@ -647,7 +649,7 @@ If you find this post useful, please cite the associated paper.
 
 <h3>Spectral capacity and information-theoretic framing</h3>
 
-<ol class="references-list" start="14">
+<ol class="references-list" start="15">
   <li>Alemi, A. A., Poole, B., Fischer, I., Dillon, J. V., Saurous, R. A., and Murphy, K. <em>Fixing a Broken ELBO</em>. ICML, 2018. <a href="https://proceedings.mlr.press/v80/alemi18a.html" target="_blank" rel="noopener noreferrer">PMLR</a></li>
   <li>Gao, Y., and Chaudhari, P. <em>A Free-Energy Principle for Representation Learning</em>. ICML, 2020. <a href="https://proceedings.mlr.press/v119/gao20a.html" target="_blank" rel="noopener noreferrer">PMLR</a></li>
   <li>Rényi, A. <em>On Measures of Entropy and Information</em>. Proceedings of the Fourth Berkeley Symposium on Mathematical Statistics and Probability, 1961. <a href="https://projecteuclid.org/ebooks/berkeley-symposium-on-mathematical-statistics-and-probability/On-Measures-of-Entropy-and-Information/chapter/On-Measures-of-Entropy-and-Information/bsmsp/1200512181" target="_blank" rel="noopener noreferrer">Project Euclid</a></li>
@@ -657,7 +659,7 @@ If you find this post useful, please cite the associated paper.
 
 <h3>Inductive bias and interpretability</h3>
 
-<ol class="references-list" start="19">
+<ol class="references-list" start="20">
   <li>Goldblum, M., Finzi, M., Rowan, K., and Wilson, A. G. <em>The No Free Lunch Theorem, Kolmogorov Complexity, and the Role of Inductive Biases in Machine Learning</em>. ICML, 2024. <a href="https://arxiv.org/abs/2304.05366" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Wilson, A. G. <em>Deep Learning is Not So Mysterious or Different</em>. ICML, 2025. <a href="https://arxiv.org/abs/2503.02113" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Elhage, N. et al. <em>A Mathematical Framework for Transformer Circuits</em>. Transformer Circuits, 2021. <a href="https://transformer-circuits.pub/2021/framework/index.html" target="_blank" rel="noopener noreferrer">article</a></li>
@@ -665,7 +667,7 @@ If you find this post useful, please cite the associated paper.
 
 <h3>Plasticity and continual learning</h3>
 
-<ol class="references-list" start="22">
+<ol class="references-list" start="23">
   <li>Mirzadeh, S. I., Chaudhry, A., Yin, D., Hu, H., Pascanu, R., Gorur, D., and Farajtabar, M. <em>Wide Neural Networks Forget Less Catastrophically</em>. ICML, 2022. <a href="https://arxiv.org/abs/2110.11526" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Lu, A., Yuan, H., Feng, T., and Sun, Y. <em>Rethinking the Stability-Plasticity Trade-off in Continual Learning from an Architectural Perspective</em>. ICML, 2025. <a href="https://arxiv.org/abs/2506.03951" target="_blank" rel="noopener noreferrer">arXiv</a></li>
   <li>Abbas, Z., Zhao, R., Modayil, J., White, A., and Machado, M. C. <em>Loss of Plasticity in Continual Deep Reinforcement Learning</em>. arXiv:2303.07507, 2023. <a href="https://arxiv.org/abs/2303.07507" target="_blank" rel="noopener noreferrer">arXiv</a></li>
