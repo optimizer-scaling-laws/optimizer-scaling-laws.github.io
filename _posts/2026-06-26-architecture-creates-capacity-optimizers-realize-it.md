@@ -384,7 +384,7 @@ Section 2 made this concrete: matched validation loss can mask different spectra
 The sequence moves from measurement to mechanism: scalar objectives can obscure the model’s internal state, realized capacity names the missing internal axis, and optimizer-induced bias explains why the reachable solution can change under fixed architecture.
 
 
-### View I — Scalar objectives are not internal structure
+### View I — Scalar objectives under-identify internal structure
 {: #view-i-scalar-objectives-are-not-internal-structure}
 
 Loss, gradient norms, and downstream evaluations are useful signals, but no single scalar metric fully describes a trained model’s learned representation or solution geometry. The same value can arise from different internal structures: variance may spread across many directions, concentrate in a few dominant modes, or appear unevenly across token-frequency regimes. The matched-loss result above is one spectral-capacity instance of this broader under-identification problem.
