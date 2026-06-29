@@ -197,12 +197,12 @@ h2#tldr {
 <p><strong>Capacity is not only what the architecture makes possible, it is what training converts into variance-carrying representation.</strong></p>
 <ul>
   <li><strong>Finding.</strong> Holding architecture, training data, tokenizer, and FFN-width schedule fixed, optimizer choice changes the spectral capacity realized inside FFN representations.</li>
-  <li><strong>Matched loss is not matched representation.</strong> The same architecture can reach similar validation loss under different optimizers while learning different representation. Longer AdamW training can match Dion-1/16 in validation loss, but not in capacity scaling.</li>
+  <li><strong>Matched loss is not matched representation.</strong> The same architecture can reach similar validation loss under different optimizers while learning different representations. Longer AdamW training can match Dion-1/16 in validation loss, but not in capacity scaling.</li>
   <li><strong>Implication.</strong> Architecture determines the available degrees of freedom, training dynamics determine which of them become active, variance-carrying representation directions, and how they are allocated across token-frequency regimes. The effect is strongest for rare tokens, where sparse supervision leaves more room for optimizer-induced bias to shape the learned representation.</li>
 </ul>
 </div>
 
-Throughout this post, **realized capacity** means **realized spectral capacity**: variance-carrying eigenmodes in FFN eigenspectrum representation. Note that, it is not a complete measure of intelligence, transfer, or downstream capability; it is an internal telemetry signal that loss curves and parameter counts do not directly capture.
+Throughout this post, **realized capacity** means **realized spectral capacity**: variance-carrying eigenmodes in FFN eigenspectrum representation. Note that it is not a complete measure of intelligence, transfer, or downstream capability; it is an internal telemetry signal that loss curves and parameter counts do not directly capture.
 
 This post starts from a single finding and asks what follows from it. Classical scaling laws taught us to ask how loss changes with parameters, training data, and compute. They leave another question open: when we add architectural capacity, does training convert it into useful internal structure? In our experiments, that conversion depends strongly on optimizer choice, especially in rare-token regimes where supervision is sparse.
 
@@ -274,7 +274,7 @@ A natural objection is that one optimizer may merely train faster. The matched-l
 
 Extending AdamW training from 6K to 12K training steps improves validation perplexity and brings it close to Dion-1/16 across the FFN-width sweep. But the realized-capacity scaling does not match; AdamW-12K remains much weaker in dominant-mode capacity scaling.
 
-The scaling trend is counterintuitive: longer AdamW training improves loss, however, weakens dominant-mode scaling---the hard-rank exponent drops from **0.29** to **0.03**. That is, the added FFN width no longer converts into spectral capacity, particularly in wider models, even when loss continues to improve.
+The scaling trend is counterintuitive: longer AdamW training improves loss but weakens dominant-mode scaling---the hard-rank exponent drops from **0.29** to **0.03**. That is, the added FFN width no longer converts into spectral capacity, particularly in wider models, even when loss continues to improve.
 
 
 <figure class="figure-wide">
@@ -424,7 +424,7 @@ C_{\mathrm{nominal}}(\mathcal{A})
 $$
 </div>
 
-Here, $\mathcal{A}$ is the architecture, $\mathcal{O}$ is the optimizer/training algorithm, and $\mathcal{D}$ is the training data. This is not a literal scalar law; it is a design principle. Architecture sets nominal capacity. Optimization and training data influence how much of that capacity realized in representation space. Whether that structure is behaviorally useful must be tested separately.
+Here, $\mathcal{A}$ is the architecture, $\mathcal{O}$ is the optimizer/training algorithm, and $\mathcal{D}$ is the training data. This is not a literal scalar law; it is a design principle. Architecture sets nominal capacity. Optimization and training data influence how much of that capacity is realized in representation space. Whether that structure is behaviorally useful must be tested separately.
 
 The same architectural intervention can therefore have different realized effects under different optimizers. If $\rho_{\mathrm{realized}}$ is high, added width translates into measured representation capacity. If it is low, added width raises the ceiling without filling it.
 
@@ -474,11 +474,11 @@ What this post adds is **a way to measure one such dynamical preference**. Reali
 Continual learning raises a forward-looking version of the same question. Forgetting asks whether a model retains the past; plasticity asks whether it can still learn the future. This is a **conjectural extension** of the spectral measurements in this post: we measure realized capacity at a fixed point, whereas future learnability depends on whether enough representation directions remain available for later adaptation.
 
 
-The reason the conjecture matters is that loss can decouple from adaptability, just as it decouples from realized capacity above. <a href="https://arxiv.org/abs/2602.11137" target="_blank" rel="noopener noreferrer">Han et al., 2026</a> showed that larger pretraining weight decay yields more adaptable base models — larger downstream gains after fine-tuning — even when validation loss would have selected a different checkpoint. At LLM scale, <a href="https://arxiv.org/abs/2606.24752" target="_blank" rel="noopener noreferrer">Hernandez-Garcia et al., 2026</a> demonstrate a similar effect; GPT-style models trained on long multilingual streams can lose the ability to learn a held-out language, even while validation loss continues to improve. That is, decreasing loss and reduced future learnability are  not mutually exclusive.
+The reason the conjecture matters is that loss can decouple from adaptability, just as it decouples from realized capacity above. <a href="https://arxiv.org/abs/2602.11137" target="_blank" rel="noopener noreferrer">Han et al., 2026</a> showed that larger pretraining weight decay yields more adaptable base models — larger downstream gains after fine-tuning — even though those models reach higher pretraining loss. The most adaptable base model is therefore not the one with the lowest pretraining loss; accepting a worse pretraining loss can buy better adaptation to later tasks. At LLM scale, <a href="https://arxiv.org/abs/2606.24752" target="_blank" rel="noopener noreferrer">Hernandez-Garcia et al., 2026</a> report a related effect; GPT-style models trained on long multilingual streams increasingly lose the ability to efficiently learn a held-out language as training continues. That is, continued training and reduced future learnability are not mutually exclusive.
 
 If a model’s future ability to learn depends on how many representation directions remain active, then realized capacity becomes a natural plasticity diagnostic. A consistent observation made in the plasticity literature is the loss of active directions; dormant units, falling effective feature rank, or degenerating curvature spectra across reinforcement learning, vision, and language (<a href="https://arxiv.org/abs/2303.07507" target="_blank" rel="noopener noreferrer">Abbas et al., 2023</a>; <a href="https://www.nature.com/articles/s41586-024-07711-7" target="_blank" rel="noopener noreferrer">Dohare et al., 2024</a>; <a href="https://arxiv.org/abs/2402.18762" target="_blank" rel="noopener noreferrer">Lyle et al., 2024</a>; <a href="https://arxiv.org/abs/2509.22335" target="_blank" rel="noopener noreferrer">He et al., 2025</a>). 
 
-At LLM scale, similar symptoms appear as dormant FFN units and attention heads that either collapse into over-concentrated patterns or become nearly uniform as the model’s ability to learn from new data declines. Although mechanisms differ across these studies, the recurring pattern is the same; learning can lose usable degrees of freedom before loss makes that failure obvious. 
+At LLM scale, the same loss of active directions appears as dormant FFN units and attention heads that either collapse onto a few positions or spread almost uniformly — correlates that track, imperfectly, a measured decline in the ability to learn from new data (<a href="https://arxiv.org/abs/2606.24752" target="_blank" rel="noopener noreferrer">Hernandez-Garcia et al., 2026</a>). 
 
 
 **Two complementary biases on one quantity.** Realized capacity tracks the representation directions that become active and variance-carrying. Architecture supplies the structural constraints; optimization supplies the dynamical bias that determines which of those directions are actually realized during training.
@@ -497,7 +497,7 @@ On the architectural side, width and depth appear to shape different parts of th
 
 On the optimizer side, plasticity can be restored by adding a fraction of the gradient's polar factor to each update, raising near-zero singular values that stability-preserving methods otherwise drive toward collapse (<a href="https://openreview.net/forum?id=b7P2WegaBY" target="_blank" rel="noopener noreferrer">Zheng et al., 2026</a>). Notably, this polar factor is mathematically related to the orthogonalization operation used in Muon-style updates. This makes the connection suggestive: the same class of geometry-shaping updates that changes spectral capacity here may also help preserve plasticity.
 
-At LLM scale, additional parameters postpone the onset of plasticity loss, but only sublinearly — delaying collapse without preventing it — while larger models can retain rare-task structure longer by reducing interference (<a href="https://arxiv.org/abs/2605.29548" target="_blank" rel="noopener noreferrer">Huang et al., 2026</a>).
+At LLM scale, additional parameters postpone the onset of plasticity loss, but only sublinearly — delaying collapse without preventing it (<a href="https://arxiv.org/abs/2606.24752" target="_blank" rel="noopener noreferrer">Hernandez-Garcia et al., 2026</a>) — while larger models can retain rare-task structure longer by reducing gradient interference between tasks (<a href="https://arxiv.org/abs/2605.29548" target="_blank" rel="noopener noreferrer">Huang et al., 2026</a>).
 
 
 The continual-learning implication is not that architecture ceases to matter. It is that capacity must be both realized during pretraining and preserved in a form that remains available for later learning. This is close to what formal definitions of plasticity try to measure; how much an agent can still be shaped by what it observes (<a href="https://arxiv.org/abs/2505.10361" target="_blank" rel="noopener noreferrer">Abel et al., 2025</a>). Which directions remain available depends jointly on architecture, optimizer, regularization, and training dynamics.
