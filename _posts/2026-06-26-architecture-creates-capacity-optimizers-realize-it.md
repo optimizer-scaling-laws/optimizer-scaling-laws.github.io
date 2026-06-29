@@ -221,7 +221,7 @@ This post starts from a single finding and asks what follows from it. Classical 
     <li>
       <a href="#three-views-of-the-same-gap">Three views of the same gap</a>
       <ol>
-        <li><a href="#view-i-scalar-objectives-are-not-internal-structure">Scalar objectives are not internal structure</a></li>
+        <li><a href="#view-i-scalar-objectives-are-not-internal-structure">Scalar objectives under-identify internal structure</a></li>
         <li><a href="#view-ii-nominal-capacity-is-not-realized-capacity">Nominal capacity is not realized capacity</a></li>
         <li><a href="#view-iii-reachable-solution-is-optimizer-conditional">Reachable solution is optimizer-conditional</a></li>
       </ol>
