@@ -364,7 +364,7 @@ Section 2 made this concrete: matched validation loss can mask different spectra
 </thead>
 <tbody>
 <tr>
-<td>Scalar objectives are not internal structure</td>
+<td>Scalar objectives under-identify internal structure</td>
 <td>Similar loss can mask different learned representations.</td>
 <td>Places the matched-loss result inside a broader failure mode of loss-only comparison.</td>
 </tr>
