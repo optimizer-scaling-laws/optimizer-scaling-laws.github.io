@@ -197,7 +197,7 @@ h2#tldr {
 <p><strong>Capacity is not only what the architecture makes possible, it is what training converts into variance-carrying representation.</strong></p>
 <ul>
   <li><strong>Finding.</strong> Holding architecture, training data, tokenizer, and FFN-width schedule fixed, optimizer choice changes the spectral capacity realized inside FFN representations.</li>
-  <li><strong>Matched loss is not matched representation.</strong> The same architecture can reach similar validation loss under different optimizers while learning different representations. Longer AdamW training can match Dion-1/16 in validation loss, but not in capacity scaling.</li>
+  <li><strong>Matched loss is not matched representation.</strong> The same architecture can reach similar validation loss under different optimizers while learning different representations. Longer AdamW training can match Dion-1/16 (a distributed low-rank-update optimizer; <a href="https://arxiv.org/abs/2504.05295" target="_blank" rel="noopener noreferrer">Ahn et al., 2025</a>) in validation loss, but not in capacity scaling: extending training improves loss while the hard-rank scaling exponent drops from 0.29 to 0.03.</li>
   <li><strong>Implication.</strong> Architecture determines the available degrees of freedom, training dynamics determine which of them become active, variance-carrying representation directions, and how they are allocated across token-frequency regimes. The effect is strongest for rare tokens, where sparse supervision leaves more room for optimizer-induced bias to shape the learned representation.</li>
 </ul>
 </div>
@@ -262,7 +262,7 @@ Figure 1 gives the global view of realized capacity scaling. AdamW shows the wea
 
 The full result tables, frequency-conditioned fits, and ablations are on the <a href="https://optimizer-scaling-laws.github.io/" target="_blank" rel="noopener noreferrer">project page</a>.
 
-These are GPT-2-scale studies, including 160M and 350M model families on FineWeb-Edu. They show that optimizer choice can change realized spectral capacity-scaling under matched architecture and training data; they do not guarantee that the same optimizer ordering must persist at multi-billion-parameter scale. Establishing this would require a calibrated billion-scale sweep that holds architecture, training data, tokenizer, and FFN-width schedule fixed while measuring whether the same diffuse, dominant-mode, and HEAD/MID/TAIL effects persist.
+These are GPT-2-scale studies, including 160M and 350M model families on FineWeb-Edu. They show that optimizer choice can change realized spectral capacity scaling under matched architecture and training data; they do not guarantee that the same optimizer ordering must persist at multi-billion-parameter scale. Establishing this would require a calibrated billion-scale sweep that holds architecture, training data, tokenizer, and FFN-width schedule fixed while measuring whether the same diffuse, dominant-mode, and HEAD/MID/TAIL effects persist.
 
 <p class="takeaway-inline"><strong>Takeaway.</strong> Optimizer choice can change not only convergence speed or final loss, but the scaling law exponents by which added FFN width becomes realized spectral capacity.</p>
 
@@ -559,7 +559,7 @@ First, spectral rank is not a complete theory of intelligence, generalization, o
 
 Second, higher realized spectral capacity is not automatically better in every setting. The important question is not simply whether capacity increases, but where that capacity appears, whether it is stable, and whether it predicts behavior, transfer, or future learnability.
 
-Third, optimizer–architecture co-design does not imply that the optimizer replaces architecture. Architecture remains a fundamental constraint: optimizers cannot create what the architecture does not support, or remove inference costs imposed by the computation graph. It also cannot represent functions outside the model hypothesis class.
+Third, optimizer–architecture co-design does not imply that the optimizer replaces architecture. Architecture remains a fundamental constraint: optimizers cannot create what the architecture does not support, or remove inference costs imposed by the computation graph. They also cannot represent functions outside the model hypothesis class.
 
 Fourth, the scale question remains open. The evidence here shows that optimizer choice changes realized spectral capacity at the GPT-2 160M/350M scale. Stronger claims require larger models, longer training runs, broader architectural families, downstream performance analysis, continual-learning tests, and direct studies of rare-regime behavior.
 
