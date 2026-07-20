@@ -546,7 +546,48 @@ These diagnostics are lightweight telemetry signals. They make optimizer compari
 
 The same measurements extend beyond a single training run. Classical scaling laws predict loss from parameters, data, and compute (<a href="https://arxiv.org/abs/2001.08361" target="_blank" rel="noopener noreferrer">Kaplan et al., 2020</a>; <a href="https://arxiv.org/abs/2203.15556" target="_blank" rel="noopener noreferrer">Hoffmann et al., 2022</a>) and remain central. A capacity-aware scaling law would complement them with internal variables — diffuse capacity, dominant-mode capacity, capacity asymmetry, and frequency-conditioned capacity — as functions of width, depth, optimizer, and data. This also aligns with recent arguments that AI systems should be studied as training processes, not only as static artifacts analyzed after training (<a href="https://arxiv.org/abs/2606.06533" target="_blank" rel="noopener noreferrer">Biderman et al., 2026</a>).
 
-Logging this telemetry is inexpensive. Soft and hard ranks are computed from the eigenspectrum of a layer's FFN post-activation covariance, requiring eigenvalues but not stored eigenvectors. In our prior <a href="https://arxiv.org/abs/2603.06922" target="_blank" rel="noopener noreferrer">ICLR 2026</a> work, logging these quantities every 1,000 steps on GPT-2-scale runs added roughly 1% wall-clock overhead and tens of megabytes of GPU memory.
+Logging this telemetry is inexpensive when the logging interval is chosen deliberately, and its cost is now measured rather than estimated. Soft and hard ranks are computed from the eigenspectrum of a layer's FFN post-activation covariance, requiring eigenvalues but not stored eigenvectors. The cost structure matters more than any single figure: telemetry performs no work on ordinary training steps, and its entire cost is concentrated in log events, where buffered activations are transferred back to the device, a covariance is formed per capture point, and one eigendecomposition is computed per covariance. Because eigendecomposition cost grows approximately cubically in the FFN hidden dimension, per-event cost rises steeply across the width sweep. We benchmarked this paper's telemetry configuration directly (<a href="https://github.com/optimizer-scaling-laws/spectral-scaling-laws/blob/main/scripts/bench/benchmark_tracker_overhead.py" target="_blank" rel="noopener noreferrer">benchmark script</a>):
+
+<table>
+<thead>
+<tr>
+<th>FFN width</th>
+<th>Pooled (s / event)</th>
+<th>+ frequency buckets (s / event)</th>
+<th>Pooled, per run</th>
+<th>+ buckets, per run</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$1\times$</td>
+<td>2.56</td>
+<td>4.64</td>
+<td>~1.3 min</td>
+<td>~2.4 min</td>
+</tr>
+<tr>
+<td>$4\times$</td>
+<td>5.75</td>
+<td>12.24</td>
+<td>~3.0 min</td>
+<td>~6.3 min</td>
+</tr>
+<tr>
+<td>$8\times$</td>
+<td>14.07</td>
+<td>36.98</td>
+<td>~7.3 min</td>
+<td>~19.1 min</td>
+</tr>
+</tbody>
+</table>
+
+Per-run totals assume this paper's 200-step logging interval (31 events per 6,000-step run), measured on a single GPU with bf16 autocast at sequence length 512. Production runs process more tokens per event, so these values are lower bounds; configuration details and reproduction commands are in <a href="https://github.com/optimizer-scaling-laws/spectral-scaling-laws/blob/main/docs/telemetry_overhead.md" target="_blank" rel="noopener noreferrer">docs/telemetry_overhead.md</a>.
+
+At the 200-step logging interval used in this paper, telemetry amounts to approximately 4% (pooled) to 7% (frequency-bucketed) of training wall-clock at $1\times$ FFN width, with per-event cost — and therefore overhead — increasing at wider configurations. At the 1,000-step logging interval used for the pooled telemetry in our prior <a href="https://arxiv.org/abs/2603.06922" target="_blank" rel="noopener noreferrer">ICLR 2026</a> work, the same measurement yields approximately 0.8%, consistent with the roughly 1% overhead reported there. GPU memory overhead is a few megabytes, as activations are buffered in host memory (1–2 GB at the benchmark settings above). Because cost is incurred only at log events, overhead is inversely proportional to the logging interval and can be reduced by logging less frequently. None of these costs affects the measured spectra themselves.
+
+<em>[Update, July 20, 2026: this paragraph previously reported the pooled, every-1,000-step overhead figure from our prior ICLR 2026 work; it now reports direct measurements of this paper's telemetry configuration.]</em>
 
 The logging strategy should distinguish monitoring from final measurement. Pre-activation spectra are stable under token subsampling and are useful for low-cost, frequent monitoring. Post-activation spectra are more sensitive, especially hard-rank estimates in the tail, because the nonlinearity and token sparsity make the mid-to-tail eigenspectrum easier to distort. A practical strategy is therefore two-level; use pre-activation soft and hard ranks for frequent telemetry, and use full-batch post-activation ranks when making claims about realized capacity.
 
